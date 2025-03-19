@@ -234,7 +234,7 @@ const AdminProducts = () => {
                     {/* Descripciones */}
                     <div className="mt-6 space-y-6">
                       {/* Descripción en español */}
-                      <div>
+                <div>
                         <label className="block text-sm font-medium text-gray-700">
                           {t('productForm.descriptionEs')}
                         </label>
@@ -244,10 +244,10 @@ const AdminProducts = () => {
                           rows="3"
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
-                      </div>
+                </div>
 
                       {/* Descripción en inglés */}
-                      <div>
+                <div>
                         <label className="block text-sm font-medium text-gray-700">
                           {t('productForm.descriptionEn')}
                         </label>
@@ -258,18 +258,18 @@ const AdminProducts = () => {
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   <div className="border-t pt-4">
-                    <ConfigurableProductManager
+                  <ConfigurableProductManager
                       product={product}
-                      onUpdate={async (updatedProduct) => {
-                        await updateProduct(updatedProduct.id, updatedProduct);
-                        setEditingProduct(null);
-                      }}
-                    />
-                  </div>
+                    onUpdate={async (updatedProduct) => {
+                      await updateProduct(updatedProduct.id, updatedProduct);
+                      setEditingProduct(null);
+                    }}
+                  />
+                </div>
                 </>
               )}
             </div>
