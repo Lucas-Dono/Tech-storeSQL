@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useAlert } from '../context/AlertContext';
-import { authService } from '../services/authService';
+import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
+import { authService } from '../../services/authService';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -16,11 +16,14 @@ const UserManagement = () => {
   const loadUsers = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Token:', token); // Debug log
+      console.log('Fetching users...'); // Debug log
       const response = await authService.getAllUsers(token);
+      console.log('Users response:', response); // Debug log
       setUsers(response);
     } catch (err) {
+      console.error('Error completo:', err); // Debug log
       showError('Error al cargar usuarios');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -33,8 +36,8 @@ const UserManagement = () => {
       success('Rol actualizado correctamente');
       loadUsers();
     } catch (err) {
+      console.error('Error al actualizar rol:', err); // Debug log
       showError('Error al actualizar el rol');
-      console.error(err);
     }
   };
 
@@ -45,8 +48,8 @@ const UserManagement = () => {
       success(currentStatus ? 'Usuario desactivado' : 'Usuario activado');
       loadUsers();
     } catch (err) {
+      console.error('Error al cambiar estado:', err); // Debug log
       showError('Error al cambiar el estado del usuario');
-      console.error(err);
     }
   };
 

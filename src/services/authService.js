@@ -63,10 +63,10 @@ export const authService = {
     }
   },
 
-  // Nuevas funciones para gestión de usuarios
+  // Funciones para gestión de usuarios
   async getAllUsers(token) {
     try {
-      const response = await fetch(`${API_URL}/auth/users`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.USERS}`, {
         method: 'GET',
         headers: getHeaders(token),
       });
@@ -86,7 +86,7 @@ export const authService = {
 
   async updateUserRole(userId, newRole, token) {
     try {
-      const response = await fetch(`${API_URL}/auth/users/${userId}/role`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.USER_ROLE(userId)}`, {
         method: 'PATCH',
         headers: getHeaders(token),
         body: JSON.stringify({ role: newRole }),
@@ -107,7 +107,7 @@ export const authService = {
 
   async toggleUserActive(userId, isActive, token) {
     try {
-      const response = await fetch(`${API_URL}/auth/users/${userId}/status`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.USER_STATUS(userId)}`, {
         method: 'PATCH',
         headers: getHeaders(token),
         body: JSON.stringify({ isActive }),

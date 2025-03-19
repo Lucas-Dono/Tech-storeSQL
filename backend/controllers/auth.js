@@ -320,11 +320,35 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// @desc    Obtener todos los usuarios
+// @route   GET /auth/users
+// @access  Private/Superadmin
+const getAllUsers = async (req, res) => {
+  try {
+    console.log('Iniciando getAllUsers...');
+    console.log('Usuario solicitante:', req.user);
+
+    console.log('Buscando usuarios en la base de datos...');
+    const users = await User.find({}).select('-password');
+    
+    console.log(`Se encontraron ${users.length} usuarios:`, users);
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error en getAllUsers:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener usuarios',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   createAdminUser,
-  initSuperAdmin,
   deleteUser,
+  getAllUsers,
+  initSuperAdmin,
 }; 

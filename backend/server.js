@@ -53,6 +53,9 @@ const app = express();
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Query:', req.query);
+  console.log('Body:', req.body);
   next();
 });
 
@@ -109,6 +112,18 @@ app.get('/test', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/upload', uploadRoutes);
+
+// Middleware de logging de rutas no encontradas
+app.use((req, res, next) => {
+  console.log('Ruta no encontrada:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    query: req.query,
+    body: req.body
+  });
+  next();
+});
 
 // Manejo de errores 404
 app.use((req, res) => {

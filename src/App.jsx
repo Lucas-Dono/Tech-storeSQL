@@ -18,32 +18,39 @@ import { AlertProvider } from './context/AlertContext';
 import UserManagement from './pages/Admin/UserManagement';
 
 // Componente para proteger rutas que requieren autenticación
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
   
-  console.log('PrivateRoute - Current user:', currentUser);
-  console.log('PrivateRoute - Current location:', location);
-
   if (!currentUser) {
-    console.log('PrivateRoute - Redirecting to auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  console.log('PrivateRoute - Rendering protected content');
-  return children;
+  return <Outlet />;
 };
 
 // Componente para proteger rutas de administrador
-const AdminRoute = ({ children }) => {
+const AdminRoute = () => {
   const { currentUser, isAdmin } = useAuth();
-  return currentUser && isAdmin() ? children : <Navigate to="/" />;
+  const location = useLocation();
+
+  if (!currentUser || !isAdmin()) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return <Outlet />;
 };
 
 // Componente para proteger rutas de superadmin
-const SuperAdminRoute = ({ children }) => {
+const SuperAdminRoute = () => {
   const { currentUser, isSuperAdmin } = useAuth();
-  return currentUser && isSuperAdmin() ? children : <Navigate to="/" />;
+  const location = useLocation();
+
+  if (!currentUser || !isSuperAdmin()) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return <Outlet />;
 };
 
 function MainLayout() {
@@ -105,25 +112,22 @@ function App() {
             <Router>
               <Routes>
                 {/* Rutas de Administración */}
-                <Route
-                  path="/admin"
-                  element={
-                    <AdminRoute>
-                      <AdminLayout />
-                    </AdminRoute>
-                  }
-                >
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="productos" element={<AdminProducts />} />
-                  <Route path="create-product" element={<CreateProduct />} />
-                  <Route 
-                    path="users" 
-                    element={
-                      <SuperAdminRoute>
-                        <UserManagement />
-                      </SuperAdminRoute>
-                    } 
-                  />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="productos" element={<AdminProducts />} />
+                    <Route path="create-product" element={<CreateProduct />} />
+                  </Route>
+                </Route>
+
+                {/* Rutas de SuperAdmin */}
+                <Route element={<SuperAdminRoute />}>
+                  <Route path="/admin/users" element={<UserManagement />} />
+                </Route>
+
+                {/* Rutas Privadas */}
+                <Route element={<PrivateRoute />}>
+                  <Route path="/carrito" element={<Cart />} />
                 </Route>
 
                 {/* Layout Principal */}
@@ -133,14 +137,6 @@ function App() {
                   <Route path="/productos" element={<Products />} />
                   <Route path="/producto/:id" element={<ProductDetail />} />
                   <Route path="/cart" element={<Navigate to="/carrito" replace />} />
-                  <Route
-                    path="/carrito"
-                    element={
-                      <PrivateRoute>
-                        <Cart />
-                      </PrivateRoute>
-                    }
-                  />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

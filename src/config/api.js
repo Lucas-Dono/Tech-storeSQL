@@ -23,6 +23,11 @@ export const ENDPOINTS = {
   REGISTER: '/auth/register',
   PROFILE: '/auth/profile',
   
+  // Users Management
+  USERS: '/auth/users',
+  USER_ROLE: (id) => `/auth/users/${id}/role`,
+  USER_STATUS: (id) => `/auth/users/${id}/status`,
+  
   // Products
   PRODUCTS: '/products',
   PRODUCT_BY_ID: (id) => `/products/${id}`,
