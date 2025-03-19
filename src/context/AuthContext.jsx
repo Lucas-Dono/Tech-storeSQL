@@ -4,6 +4,13 @@ import { authService } from '../services/authService';
 
 const AuthContext = createContext();
 
+// Funciones de utilidad para roles
+const ROLES = {
+  SUPERADMIN: 'superadmin',
+  ADMIN: 'admin',
+  USER: 'user'
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,12 +63,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Funciones de verificación de roles
+  const isSuperAdmin = () => currentUser?.role === ROLES.SUPERADMIN;
+  const isAdmin = () => currentUser?.role === ROLES.ADMIN || currentUser?.role === ROLES.SUPERADMIN;
+  const isUser = () => !!currentUser;
+
   const value = {
     currentUser,
     loading,
     login,
     logout,
-    register
+    register,
+    isSuperAdmin,
+    isAdmin,
+    isUser,
+    ROLES
   };
 
   if (loading) {

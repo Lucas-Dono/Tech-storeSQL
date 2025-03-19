@@ -62,4 +62,67 @@ export const authService = {
       throw error;
     }
   },
+
+  // Nuevas funciones para gestión de usuarios
+  async getAllUsers(token) {
+    try {
+      const response = await fetch(`${API_URL}/auth/users`, {
+        method: 'GET',
+        headers: getHeaders(token),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al obtener usuarios');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error en getAllUsers:', error);
+      throw error;
+    }
+  },
+
+  async updateUserRole(userId, newRole, token) {
+    try {
+      const response = await fetch(`${API_URL}/auth/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: getHeaders(token),
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al actualizar rol');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error en updateUserRole:', error);
+      throw error;
+    }
+  },
+
+  async toggleUserActive(userId, isActive, token) {
+    try {
+      const response = await fetch(`${API_URL}/auth/users/${userId}/status`, {
+        method: 'PATCH',
+        headers: getHeaders(token),
+        body: JSON.stringify({ isActive }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al cambiar estado del usuario');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error en toggleUserActive:', error);
+      throw error;
+    }
+  },
 }; 

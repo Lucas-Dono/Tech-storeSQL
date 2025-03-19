@@ -15,6 +15,7 @@ import { StoreProvider } from './context/StoreContext';
 import { AdminProvider } from './context/AdminContext';
 import { useAuth } from './context/AuthContext';
 import { AlertProvider } from './context/AlertContext';
+import UserManagement from './pages/Admin/UserManagement';
 
 // Componente para proteger rutas que requieren autenticación
 const PrivateRoute = ({ children }) => {
@@ -35,8 +36,14 @@ const PrivateRoute = ({ children }) => {
 
 // Componente para proteger rutas de administrador
 const AdminRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  return currentUser?.isAdmin ? children : <Navigate to="/" />;
+  const { currentUser, isAdmin } = useAuth();
+  return currentUser && isAdmin() ? children : <Navigate to="/" />;
+};
+
+// Componente para proteger rutas de superadmin
+const SuperAdminRoute = ({ children }) => {
+  const { currentUser, isSuperAdmin } = useAuth();
+  return currentUser && isSuperAdmin() ? children : <Navigate to="/" />;
 };
 
 function MainLayout() {
@@ -109,6 +116,14 @@ function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="productos" element={<AdminProducts />} />
                   <Route path="create-product" element={<CreateProduct />} />
+                  <Route 
+                    path="users" 
+                    element={
+                      <SuperAdminRoute>
+                        <UserManagement />
+                      </SuperAdminRoute>
+                    } 
+                  />
                 </Route>
 
                 {/* Layout Principal */}

@@ -18,9 +18,10 @@ const Navbar = () => {
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { getCartItemsCount } = useStore();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin, isSuperAdmin } = useAuth();
   const { t } = useTranslation();
 
   const handleCategoryClick = (category) => {
@@ -145,37 +146,48 @@ const Navbar = () => {
 
               <div className="relative">
                 {currentUser ? (
-                  <div>
+                  <div className="relative group">
                     <button
                       className="flex items-center gap-2 hover:text-blue-600 transition-colors"
-                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     >
                       <UserCircleIcon className="h-6 w-6" />
                       <span className="text-sm">{currentUser.name}</span>
                     </button>
-                    
-                    {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 animate-slide-down">
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          {currentUser.email}
-                        </div>
-                        {currentUser.isAdmin && (
+
+                    {/* Menú desplegable */}
+                    {isProfileMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                        {/* Opción de Admin solo para admin y superadmin */}
+                        {isAdmin() && (
                           <Link
                             to="/admin"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsProfileMenuOpen(false)}
                           >
-                            <div className="flex items-center gap-2">
-                              <ChartBarIcon className="h-5 w-5" />
-                              {t('nav.admin')}
-                            </div>
+                            Panel de Admin
                           </Link>
                         )}
+
+                        {/* Gestión de Usuarios solo para superadmin */}
+                        {isSuperAdmin() && (
+                          <Link
+                            to="/admin/users"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            Gestión de Usuarios
+                          </Link>
+                        )}
+
                         <button
-                          onClick={handleLogout}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                          onClick={() => {
+                            logout();
+                            setIsProfileMenuOpen(false);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                          {t('auth.logout')}
+                          Cerrar Sesión
                         </button>
                       </div>
                     )}
