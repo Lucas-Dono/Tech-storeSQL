@@ -169,10 +169,37 @@ const initSuperAdmin = async () => {
   }
 };
 
+// @desc    Eliminar usuario
+// @route   DELETE /auth/users/:id
+// @access  Private/Superadmin
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Solo el superadmin puede eliminar otros superadmins
+    if (user.role === 'superadmin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ 
+        message: 'No autorizado para eliminar superadmins' 
+      });
+    }
+
+    await user.deleteOne();
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error('Error en deleteUser:', error);
+    res.status(500).json({ message: 'Error al eliminar usuario' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   createAdminUser,
   initSuperAdmin,
+  deleteUser,
 }; 

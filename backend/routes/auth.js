@@ -5,6 +5,7 @@ const {
   loginUser,
   getUserProfile,
   createAdminUser,
+  deleteUser,
 } = require('../controllers/auth');
 const { protect, admin, superadmin } = require('../middleware/auth');
 
@@ -15,5 +16,6 @@ router.post('/login', loginUser);
 // Rutas protegidas
 router.get('/profile', protect, getUserProfile);
 router.post('/create-admin', protect, superadmin, createAdminUser);
+router.delete('/users/:id', protect, superadmin, deleteUser);
 
 module.exports = router; 
