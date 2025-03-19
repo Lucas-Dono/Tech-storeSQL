@@ -13,7 +13,7 @@ dotenv.config();
 
 // Verificar variables de entorno críticas
 console.log('Verificando variables de entorno...');
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
@@ -23,7 +23,6 @@ if (missingEnvVars.length > 0) {
 
 console.log('Variables de entorno verificadas correctamente');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
 
 // Conectar a la base de datos
 connectDB();
@@ -98,9 +97,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 10000;
+// Usar el puerto proporcionado por Render o el puerto por defecto
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT} en modo ${process.env.NODE_ENV}`);
-  console.log('CORS habilitado para todos los orígenes');
+  console.log(`URL del servidor: ${process.env.NODE_ENV === 'production' ? 'https://tech-store-backend-54ph.onrender.com' : 'http://localhost:' + PORT}`);
 }); 
