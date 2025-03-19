@@ -7,6 +7,8 @@ const path = require('path');
 const connectDB = require('./config/db');
 const { initSuperAdmin } = require('./controllers/auth');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -94,7 +96,8 @@ app.get('/test', (req, res) => {
 });
 
 // Rutas de autenticación
-app.use('/auth', require('./routes/auth'));
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
