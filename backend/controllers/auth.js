@@ -16,18 +16,34 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    console.log('Intento de registro para:', email);
+
+    if (!name || !email || !password) {
+      console.log('Datos faltantes en el registro');
+      return res.status(400).json({ 
+        message: 'Por favor complete todos los campos',
+        received: { name: !!name, email: !!email, password: !!password }
+      });
+    }
+
     // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ message: 'El usuario ya existe' });
+      console.log('Usuario ya existe:', email);
+      return res.status(400).json({ 
+        message: 'El usuario ya existe',
+        email: email
+      });
     }
 
     // Determinar el rol basado en el email
     let role = 'user';
     if (email === process.env.SUPERADMIN_EMAIL) {
+      console.log('Creando superadmin:', email);
       role = 'superadmin';
     } else if (email === process.env.ADMIN_EMAIL) {
+      console.log('Creando admin:', email);
       role = 'admin';
     }
 
@@ -40,6 +56,12 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      console.log('Usuario creado exitosamente:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
+
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -50,7 +72,10 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.error('Error en registerUser:', error);
-    res.status(500).json({ message: 'Error al crear usuario' });
+    res.status(500).json({ 
+      message: 'Error al crear usuario',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -61,21 +86,59 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('Intento de login para:', email);
+
+    if (!email || !password) {
+      console.log('Datos faltantes en el login');
+      return res.status(400).json({ 
+        message: 'Por favor ingrese email y contraseña',
+        received: { email: !!email, password: !!password }
+      });
+    }
+
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id),
+    if (!user) {
+      console.log('Usuario no encontrado:', email);
+      return res.status(401).json({ 
+        message: 'Email o contraseña incorrectos',
+        email: email
       });
-    } else {
-      res.status(401).json({ message: 'Email o contraseña incorrectos' });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      console.log('Contraseña incorrecta para:', email);
+      return res.status(401).json({ 
+        message: 'Email o contraseña incorrectos',
+        email: email
+      });
+    }
+
+    // Actualizar último login
+    user.lastLogin = new Date();
+    await user.save();
+
+    console.log('Login exitoso:', {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    });
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error al iniciar sesión' });
+    console.error('Error en loginUser:', error);
+    res.status(500).json({ 
+      message: 'Error al iniciar sesión',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -84,9 +147,17 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getUserProfile = async (req, res) => {
   try {
+    console.log('Obteniendo perfil para usuario:', req.user._id);
+
     const user = await User.findById(req.user._id);
 
     if (user) {
+      console.log('Perfil encontrado:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
+
       res.json({
         _id: user._id,
         name: user.name,
@@ -94,10 +165,15 @@ const getUserProfile = async (req, res) => {
         role: user.role,
       });
     } else {
+      console.log('Perfil no encontrado para:', req.user._id);
       res.status(404).json({ message: 'Usuario no encontrado' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener perfil' });
+    console.error('Error en getUserProfile:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener perfil',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -108,13 +184,21 @@ const createAdminUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    console.log('Intento de crear admin/superadmin:', {
+      email,
+      role,
+      createdBy: req.user._id
+    });
+
     // Verificar que el rol sea válido
     if (role !== 'admin' && role !== 'superadmin') {
+      console.log('Rol inválido:', role);
       return res.status(400).json({ message: 'Rol inválido' });
     }
 
     // Solo superadmin puede crear otros superadmins
     if (role === 'superadmin' && req.user.role !== 'superadmin') {
+      console.log('Intento no autorizado de crear superadmin por:', req.user.email);
       return res.status(403).json({ 
         message: 'No autorizado para crear superadmins' 
       });
@@ -123,6 +207,7 @@ const createAdminUser = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      console.log('Usuario ya existe:', email);
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
@@ -135,6 +220,12 @@ const createAdminUser = async (req, res) => {
     });
 
     if (user) {
+      console.log('Admin/Superadmin creado:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
+
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -143,7 +234,11 @@ const createAdminUser = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear usuario admin' });
+    console.error('Error en createAdminUser:', error);
+    res.status(500).json({ 
+      message: 'Error al crear usuario admin',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -152,17 +247,34 @@ const createAdminUser = async (req, res) => {
 // @access  Private (solo disponible en desarrollo)
 const initSuperAdmin = async () => {
   try {
+    console.log('Iniciando creación de superadmin...');
+    
     const superadminEmail = process.env.SUPERADMIN_EMAIL;
+    console.log('Buscando superadmin:', superadminEmail);
+    
     const superadminExists = await User.findOne({ email: superadminEmail });
 
     if (!superadminExists) {
-      await User.create({
+      console.log('Superadmin no encontrado, creando...');
+      
+      const user = await User.create({
         name: process.env.SUPERADMIN_NAME,
         email: process.env.SUPERADMIN_EMAIL,
         password: process.env.SUPERADMIN_PASSWORD,
         role: 'superadmin',
       });
-      console.log('Superadmin creado exitosamente');
+
+      console.log('Superadmin creado exitosamente:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
+    } else {
+      console.log('Superadmin ya existe:', {
+        id: superadminExists._id,
+        email: superadminExists.email,
+        role: superadminExists.role
+      });
     }
   } catch (error) {
     console.error('Error al crear superadmin:', error);
@@ -174,24 +286,37 @@ const initSuperAdmin = async () => {
 // @access  Private/Superadmin
 const deleteUser = async (req, res) => {
   try {
+    console.log('Intento de eliminar usuario:', req.params.id);
+
     const user = await User.findById(req.params.id);
 
     if (!user) {
+      console.log('Usuario no encontrado:', req.params.id);
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
     // Solo el superadmin puede eliminar otros superadmins
     if (user.role === 'superadmin' && req.user.role !== 'superadmin') {
+      console.log('Intento no autorizado de eliminar superadmin por:', req.user.email);
       return res.status(403).json({ 
         message: 'No autorizado para eliminar superadmins' 
       });
     }
 
     await user.deleteOne();
+    console.log('Usuario eliminado:', {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    });
+
     res.json({ message: 'Usuario eliminado correctamente' });
   } catch (error) {
     console.error('Error en deleteUser:', error);
-    res.status(500).json({ message: 'Error al eliminar usuario' });
+    res.status(500).json({ 
+      message: 'Error al eliminar usuario',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
