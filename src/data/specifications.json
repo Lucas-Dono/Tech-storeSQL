@@ -1,0 +1,1714 @@
+{
+  "processors": {
+    "mobile": [
+      {
+        "id": "Qualcomm_Snapdragon_8_Elite",
+        "name": "Qualcomm Snapdragon 8 Elite",
+        "brand": "Qualcomm",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 4.32,
+          "cache": 12,
+          "process": 3,
+          "gpu": "Adreno 830"
+        },
+        "description": {
+          "performance": "Procesador de última generación con 8 núcleos y velocidad máxima de 4.32 GHz",
+          "gpu": "GPU Adreno 830 de alto rendimiento",
+          "technology": "Fabricado en proceso de 3nm, el más avanzado disponible actualmente",
+          "features": "Incluye 12MB de caché y soporte para las últimas tecnologías de IA"
+        },
+        "type": "mobile",
+        "ranking": 1,
+        "advantages": [
+          "Proceso de fabricación más avanzado (3nm)",
+          "Mejor rendimiento en juegos",
+          "Procesamiento de IA superior",
+          "Excelente eficiencia energética"
+        ]
+      },
+      {
+        "id": "dimensity_9200_plus",
+        "name": "Dimensity 9200+",
+        "brand": "MediaTek",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 3.35,
+          "cache": 6,
+          "process": 4,
+          "gpu": "Immortalis-G715"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 3.35 GHz",
+          "gpu": "GPU Immortalis-G715 con ray-tracing por hardware",
+          "technology": "Fabricado en proceso de 4nm",
+          "features": "6MB de caché y arquitectura optimizada para eficiencia"
+        },
+        "type": "mobile",
+        "ranking": 2,
+        "advantages": [
+          "Mejor relación precio-rendimiento",
+          "GPU con ray-tracing",
+          "Muy buena eficiencia energética"
+        ]
+      },
+      {
+        "id": "sd8g2",
+        "name": "Snapdragon 8 Gen 2",
+        "brand": "Qualcomm",
+        "score": 90,
+        "type": "mobile"
+      },
+      {
+        "id": "d8200",
+        "name": "Dimensity 8200",
+        "brand": "MediaTek",
+        "score": 85,
+        "type": "mobile"
+      },
+      {
+        "id": "exynos_2200",
+        "name": "Exynos 2200",
+        "brand": "Samsung",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 2.8,
+          "cache": 8,
+          "process": 4,
+          "gpu": "Xclipse 920"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 2.8 GHz",
+          "gpu": "GPU Xclipse 920 de alto rendimiento",
+          "technology": "Fabricado en proceso de 4nm",
+          "features": "8MB de caché y soporte para las últimas tecnologías de IA"
+        },
+        "type": "mobile",
+        "ranking": 3,
+        "advantages": [
+          "Mejor relación precio-rendimiento",
+          "GPU de alto rendimiento",
+          "Muy buena eficiencia energética"
+        ]
+      },
+      {
+        "id": "kirin_9000",
+        "name": "Kirin 9000",
+        "brand": "Huawei",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 3.13,
+          "cache": 6,
+          "process": 5,
+          "gpu": "Mali-G78"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 3.13 GHz",
+          "gpu": "GPU Mali-G78 de alto rendimiento",
+          "technology": "Fabricado en proceso de 5nm",
+          "features": "6MB de caché y soporte para las últimas tecnologías de IA"
+        },
+        "type": "mobile",
+        "ranking": 4,
+        "advantages": [
+          " Mejor rendimiento en aplicaciones de IA",
+          "GPU de alto rendimiento",
+          "Eficiencia energética optimizada"
+        ]
+      },
+      {
+        "id": "sd888",
+        "name": "Snapdragon 888",
+        "brand": "Qualcomm",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 2.84,
+          "cache": 8,
+          "process": 5,
+          "gpu": "Adreno 660"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 2.84 GHz",
+          "gpu": "GPU Adreno 660 de alto rendimiento",
+          "technology": "Fabricado en proceso de 5nm",
+          "features": "8MB de caché y soporte para las últimas tecnologías de IA"
+        },
+        "type": "mobile",
+        "ranking": 5,
+        "advantages": [
+          "Rendimiento sólido en juegos",
+          "Eficiencia energética",
+          "Soporte para 5G"
+        ]
+      },
+      {
+        "id": "d8200",
+        "name": "Dimensity 8200",
+        "brand": "MediaTek",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 3.1,
+          "cache": 6,
+          "process": 5,
+          "gpu": "Mali-G610"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 3.1 GHz",
+          "gpu": "GPU Mali-G610 de alto rendimiento",
+          "technology": "Fabricado en proceso de 5nm",
+          "features": "6MB de caché y soporte para las últimas tecnologías de IA"
+        },
+        "type": "mobile",
+        "ranking": 6,
+        "advantages": [
+          "Rendimiento sólido en multitarea",
+          "Eficiencia energética",
+          "Soporte para 5G"
+        ]
+      }
+    ],
+    "desktop": [
+      {
+        "id": "core_i9_14900k",
+        "name": "Core i9-14900K",
+        "brand": "Intel",
+        "specs": {
+          "cores": 24,
+          "maxSpeed": 6.0,
+          "cache": 36,
+          "tdp": 125,
+          "process": 7
+        },
+        "description": {
+          "performance": "Procesador tope de gama con 24 núcleos y velocidad máxima de 6.0 GHz",
+          "technology": "Fabricado en proceso de 7nm, optimizado para máximo rendimiento",
+          "features": "36MB de caché y soporte para las últimas tecnologías",
+          "power": "TDP de 125W para mantener el máximo rendimiento"
+        },
+        "type": "desktop",
+        "ranking": 1,
+        "advantages": [
+          "Mayor frecuencia de reloj del mercado",
+          "Excelente rendimiento en un solo núcleo",
+          "Gran cantidad de núcleos para multitarea"
+        ]
+      },
+      {
+        "id": "ryzen_9_7950x",
+        "name": "Ryzen 9 7950X",
+        "brand": "AMD",
+        "specs": {
+          "cores": 16,
+          "maxSpeed": 5.7,
+          "cache": 64,
+          "tdp": 170,
+          "process": 5
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 16 núcleos y velocidad máxima de 5.7 GHz",
+          "technology": "Fabricado en proceso de 5nm, mejor que la competencia en eficiencia",
+          "features": "Enorme caché de 64MB para mejor rendimiento en juegos",
+          "power": "TDP de 170W para máximo rendimiento sostenido"
+        },
+        "type": "desktop",
+        "ranking": 2,
+        "advantages": [
+          "Proceso de fabricación más avanzado (5nm)",
+          "Mayor cantidad de caché",
+          "Mejor eficiencia energética"
+        ]
+      },
+      {
+        "id": "core_i7_13700k",
+        "name": "Core i7-13700K",
+        "brand": "Intel",
+        "specs": {
+          "cores": 16,
+          "maxSpeed": 5.4,
+          "cache": 30,
+          "tdp": 125,
+          "process": 7
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 16 núcleos y velocidad máxima de 5.4 GHz",
+          "technology": "Fabricado en proceso de 7nm, optimizado para gaming ",
+          "features": "30MB de caché y soporte para las últimas tecnologías",
+          "power": "TDP de 125W para un rendimiento equilibrado"
+        },
+        "type": "desktop",
+        "ranking": 3,
+        "advantages": [
+          "Gran rendimiento en juegos",
+          "Eficiencia energética",
+          "Soporte para multitarea"
+        ]
+      },
+      {
+        "id": "ryzen_7_7800x",
+        "name": "Ryzen 7 7800X",
+        "brand": "AMD",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 5.0,
+          "cache": 32,
+          "tdp": 105,
+          "process": 5
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento con 8 núcleos y velocidad máxima de 5.0 GHz",
+          "technology": "Fabricado en proceso de 5nm, optimizado para eficiencia",
+          "features": "32MB de caché para un rendimiento sólido",
+          "power": "TDP de 105W para un equilibrio entre rendimiento y consumo"
+        },
+        "type": "desktop",
+        "ranking": 4,
+        "advantages": [
+          "Excelente rendimiento en juegos",
+          "Eficiencia energética",
+          "Gran relación precio-rendimiento"
+        ]
+      },
+      {
+        "id": "core_i5_13600k",
+        "name": "Core i5-13600K",
+        "brand": "Intel",
+        "specs": {
+          "cores": 14,
+          "maxSpeed": 5.1,
+          "cache": 20,
+          "tdp": 125,
+          "process": 7
+        },
+        "description": {
+          "performance": "Procesador de gama media con 14 núcleos y velocidad máxima de 5.1 GHz",
+          "technology": "Fabricado en proceso de 7nm, ideal para gaming",
+          "features": "20MB de caché para un rendimiento fluido",
+          "power": "TDP de 125W para un rendimiento equilibrado"
+        },
+        "type": "desktop",
+        "ranking": 5,
+        "advantages": [
+          "Gran rendimiento en juegos",
+          "Eficiencia energética",
+          "Buena relación precio-rendimiento"
+        ]
+      }
+    ],
+    "notebook": [
+      {
+        "id": "core_i9_14900hx",
+        "name": "Core i9-14900HX",
+        "brand": "Intel",
+        "specs": {
+          "cores": 24,
+          "maxSpeed": 5.8,
+          "cache": 36,
+          "tdp": 55,
+          "process": 7
+        },
+        "description": {
+          "performance": "Versión para portátiles del tope de gama con 24 núcleos",
+          "technology": "Proceso de 7nm optimizado para equilibrio rendimiento/consumo",
+          "features": "36MB de caché y tecnologías de eficiencia energética",
+          "power": "TDP configurable desde 55W para adaptarse al equipo"
+        },
+        "type": "notebook",
+        "ranking": 1,
+        "advantages": [
+          "Mejor rendimiento en portátiles",
+          "Gran cantidad de núcleos",
+          "TDP configurable para diferentes chassis"
+        ]
+      },
+      {
+        "id": "ryzen_9_7945hx",
+        "name": "Ryzen 9 7945HX",
+        "brand": "AMD",
+        "specs": {
+          "cores": 16,
+          "maxSpeed": 5.4,
+          "cache": 64,
+          "tdp": 55,
+          "process": 5
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento para portátiles con 16 núcleos",
+          "technology": "Proceso de 5nm para mejor eficiencia",
+          "features": "64MB de caché y tecnologías avanzadas de ahorro de energía",
+          "power": "TDP desde 55W con excelente escalado de rendimiento"
+        },
+        "type": "notebook",
+        "ranking": 2,
+        "advantages": [
+          "Mejor eficiencia energética",
+          "Mayor cantidad de caché",
+          "Excelente rendimiento por vatio"
+        ]
+      },
+      {
+        "id": "core_i7_13700h",
+        "name": "Core i7-13700H",
+        "brand": "Intel",
+        "specs": {
+          "cores": 14,
+          "maxSpeed": 5.0,
+          "cache": 24,
+          "tdp": 45,
+          "process": 7
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento para portátiles con 14 núcleos",
+          "technology": "Fabricado en proceso de 7nm, optimizado para gaming",
+          "features": "24MB de caché para un rendimiento fluido",
+          "power": "TDP de 45W para un equilibrio entre rendimiento y consumo"
+        },
+        "type": "notebook",
+        "ranking": 3,
+        "advantages": [
+          "Gran rendimiento en juegos",
+          "Eficiencia energética",
+          "Buena relación precio-rendimiento"
+        ]
+      },
+      {
+        "id": "ryzen_7_6800h",
+        "name": "Ryzen 7 6800H",
+        "brand": "AMD",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 4.7,
+          "cache": 16,
+          "tdp": 45,
+          "process": 6
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento para portátiles con 8 núcleos",
+          "technology": "Fabricado en proceso de 6nm, optimizado para eficiencia",
+          "features": "16MB de caché para un rendimiento sólido",
+          "power": "TDP de 45W para un equilibrio entre rendimiento y consumo"
+        },
+        "type": "notebook",
+        "ranking": 4,
+        "advantages": [
+          "Excelente rendimiento en multitarea",
+          "Eficiencia energética",
+          "Gran relación precio-rendimiento"
+        ]
+      }
+    ],
+    "tablet": [
+      {
+        "id": "m2_pro",
+        "name": "Apple M2 Pro",
+        "brand": "Apple",
+        "specs": {
+          "cores": 12,
+          "maxSpeed": 3.5,
+          "cache": 24,
+          "process": 5,
+          "gpu": "19-core GPU"
+        },
+        "description": {
+          "performance": "Chip personalizado de Apple con 12 núcleos de CPU",
+          "technology": "Fabricado en proceso de 5nm de última generación",
+          "features": "GPU integrada de 19 núcleos y Neural Engine",
+          "efficiency": "Diseño optimizado para máxima eficiencia"
+        },
+        "type": "tablet",
+        "ranking": 1,
+        "advantages": [
+          "Integración perfecta hardware/software",
+          "Excelente rendimiento gráfico",
+          "Eficiencia energética superior"
+        ]
+      },
+      {
+        "id": "snapdragon_8cx_gen4",
+        "name": "Snapdragon 8cx Gen 4",
+        "brand": "Qualcomm",
+        "specs": {
+          "cores": 12,
+          "maxSpeed": 3.4,
+          "cache": 18,
+          "process": 4,
+          "gpu": "Adreno 740"
+        },
+        "description": {
+          "performance": "Procesador ARM de alto rendimiento con 12 núcleos",
+          "technology": "Fabricado en proceso de 4nm de alta eficiencia",
+          "features": "GPU Adreno 740 y NPU dedicada",
+          "efficiency": "Diseñado para tablets Windows on ARM"
+        },
+        "type": "tablet",
+        "ranking": 2,
+        "advantages": [
+          "Excelente duración de batería",
+          "Buen rendimiento en aplicaciones ARM",
+          "Capacidades 5G integradas"
+        ]
+      },
+      {
+        "id": "exynos_2200_tablet",
+        "name": "Exynos 2200",
+        "brand": "Samsung",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 2.8,
+          "cache": 8,
+          "process": 4,
+          "gpu": "Xclipse 920"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento para tablets con 8 núcleos",
+          "technology": "Fabricado en proceso de 4nm",
+          "features": "8MB de caché y soporte para las últimas tecnologías de IA",
+          "efficiency": "Optimizado para rendimiento en tablets"
+        },
+        "type": "tablet",
+        "ranking": 3,
+        "advantages": [
+          "Rendimiento sólido en multitarea",
+          "Eficiencia energética",
+          "Soporte para 5G"
+        ]
+      },
+      {
+        "id": "kirin_9000_tablet",
+        "name": "Kirin 9000",
+        "brand": "Huawei",
+        "specs": {
+          "cores": 8,
+          "maxSpeed": 3.13,
+          "cache": 6,
+          "process": 5,
+          "gpu": "Mali-G78"
+        },
+        "description": {
+          "performance": "Procesador de alto rendimiento para tablets con 8 núcleos",
+          "technology": "Fabricado en proceso de 5nm",
+          "features": "6MB de caché y soporte para las últimas tecnologías de IA",
+          "efficiency": "Optimizado para rendimiento en tablets"
+        },
+        "type": "tablet",
+        "ranking": 4,
+        "advantages": [
+          "Rendimiento sólido en aplicaciones de IA",
+          "GPU de alto rendimiento",
+          "Eficiencia energética optimizada"
+        ]
+      }
+    ]
+  },
+  "screen": {
+    "mobile": [
+      {
+        "id": "amoled_ltpo_120hz",
+        "name": "AMOLED LTPO 120Hz",
+        "brand": "Samsung Display",
+        "specs": {
+          "type": "AMOLED LTPO",
+          "size": 6.8,
+          "resolution": "3200 x 1440",
+          "refreshRate": "1-120Hz adaptativo",
+          "brightness": "2600 nits pico",
+          "protection": "Gorilla Glass Victus 2"
+        },
+        "description": {
+          "technology": "Panel AMOLED LTPO de última generación",
+          "features": "Tasa de refresco adaptativa de 1 a 120Hz",
+          "quality": "Resolución QHD+ con soporte HDR10+"
+        },
+        "advantages": [
+          "Máxima eficiencia energética con LTPO",
+          "Brillo excepcional para uso en exteriores",
+          "Colores vibrantes y negros perfectos"
+        ],
+        "priceIncrement": 150
+      },
+      {
+        "id": "oled_120hz",
+        "name": "OLED 120Hz",
+        "brand": "LG Display",
+        "specs": {
+          "type": "OLED",
+          "size": 6.7,
+          "resolution": "2778 x 1284",
+          "refreshRate": "120Hz",
+          "brightness": "2000 nits pico",
+          "protection": "Gorilla Glass Victus"
+        },
+        "description": {
+          "technology": "Panel OLED de alta calidad",
+          "features": "Tasa de refresco fija de 120Hz",
+          "quality": "Resolución FHD+ con soporte HDR10"
+        },
+        "advantages": [
+          "Excelente calidad de color",
+          "Alto brillo para uso en exteriores",
+          "Muy buena eficiencia energética"
+        ],
+        "priceIncrement": 100
+      }
+    ]
+  },
+  "battery": {
+    "mobile": [
+      {
+        "id": "battery_5000",
+        "name": "Batería 5000mAh",
+        "brand": "Samsung SDI",
+        "specs": {
+          "capacity": "5000mAh",
+          "fastCharging": "45W",
+          "wirelessCharging": "15W",
+          "reverseCharging": "4.5W",
+          "technology": "Li-Ion"
+        },
+        "description": {
+          "duration": "Hasta 2 días de uso normal",
+          "charging": "0 a 100% en 1 hora con carga rápida",
+          "features": "Soporte para carga inalámbrica y carga inversa"
+        },
+        "advantages": [
+          "Gran capacidad para uso intensivo",
+          "Carga rápida de 45W",
+          "Carga inalámbrica incluida"
+        ],
+        "priceIncrement": 80
+      },
+      {
+        "id": "battery_4500",
+        "name": "Batería 4500mAh",
+        "brand": "LG Chem",
+        "specs": {
+          "capacity": "4500mAh",
+          "fastCharging": "25W",
+          "wirelessCharging": "15W",
+          "technology": "Li-Po"
+        },
+        "description": {
+          "duration": "Hasta 1.5 días de uso normal",
+          "charging": "0 a 100% en 1.5 horas con carga rápida",
+          "features": "Soporte para carga inalámbrica"
+        },
+        "advantages": [
+          "Buen equilibrio entre capacidad y peso",
+          "Carga rápida eficiente",
+          "Diseño compacto"
+        ],
+        "priceIncrement": 50
+      }
+    ]
+  },
+  "camera": {
+    "mobile": [
+      {
+        "id": "camera_200mp",
+        "name": "Sistema de 200MP",
+        "brand": "Samsung",
+        "specs": {
+          "main": "200MP f/1.7 OIS",
+          "ultrawide": "12MP f/2.2 120°",
+          "telephoto": "10MP f/2.4 3x zoom",
+          "periscope": "10MP f/4.9 10x zoom",
+          "front": "12MP f/2.2 autofocus"
+        },
+        "description": {
+          "mainCamera": "Sensor principal de 200MP con estabilización óptica",
+          "zoom": "Zoom óptico 3x y 10x con estabilización",
+          "features": "8K@30fps, 4K@60fps, HDR10+"
+        },
+        "advantages": [
+          "Máxima resolución en fotos",
+          "Sistema versátil de zoom",
+          "Excelente rendimiento nocturno"
+        ],
+        "priceIncrement": 200
+      },
+      {
+        "id": "camera_108mp",
+        "name": "Sistema de 108MP",
+        "brand": "Xiaomi",
+        "specs": {
+          "main": "108MP f/1.8 OIS",
+          "ultrawide": "12MP f/2.2 120°",
+          "telephoto": "10MP f/2.4 3x zoom",
+          "front": "20MP f/2.2"
+        },
+        "description": {
+          "mainCamera": "Sensor principal de 108MP con estabilización óptica",
+          "zoom": "Zoom óptico 3x con estabilización",
+          "features": "4K@60fps, HDR10"
+        },
+        "advantages": [
+          "Alta resolución en fotos",
+          "Buen rendimiento nocturno",
+          "Excelente relación calidad-precio"
+        ],
+        "priceIncrement": 150
+      }
+    ]
+  },
+  "additionalFeatures": {
+    "mobile": {
+      "biometrics": [
+        {
+          "id": "ultrasonic_fp",
+          "name": "Sensor de Huella Ultrasónico",
+          "brand": "Qualcomm",
+          "specs": {
+            "type": "Ultrasónico en pantalla",
+            "speed": "0.3s",
+            "accuracy": "99.9%",
+            "area": "8x8mm"
+          },
+          "description": {
+            "technology": "Sensor ultrasónico de última generación",
+            "security": "Máxima seguridad con detección 3D"
+          },
+          "advantages": [
+            "Funciona con dedos mojados",
+            "Mayor seguridad que sensores ópticos",
+            "Detección 3D anti-falsificación"
+          ],
+          "priceIncrement": 50
+        },
+        {
+          "id": "optical_fp",
+          "name": "Sensor de Huella Óptico",
+          "brand": "Goodix",
+          "specs": {
+            "type": "Óptico en pantalla",
+            "speed": "0.5s",
+            "accuracy": "98%",
+            "area": "6x6mm"
+          },
+          "description": {
+            "technology": "Sensor óptico de alta precisión",
+            "security": "Seguridad mejorada con IA"
+          },
+          "advantages": [
+            "Buen equilibrio costo-beneficio",
+            "Rápido desbloqueo",
+            "Confiable en uso diario"
+          ],
+          "priceIncrement": 30
+        }
+      ],
+      "sound": [
+        {
+          "id": "stereo_dolby",
+          "name": "Altavoces Estéreo Dolby Atmos",
+          "brand": "Dolby",
+          "specs": {
+            "channels": "Estéreo",
+            "technology": "Dolby Atmos",
+            "speakers": "Doble altavoz",
+            "features": "Ecualización adaptativa"
+          },
+          "description": {
+            "quality": "Sonido envolvente de alta calidad",
+            "features": "Soporte para audio espacial"
+          },
+          "advantages": [
+            "Sonido estéreo inmersivo",
+            "Audio espacial 3D",
+            "Mayor volumen máximo"
+          ],
+          "priceIncrement": 40
+        },
+        {
+          "id": "mono_speaker",
+          "name": "Altavoz Mono Optimizado",
+          "brand": "Generic",
+          "specs": {
+            "channels": "Mono",
+            "technology": "Audio HD",
+            "speakers": "Altavoz único",
+            "features": "Ecualización básica"
+          },
+          "description": {
+            "quality": "Audio claro y nítido",
+            "features": "Optimizado para voz y multimedia"
+          },
+          "advantages": [
+            "Buen volumen",
+            "Claridad en llamadas",
+            "Bajo consumo de energía"
+          ],
+          "priceIncrement": 20
+        }
+      ],
+      "connectivity": [
+        {
+          "id": "connectivity_premium",
+          "name": "Conectividad Premium",
+          "specs": {
+            "wifi": "WiFi 6E",
+            "bluetooth": "5.3",
+            "nfc": true,
+            "uwb": true,
+            "5g": "mmWave + Sub-6"
+          },
+          "description": {
+            "features": "Conjunto completo de conectividad avanzada",
+            "performance": "Máxima velocidad y compatibilidad"
+          },
+          "advantages": [
+            "WiFi 6E de última generación",
+            "5G mmWave + Sub-6",
+            "UWB para localización precisa"
+          ],
+          "priceIncrement": 60
+        },
+        {
+          "id": "connectivity_standard",
+          "name": "Conectividad Estándar",
+          "specs": {
+            "wifi": "WiFi 6",
+            "bluetooth": "5.2",
+            "nfc": true,
+            "uwb": false,
+            "5g": "Sub-6"
+          },
+          "description": {
+            "features": "Conectividad moderna y confiable",
+            "performance": "Buen rendimiento general"
+          },
+          "advantages": [
+            "WiFi 6 de alto rendimiento",
+            "5G Sub-6",
+            "NFC para pagos móviles"
+          ],
+          "priceIncrement": 40
+        },
+        {
+          "id": "connectivity_basic",
+          "name": "Conectividad Básica",
+          "specs": {
+            "wifi": "WiFi 5",
+            "bluetooth": "5.0",
+            "nfc": false,
+            "uwb": false,
+            "5g": false
+          },
+          "description": {
+            "features": "Conectividad esencial",
+            "performance": "Rendimiento confiable"
+          },
+          "advantages": [
+            "WiFi AC confiable",
+            "Bluetooth 5.0 estable",
+            "Bajo consumo de energía"
+          ],
+          "priceIncrement": 20
+        }
+      ],
+      "protection": [
+        {
+          "id": "ip68_armor",
+          "name": "Protección IP68 + Armor",
+          "specs": {
+            "waterRating": "IP68",
+            "dustRating": "IP68",
+            "dropProtection": "2m",
+            "gorilla": "Victus 2"
+          },
+          "description": {
+            "durability": "Máxima protección contra agua y golpes",
+            "features": "Resistente a inmersión de 1.5m hasta 30 min"
+          },
+          "advantages": [
+            "Sumergible hasta 1.5m",
+            "Totalmente sellado contra polvo",
+            "Resistente a caídas de 2m"
+          ],
+          "priceIncrement": 70
+        },
+        {
+          "id": "ip67_basic",
+          "name": "Protección IP67",
+          "specs": {
+            "waterRating": "IP67",
+            "dustRating": "IP67",
+            "dropProtection": "1m",
+            "gorilla": "Victus"
+          },
+          "description": {
+            "durability": "Buena protección contra agua y polvo",
+            "features": "Resistente a salpicaduras y lluvia"
+          },
+          "advantages": [
+            "Resistente a salpicaduras",
+            "Protección contra polvo",
+            "Resistente a caídas básicas"
+          ],
+          "priceIncrement": 40
+        }
+      ],
+      "security": [
+        {
+          "id": "security_premium",
+          "name": "Seguridad Premium",
+          "brand": "Knox",
+          "specs": {
+            "platform": "Knox 4.0",
+            "encryption": "Hardware + Software",
+            "secure_element": true,
+            "anti_malware": true
+          },
+          "description": {
+            "features": "Plataforma de seguridad empresarial",
+            "protection": "Máxima protección de datos"
+          },
+          "advantages": [
+            "Encriptación de nivel militar",
+            "Protección contra malware",
+            "Almacenamiento seguro"
+          ],
+          "priceIncrement": 50
+        },
+        {
+          "id": "security_standard",
+          "name": "Seguridad Estándar",
+          "brand": "Android",
+          "specs": {
+            "platform": "Android Security",
+            "encryption": "Software",
+            "secure_element": true,
+            "anti_malware": false
+          },
+          "description": {
+            "features": "Seguridad Android estándar",
+            "protection": "Protección confiable de datos"
+          },
+          "advantages": [
+            "Encriptación de archivos",
+            "Actualizaciones de seguridad",
+            "Protección básica"
+          ],
+          "priceIncrement": 20
+        }
+      ],
+      "gaming": [
+        {
+          "id": "gaming_premium",
+          "name": "Gaming Premium",
+          "specs": {
+            "cooling": "Cámara de vapor",
+            "haptics": "Motor háptico avanzado",
+            "triggers": "Gatillos táctiles",
+            "sampling": "720Hz"
+          },
+          "description": {
+            "features": "Características gaming avanzadas",
+            "performance": "Máximo rendimiento en juegos"
+          },
+          "advantages": [
+            "Refrigeración superior",
+            "Respuesta táctil precisa",
+            "Controles gaming dedicados"
+          ],
+          "priceIncrement": 80
+        },
+        {
+          "id": "gaming_basic",
+          "name": "Gaming Básico",
+          "specs": {
+            "cooling": "Cobre + Grafito",
+            "haptics": "Motor de vibración",
+            "triggers": false,
+            "sampling": "240Hz"
+          },
+          "description": {
+            "features": "Características gaming básicas",
+            "performance": "Buen rendimiento en juegos casuales"
+          },
+          "advantages": [
+            "Refrigeración mejorada",
+            "Respuesta táctil estándar",
+            "Buen rendimiento general"
+          ],
+          "priceIncrement": 30
+        }
+      ]
+    }
+  },
+  "ram": {
+    "mobile": [
+      {
+        "id": "lpddr5x_8gb",
+        "name": "LPDDR5X 8GB",
+        "brand": "Samsung",
+        "specs": {
+          "speed": 8533,
+          "bandwidth": 68,
+          "size": 8,
+          "technology": "LPDDR5X"
+        },
+        "description": {
+          "performance": "Memoria LPDDR5X de última generación con velocidad de 8533 MHz",
+          "bandwidth": "Ancho de banda de 68 GB/s para transferencias ultrarrápidas",
+          "technology": "Tecnología LPDDR5X para máxima eficiencia y rendimiento",
+          "capacity": "8GB de capacidad ideal para multitarea"
+        },
+        "type": "mobile",
+        "ranking": 1,
+        "advantages": [
+          "Máxima velocidad de memoria",
+          "Mayor ancho de banda",
+          "Mejor eficiencia energética"
+        ]
+      },
+      {
+        "id": "lpddr5_8gb",
+        "name": "LPDDR5 8GB",
+        "brand": "Micron",
+        "specs": {
+          "speed": 6400,
+          "bandwidth": 51,
+          "size": 8,
+          "technology": "LPDDR5"
+        },
+        "description": {
+          "performance": "Memoria LPDDR5 de alto rendimiento con velocidad de 6400 MHz",
+          "bandwidth": "Ancho de banda de 51 GB/s",
+          "technology": "Tecnología LPDDR5 probada y eficiente",
+          "capacity": "8GB de capacidad para multitarea fluida"
+        },
+        "type": "mobile",
+        "ranking": 2,
+        "advantages": [
+          "Excelente relación precio-rendimiento",
+          "Muy buen rendimiento general",
+          "Probada fiabilidad"
+        ]
+      },
+      {
+        "id": "lpddr5x_16gb",
+        "name": "LPDDR5X 16GB",
+        "brand": "Samsung",
+        "specs": {
+          "speed": 8533,
+          "bandwidth": 68,
+          "size": 16,
+          "technology": "LPDDR5X"
+        },
+        "description": {
+          "performance": "Memoria LPDDR5X de última generación con velocidad de 8533 MHz",
+          "bandwidth": "Ancho de banda de 68 GB/s para transferencias ultrarrápidas",
+          "technology": "Tecnología LPDDR5X para máxima eficiencia y rendimiento",
+          "capacity": "16GB de capacidad ideal para multitarea"
+        },
+        "type": "mobile",
+        "ranking": 3,
+        "advantages": [
+          "Máxima velocidad de memoria",
+          "Mayor ancho de banda",
+          "Mejor eficiencia energética"
+        ]
+      },
+      {
+        "id": "lpddr4x_8gb",
+        "name": "LPDDR4X 8GB",
+        "brand": "Micron",
+        "specs": {
+          "speed": 4266,
+          "bandwidth": 34,
+          "size": 8,
+          "technology": "LPDDR4X"
+        },
+        "description": {
+          "performance": "Memoria LPDDR4X de alto rendimiento con velocidad de 4266 MHz",
+          "bandwidth": "Ancho de banda de 34 GB/s",
+          "technology": "Tecnología LPDDR4X eficiente",
+          "capacity": "8GB de capacidad para multitarea fluida"
+        },
+        "type": "mobile",
+        "ranking": 4,
+        "advantages": [
+          "Buena relación precio-rendimiento",
+          "Rendimiento sólido",
+          "Eficiencia energética"
+        ]
+      }
+    ],
+    "desktop": [
+      {
+        "id": "ddr5_32gb",
+        "name": "DDR5-6000 32GB",
+        "brand": "G.Skill",
+        "specs": {
+          "speed": 6000,
+          "latency": "CL36",
+          "size": 32,
+          "technology": "DDR5"
+        },
+        "description": {
+          "performance": "Memoria DDR5 de alta velocidad a 6000 MHz",
+          "latency": "Latencia CL36 optimizada para gaming",
+          "technology": "Tecnología DDR5 con corrección de errores on-die",
+          "capacity": "32GB ideales para tareas pesadas y multitarea"
+        },
+        "type": "desktop",
+        "ranking": 1,
+        "advantages": [
+          "Mayor ancho de banda",
+          "Mejor escalabilidad",
+          "Tecnología más avanzada"
+        ]
+      },
+      {
+        "id": "ddr4_32gb",
+        "name": "DDR4-3600 32GB",
+        "brand": "Corsair",
+        "specs": {
+          "speed": 3600,
+          "latency": "CL16",
+          "size": 32,
+          "technology": "DDR4"
+        },
+        "description": {
+          "performance": "Memoria DDR4 optimizada a 3600 MHz",
+          "latency": "Excelente latencia CL16",
+          "technology": "Tecnología DDR4 madura y confiable",
+          "capacity": "32GB para uso intensivo"
+        },
+        "type": "desktop",
+        "ranking": 2,
+        "advantages": [
+          "Mejor relación precio-rendimiento",
+          "Latencias más bajas",
+          "Alta compatibilidad"
+        ]
+      },
+      {
+        "id": "ddr5_5200_32gb",
+        "name": "DDR5-5200 32GB",
+        "brand": "Crucial",
+        "specs": {
+          "speed": 5200,
+          "latency": "CL40",
+          "size": 32,
+          "technology": "DDR5"
+        },
+        "description": {
+          "performance": "Memoria DDR5 de 5200 MHz para alto rendimiento",
+          "latency": "Latencia CL40 adecuada para gaming",
+          "technology": "Tecnología DDR5 con alta eficiencia",
+          "capacity": "32GB para multitarea fluida"
+        },
+        "type": "desktop",
+        "ranking": 3,
+        "advantages": [
+          "Rendimiento sólido",
+          "Eficiencia energética",
+          "Buena relación precio-rendimiento"
+        ]
+      }
+    ],
+    "notebook": [
+      {
+        "id": "ddr5_notebook_32gb",
+        "name": "DDR5-5600 32GB",
+        "brand": "Kingston",
+        "specs": {
+          "speed": 5600,
+          "latency": "CL40",
+          "size": 32,
+          "technology": "DDR5"
+        },
+        "description": {
+          "performance": "Memoria DDR5 para portátiles a 5600 MHz",
+          "technology": "Nueva generación DDR5 con mejor eficiencia",
+          "capacity": "32GB para máximo rendimiento móvil",
+          "features": "Bajo consumo y alta densidad"
+        },
+        "type": "notebook",
+        "ranking": 1,
+        "advantages": [
+          "Mayor velocidad en portátiles",
+          "Mejor eficiencia energética",
+          "Más capacidad en menos módulos"
+        ]
+      },
+      {
+        "id": "ddr4_notebook_32gb",
+        "name": "DDR4-3200 32GB",
+        "brand": "Crucial",
+        "specs": {
+          "speed": 3200,
+          "latency": "CL22",
+          "size": 32,
+          "technology": "DDR4"
+        },
+        "description": {
+          "performance": "Memoria DDR4 optimizada para portátiles a 3200 MHz",
+          "technology": "Tecnología DDR4 probada en portátiles",
+          "capacity": "32GB para multitarea intensiva",
+          "features": "Balance entre rendimiento y consumo"
+        },
+        "type": "notebook",
+        "ranking": 2,
+        "advantages": [
+          "Excelente compatibilidad",
+          "Consumo optimizado",
+          "Buena relación precio-rendimiento"
+        ]
+      },
+      {
+        "id": "ddr5_notebook_16gb",
+        "name": "DDR5-4800 16GB",
+        "brand": "Corsair",
+        "specs": {
+          "speed": 4800,
+          "latency": "CL40",
+          "size": 16,
+          "technology": "DDR5"
+        },
+        "description": {
+          "performance": "Memoria DDR5 de 4800 MHz para portátiles",
+          "technology": "Alta eficiencia y rendimiento",
+          "capacity": "16GB para multitarea fluida",
+          "features": "Bajo consumo y alta densidad"
+        },
+        "type": "notebook",
+        "ranking": 3,
+        "advantages": [
+          "Rendimiento sólido",
+          "Eficiencia energética",
+          "Ideal para portátiles"
+        ]
+      },
+      {
+        "id": "ddr4_notebook_16gb",
+        "name": "DDR4-3200 16GB",
+        "brand": "Crucial",
+        "specs": {
+          "speed": 3200,
+          "latency": "CL22",
+          "size": 16,
+          "technology": "DDR4"
+        },
+        "description": {
+          "performance": "Memoria DDR4 optimizada para portátiles a 3200 MHz",
+          "technology": "Tecnología DDR4 probada en portátiles",
+          "capacity": "16GB para multitarea fluida",
+          "features": "Balance entre rendimiento y consumo"
+        },
+        "type": "notebook",
+        "ranking": 4,
+        "advantages": [
+          "Excelente compatibilidad",
+          "Consumo optimizado",
+          "Buena relación precio-rendimiento"
+        ]
+      }
+    ],
+    "tablet": [
+      {
+        "id": "lpddr5x_tablet_16gb",
+        "name": "LPDDR5X 16GB",
+        "brand": "Samsung",
+        "specs": {
+          "speed": 8533,
+          "bandwidth": 68,
+          "size": 16,
+          "technology": "LPDDR5X"
+        },
+        "description": {
+          "performance": "Memoria LPDDR5X de última generación para tablets",
+          "technology": "Máxima eficiencia con LPDDR5X",
+          "capacity": "16GB para multitarea profesional",
+          "features": "Diseño optimizado para tablets"
+        },
+        "type": "tablet",
+        "ranking": 1,
+        "advantages": [
+          "Máximo rendimiento en tablets",
+          "Mejor eficiencia energética",
+          "Mayor capacidad disponible"
+        ]
+      },
+      {
+        "id": "lpddr5_tablet_8gb",
+        "name": "LPDDR5 8GB",
+        "brand": "Micron",
+        "specs": {
+          "speed": 6400,
+          "bandwidth": 51,
+          "size": 8,
+          "technology": "LPDDR5"
+        },
+        "description": {
+          "performance": "Memoria LPDDR5 de alto rendimiento para tablets",
+          "technology": "Tecnología LPDDR5 eficiente",
+          "capacity": "8GB para uso general",
+          "features": "Buen balance de rendimiento y consumo"
+        },
+        "type": "tablet",
+        "ranking": 2,
+        "advantages": [
+          "Buen rendimiento general",
+          "Consumo eficiente",
+          "Precio competitivo"
+        ]
+      },
+      {
+        "id": "lpddr4_tablet_4gb",
+        "name": "LPDDR4 4GB",
+        "brand": "Micron",
+        "specs": {
+          "speed": 2400,
+          "bandwidth": 19,
+          "size": 4,
+          "technology": "LPDDR4"
+        },
+        "description": {
+          "performance": "Memoria LPDDR4 de 4GB para tablets",
+          "technology": "Tecnología LPDDR4 eficiente",
+          "capacity": "4GB para uso general",
+          "features": "Buen balance de rendimiento y consumo"
+        },
+        "type": "tablet",
+        "ranking": 3,
+        "advantages": [
+          "Rendimiento adecuado para tareas básicas",
+          "Eficiencia energética",
+          "Costo accesible"
+        ]
+      }
+    ]
+  },
+  "storage": {
+    "mobile": [
+      {
+        "id": "ufs_4_512gb",
+        "name": "UFS 4.0 512GB",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 4200,
+          "writeSpeed": 2800,
+          "size": 512,
+          "technology": "UFS 4.0"
+        },
+        "description": {
+          "performance": "Almacenamiento UFS 4.0 con velocidades de lectura de 4200 MB/s",
+          "write": "Velocidad de escritura de 2800 MB/s",
+          "capacity": "512GB de capacidad de almacenamiento",
+          "technology": "Tecnología UFS 4.0 de última generación"
+        },
+        "type": "mobile",
+        "ranking": 1,
+        "advantages": [
+          "Máxima velocidad de lectura/escritura",
+          "Mejor rendimiento en aplicaciones",
+          "Tecnología más avanzada"
+        ]
+      },
+      {
+        "id": "ufs_3 .1_512gb",
+        "name": "UFS 3.1 512GB",
+        "brand": "SK Hynix",
+        "specs": {
+          "readSpeed": 2100,
+          "writeSpeed": 1200,
+          "size": 512,
+          "technology": "UFS 3.1"
+        },
+        "description": {
+          "performance": "Almacenamiento UFS 3.1 con velocidades de lectura de 2100 MB/s",
+          "write": "Velocidad de escritura de 1200 MB/s",
+          "capacity": "512GB de capacidad de almacenamiento",
+          "technology": "Tecnología UFS 3.1 probada y confiable"
+        },
+        "type": "mobile",
+        "ranking": 2,
+        "advantages": [
+          "Excelente relación precio-rendimiento",
+          "Muy buen rendimiento general",
+          "Alta fiabilidad"
+        ]
+      },
+      {
+        "id": "ufs_4_256gb",
+        "name": "UFS 4.0 256GB",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 4200,
+          "writeSpeed": 2800,
+          "size": 256,
+          "technology": "UFS 4.0"
+        },
+        "description": {
+          "performance": "Almacenamiento UFS 4.0 con velocidades de lectura de 4200 MB/s",
+          "write": "Velocidad de escritura de 2800 MB/s",
+          "capacity": "256GB de capacidad de almacenamiento",
+          "technology": "Tecnología UFS 4.0 de última generación"
+        },
+        "type": "mobile",
+        "ranking": 3,
+        "advantages": [
+          "Máxima velocidad de lectura/escritura",
+          "Ideal para aplicaciones exigentes",
+          "Tecnología avanzada"
+        ]
+      },
+      {
+        "id": "ufs_3.1_256gb",
+        "name": "UFS 3.1 256GB",
+        "brand": "SK Hynix",
+        "specs": {
+          "readSpeed": 2100,
+          "writeSpeed": 1200,
+          "size": 256,
+          "technology": "UFS 3.1"
+        },
+        "description": {
+          "performance": "Almacenamiento UFS 3.1 con velocidades de lectura de 2100 MB/s",
+          "write": "Velocidad de escritura de 1200 MB/s",
+          "capacity": "256GB de capacidad de almacenamiento",
+          "technology": "Tecnología UFS 3.1 probada y confiable"
+        },
+        "type": "mobile",
+        "ranking": 4,
+        "advantages": [
+          "Buena relación precio-rendimiento",
+          "Rendimiento sólido",
+          "Alta fiabilidad"
+        ]
+      }
+    ],
+    "desktop": [
+      {
+        "id": "nvme_pcie4_1tb",
+        "name": "NVMe PCIe 4.0 1TB",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 7000,
+          "writeSpeed": 5000,
+          "size": 1000,
+          "technology": "NVMe PCIe 4.0"
+        },
+        "description": {
+          "performance": "SSD NVMe con velocidades de lectura de hasta 7000 MB/s",
+          "write": "Velocidades de escritura de hasta 5000 MB/s",
+          "technology": "Tecnología PCIe 4.0 de última generación",
+          "capacity": "1TB de almacenamiento de alta velocidad"
+        },
+        "type": "desktop",
+        "ranking": 1,
+        "advantages": [
+          "Máximas velocidades de transferencia",
+          "Ideal para cargas pesadas",
+          "Soporte para DirectStorage"
+        ]
+      },
+      {
+        "id": "nvme_pcie3_1tb",
+        "name": "NVMe PCIe 3.0 1TB",
+        "brand": "WD",
+        "specs": {
+          "readSpeed": 3500,
+          "writeSpeed": 3000,
+          "size": 1000,
+          "technology": "NVMe PCIe 3.0"
+        },
+        "description": {
+          "performance": "SSD NVMe con velocidades de lectura de 3500 MB/s",
+          "write": "Velocidades de escritura de 3000 MB/s",
+          "technology": "Tecnología PCIe 3.0 probada",
+          "capacity": "1TB de almacenamiento rápido"
+        },
+        "type": "desktop",
+        "ranking": 2,
+        "advantages": [
+          "Excelente relación precio-rendimiento",
+          "Alta compatibilidad",
+          "Rendimiento consistente"
+        ]
+      },
+      {
+        "id": "nvme_pcie4_2tb",
+        "name": "NVMe PCIe 4.0 2TB",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 7000,
+          "writeSpeed": 5000,
+          "size": 2000,
+          "technology": "NVMe PCIe 4.0"
+        },
+        "description": {
+          "performance": "SSD NVMe de 2TB con velocidades de lectura de hasta 7000 MB/s",
+          "write": "Velocidades de escritura de hasta 5000 MB/s",
+          "technology": "Tecnología PCIe 4.0 de última generación",
+          "capacity": "2TB de almacenamiento de alta velocidad"
+        },
+        "type": "desktop",
+        "ranking": 3,
+        "advantages": [
+          "Gran capacidad de almacenamiento",
+          "Máximas velocidades de transferencia",
+          "Ideal para juegos y aplicaciones pesadas"
+        ]
+      }
+    ],
+    "notebook": [
+      {
+        "id": "nvme_notebook_pcie4_1tb",
+        "name": "NVMe PCIe 4.0 1TB Notebook",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 6500,
+          "writeSpeed": 4500,
+          "size": 1000,
+          "technology": "NVMe PCIe 4.0"
+        },
+        "description": {
+          "performance": "SSD NVMe optimizado para portátiles con lectura de 6500 MB/s",
+          "write": "Escritura de 4500 MB/s con gestión térmica mejorada",
+          "technology": "PCIe 4.0 con optimización de consumo",
+          "capacity": "1TB de almacenamiento de alto rendimiento"
+        },
+        "type": "notebook",
+        "ranking": 1,
+        "advantages": [
+          "Máximo rendimiento en portátiles",
+          "Gestión térmica optimizada",
+          "Bajo consumo en idle"
+        ]
+      },
+      {
+        "id": "nvme_notebook_pcie3_1tb",
+        "name": "NVMe PCIe 3.0 1TB Notebook",
+        "brand": "WD",
+        "specs": {
+          "readSpeed": 3300,
+          "writeSpeed": 2600,
+          "size": 1000,
+          "technology": "NVMe PCIe 3.0"
+        },
+        "description": {
+          "performance": "SSD NVMe para portátiles con lectura de 3300 MB/s",
+          "write": "Escritura de 2600 MB/s eficiente en energía",
+          "technology": "PCIe 3.0 con enfoque en eficiencia",
+          "capacity": "1TB de almacenamiento confiable"
+        },
+        "type": "notebook",
+        "ranking": 2,
+        "advantages": [
+          "Excelente eficiencia energética",
+          "Menor generación de calor",
+          "Muy buena relación precio-rendimiento"
+        ]
+      },
+      {
+        "id": "sata_ssd_1tb_notebook",
+        "name": "SATA SSD 1TB Notebook",
+        "brand": "Crucial",
+        "specs": {
+          "readSpeed": 550,
+          "writeSpeed": 500,
+          "size": 1000,
+          "technology": "SATA"
+        },
+        "description": {
+          "performance": "SSD SATA de 1TB con velocidades de lectura de hasta 550 MB/s",
+          "write": "Velocidades de escritura de hasta 500 MB/s",
+          "technology": "Tecnología SATA confiable",
+          "capacity": "1TB de almacenamiento para portátiles"
+        },
+        "type": "notebook",
+        "ranking": 3,
+        "advantages": [
+          "Buena relación precio-rendimiento",
+          "Ideal para almacenamiento adicional",
+          "Compatible con la mayoría de portátiles"
+        ]
+      }
+    ],
+    "tablet": [
+      {
+        "id": "nvme_tablet_pcie4_512gb",
+        "name": "NVMe PCIe 4.0 512GB Tablet",
+        "brand": "Samsung",
+        "specs": {
+          "readSpeed": 5000,
+          "writeSpeed": 3500,
+          "size": 512,
+          "technology": "NVMe PCIe 4.0"
+        },
+        "description": {
+          "performance": "SSD NVMe para tablets con lectura de 5000 MB/s",
+          "write": "Escritura de 3500 MB/s con bajo consumo",
+          "technology": "PCIe 4.0 optimizado para dispositivos móviles",
+          "capacity": "512GB de almacenamiento ultrarrápido"
+        },
+        "type": "tablet",
+        "ranking": 1,
+        "advantages": [
+          "Máximo rendimiento en tablets",
+          "Excelente eficiencia energética",
+          "Mínimo impacto en batería"
+        ]
+      },
+      {
+        "id": "nvme_tablet_pcie3_512gb",
+        "name": "NVMe PCIe 3.0 512GB Tablet",
+        "brand": "WD",
+        "specs": {
+          "readSpeed": 2500,
+          "writeSpeed": 1800,
+          "size": 512,
+          "technology": "NVMe PCIe 3.0"
+        },
+        "description": {
+          "performance": "SSD NVMe para tablets con lectura de 2500 MB/s",
+          "write": "Escritura de 1800 MB/s balanceada",
+          "technology": "PCIe 3.0 eficiente en energía",
+          "capacity": "512GB de almacenamiento eficiente"
+        },
+        "type": "tablet",
+        "ranking": 2,
+        "advantages": [
+          "Consumo de energía optimizado",
+          "Buen rendimiento general",
+          "Precio competitivo"
+        ]
+      },
+      {
+        "id": "emmc_5.1_256gb_tablet",
+        "name": "eMMC 5.1 256GB Tablet",
+        "brand": "Toshiba",
+        "specs": {
+          "readSpeed": 400,
+          "writeSpeed": 200,
+          "size": 256,
+          "technology": "eMMC 5.1"
+        },
+        "description": {
+          "performance": "Almacenamiento eMMC 5.1 con velocidades de lectura de 400 MB/s",
+          "write": "Velocidad de escritura de 200 MB/s",
+          "capacity": "256GB de capacidad para tablets",
+          "technology": "Tecnología eMMC confiable"
+        },
+        "type": "tablet",
+        "ranking": 3,
+        "advantages": [
+          "Costo accesible",
+          "Ideal para almacenamiento básico",
+          "Compatible con la mayoría de tablets"
+        ]
+      }
+    ]
+  },
+  "gpu": {
+    "desktop": [
+      {
+        "id": "rtx_4090",
+        "name": "GeForce RTX 4090",
+        "brand": "NVIDIA",
+        "specs": {
+          "cores": 16384,
+          "memory": 24,
+          "memoryType": "GDDR6X",
+          "boost": 2.52,
+          "tdp": 450
+        },
+        "referencePrice": 1599,
+        "performanceScore": 100,
+        "type": "desktop",
+        "ranking": {
+          "overall": 1,
+          "performance": 1,
+          "efficiency": 3,
+          "valueForMoney": 3
+        }
+      },
+      {
+        "id": "rx_7900_xtx",
+        "name": "Radeon RX 7900 XTX",
+        "brand": "AMD",
+        "specs": {
+          "cores": 12288,
+          "memory": 24,
+          "memoryType": "GDDR6",
+          "boost": 2.5,
+          "tdp": 355
+        },
+        "referencePrice": 999,
+        "performanceScore": 95,
+        "type": "desktop",
+        "ranking": {
+          "overall": 2,
+          "performance": 2,
+          "efficiency": 2,
+          "valueForMoney": 1
+        }
+      },
+      {
+        "id": "rtx_4080",
+        "name": "GeForce RTX 4080",
+        "brand": "NVIDIA",
+        "specs": {
+          "cores": 9728,
+          "memory": 16,
+          "memoryType": "GDDR6X",
+          "boost": 2.51,
+          "tdp": 320
+        },
+        "referencePrice": 1199,
+        "performanceScore": 90,
+        "type": "desktop",
+        "ranking": {
+          "overall": 3,
+          "performance": 3,
+          "efficiency": 2,
+          "valueForMoney": 2
+        }
+      },
+      {
+        "id": "rx_7800_xt",
+        "name": "Radeon RX 7800 XT",
+        "brand": "AMD",
+        "specs": {
+          "cores": 3840,
+          "memory": 16,
+          "memoryType": "GDDR6",
+          "boost": 2.4,
+          "tdp": 250
+        },
+        "referencePrice": 699,
+        "performanceScore" : 85,
+        "type": "desktop",
+        "ranking": {
+          "overall": 4,
+          "performance": 4,
+          "efficiency": 4,
+          "valueForMoney": 4
+        }
+      },
+      {
+        "id": "rtx_4070_ti",
+        "name": "GeForce RTX 4070 Ti",
+        "brand": "NVIDIA",
+        "specs": {
+          "cores": 7680,
+          "memory": 12,
+          "memoryType": "GDDR6X",
+          "boost": 2.61,
+          "tdp": 285
+        },
+        "referencePrice": 799,
+        "performanceScore": 88,
+        "type": "desktop",
+        "ranking": {
+          "overall": 5,
+          "performance": 5,
+          "efficiency": 5,
+          "valueForMoney": 5
+        }
+      }
+    ]
+  }
+}
