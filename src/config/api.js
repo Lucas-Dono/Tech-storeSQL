@@ -6,6 +6,7 @@ export const API_TIMEOUT = 30000; // 30 seconds
 export const getHeaders = (token = null) => {
   const headers = {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   };
 
   if (token) {

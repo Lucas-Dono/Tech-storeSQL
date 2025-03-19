@@ -122,7 +122,8 @@ const Auth = () => {
         showError(result.error || 'Error al iniciar sesión');
       }
     } catch (err) {
-      showError('Error al procesar la solicitud');
+      console.error('Error en login:', err);
+      showError(err.message || 'Error al procesar la solicitud');
     }
   };
 
