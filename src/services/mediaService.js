@@ -1,12 +1,11 @@
 import imageCompression from 'browser-image-compression';
+import { API_URL, ENDPOINTS, getHeaders } from '../config/api';
 
 // Constantes para validación de archivos
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 export const ALLOWED_VIDEO_TYPES = ['video/mp4'];
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 export const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-
-const API_URL = 'http://localhost:3001/api';
 
 // Función auxiliar para convertir File a Data URL
 const fileToDataUrl = (file) => {
@@ -28,29 +27,24 @@ const isValidUrl = (url) => {
   }
 };
 
-export const compressImage = async (imageFile) => {
+// Función para comprimir imágenes
+const compressImage = async (file) => {
   const options = {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,
     useWebWorker: true,
-    fileType: 'image/webp',
-    initialQuality: 0.8,
   };
-  
+
   try {
-    const compressedFile = await imageCompression(imageFile, options);
-    return new File([compressedFile], 
-      `${imageFile.name.split('.')[0]}.webp`,
-      { type: 'image/webp' }
-    );
+    return await imageCompression(file, options);
   } catch (error) {
-    console.error('Error al comprimir la imagen:', error);
-    return imageFile;
+    console.error('Error comprimiendo imagen:', error);
+    return file;
   }
 };
 
 export const mediaService = {
-  async uploadImages(files) {
+  async uploadImages(files, token) {
     try {
       const imageFiles = Array.from(files).filter(file => 
         ALLOWED_IMAGE_TYPES.includes(file.type)
@@ -66,24 +60,28 @@ export const mediaService = {
         formData.append('images', compressedFile);
       }
 
-      const response = await fetch(`${API_URL}/upload`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.UPLOAD_IMAGES}`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData
       });
 
       if (!response.ok) {
-        throw new Error('Error al subir las imágenes');
+        const error = await response.json();
+        throw new Error(error.message || 'Error al subir las imágenes');
       }
 
       const data = await response.json();
-      return data.imageUrls; // Array de URLs de las imágenes subidas
+      return data.imageUrls;
     } catch (error) {
       console.error('Error al subir las imágenes:', error);
       throw error;
     }
   },
 
-  async uploadVideo(file) {
+  async uploadVideo(file, token) {
     try {
       if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
         throw new Error('Formato de video no soportado');
@@ -96,13 +94,17 @@ export const mediaService = {
       const formData = new FormData();
       formData.append('video', file);
 
-      const response = await fetch(`${API_URL}/upload/video`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.UPLOAD_VIDEO}`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData
       });
 
       if (!response.ok) {
-        throw new Error('Error al subir el video');
+        const error = await response.json();
+        throw new Error(error.message || 'Error al subir el video');
       }
 
       const data = await response.json();
@@ -113,7 +115,7 @@ export const mediaService = {
     }
   },
 
-  async deleteMedia(mediaUrl) {
+  async deleteMedia(mediaUrl, token) {
     try {
       if (!mediaUrl) {
         throw new Error('URL no proporcionada');
@@ -128,28 +130,21 @@ export const mediaService = {
         return;
       }
 
-      // Verificar que sea una URL válida del servidor
-      if (!urlToDelete || !urlToDelete.includes('http://localhost:3001/uploads/')) {
-        throw new Error('URL inválida. Debe ser una URL del servidor.');
+      // Verificar que sea una URL válida
+      if (!isValidUrl(urlToDelete)) {
+        throw new Error('URL inválida');
       }
 
-      console.log('Intentando eliminar:', urlToDelete);
-
-      const response = await fetch(`${API_URL}/media`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.DELETE_MEDIA}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(urlToDelete)
+        headers: getHeaders(token),
+        body: JSON.stringify({ url: urlToDelete })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error del servidor:', errorData);
-        throw new Error(errorData.error || 'Error al eliminar el archivo multimedia');
+        const error = await response.json();
+        throw new Error(error.message || 'Error al eliminar el archivo multimedia');
       }
-
-      console.log('Archivo eliminado correctamente');
     } catch (error) {
       console.error('Error en deleteMedia:', error);
       throw error;
