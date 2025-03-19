@@ -10,7 +10,7 @@ const generateToken = (id) => {
 };
 
 // @desc    Registrar un nuevo usuario
-// @route   POST /api/auth/register
+// @route   POST /auth/register
 // @access  Public
 const registerUser = async (req, res) => {
   try {
@@ -23,12 +23,20 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
+    // Determinar el rol basado en el email
+    let role = 'user';
+    if (email === process.env.SUPERADMIN_EMAIL) {
+      role = 'superadmin';
+    } else if (email === process.env.ADMIN_EMAIL) {
+      role = 'admin';
+    }
+
     // Crear usuario
     const user = await User.create({
       name,
       email,
       password,
-      role: 'user', // Por defecto, rol de usuario normal
+      role,
     });
 
     if (user) {
@@ -41,6 +49,7 @@ const registerUser = async (req, res) => {
       });
     }
   } catch (error) {
+    console.error('Error en registerUser:', error);
     res.status(500).json({ message: 'Error al crear usuario' });
   }
 };
