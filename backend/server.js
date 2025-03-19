@@ -94,7 +94,7 @@ app.get('/test', (req, res) => {
 });
 
 // Rutas de autenticación
-app.use('/api/auth', require('./routes/auth'));
+app.use('/auth', require('./routes/auth'));
 
 // Manejo de errores 404
 app.use((req, res) => {
@@ -117,23 +117,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Usar el puerto proporcionado por Render
+// Iniciar servidor
 const PORT = process.env.PORT || 3000;
-
-// Iniciar el servidor
-const server = app.listen(PORT, () => {
-  console.log('=== Servidor iniciado ===');
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-  console.log(`Modo: ${process.env.NODE_ENV}`);
-  console.log(`URL local: http://localhost:${PORT}`);
-  if (process.env.NODE_ENV === 'production') {
-    console.log('URL de producción: https://tech-store-backend-54ph.onrender.com');
-  }
-  console.log('=== Configuración completada ===');
-});
-
-// Manejar errores de inicio del servidor
-server.on('error', (error) => {
-  console.error('Error al iniciar el servidor:', error);
-  process.exit(1);
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT} en modo ${process.env.NODE_ENV}`);
 }); 
