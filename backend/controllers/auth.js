@@ -343,6 +343,112 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// @desc    Actualizar rol de usuario
+// @route   PATCH /auth/users/:id/role
+// @access  Private/Superadmin
+const updateUserRole = async (req, res) => {
+  try {
+    console.log('Actualizando rol de usuario:', {
+      userId: req.params.id,
+      newRole: req.body.role,
+      updatedBy: req.user._id
+    });
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      console.log('Usuario no encontrado:', req.params.id);
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // No permitir cambiar el rol de un superadmin
+    if (user.role === 'superadmin') {
+      console.log('Intento de cambiar rol de superadmin');
+      return res.status(403).json({ message: 'No se puede cambiar el rol de un superadmin' });
+    }
+
+    // Verificar que el nuevo rol sea válido
+    if (!['user', 'admin'].includes(req.body.role)) {
+      console.log('Rol inválido:', req.body.role);
+      return res.status(400).json({ message: 'Rol inválido' });
+    }
+
+    user.role = req.body.role;
+    await user.save();
+
+    console.log('Rol actualizado:', {
+      userId: user._id,
+      email: user.email,
+      newRole: user.role
+    });
+
+    res.json({
+      message: 'Rol actualizado correctamente',
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Error en updateUserRole:', error);
+    res.status(500).json({ 
+      message: 'Error al actualizar rol',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    Cambiar estado de usuario
+// @route   PATCH /auth/users/:id/status
+// @access  Private/Superadmin
+const toggleUserStatus = async (req, res) => {
+  try {
+    console.log('Cambiando estado de usuario:', {
+      userId: req.params.id,
+      isActive: req.body.isActive,
+      updatedBy: req.user._id
+    });
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      console.log('Usuario no encontrado:', req.params.id);
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // No permitir desactivar superadmins
+    if (user.role === 'superadmin' && !req.body.isActive) {
+      console.log('Intento de desactivar superadmin');
+      return res.status(403).json({ message: 'No se puede desactivar un superadmin' });
+    }
+
+    user.isActive = req.body.isActive;
+    await user.save();
+
+    console.log('Estado actualizado:', {
+      userId: user._id,
+      email: user.email,
+      isActive: user.isActive
+    });
+
+    res.json({
+      message: 'Estado actualizado correctamente',
+      user: {
+        _id: user._id,
+        email: user.email,
+        isActive: user.isActive
+      }
+    });
+  } catch (error) {
+    console.error('Error en toggleUserStatus:', error);
+    res.status(500).json({ 
+      message: 'Error al cambiar estado',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -351,4 +457,6 @@ module.exports = {
   deleteUser,
   getAllUsers,
   initSuperAdmin,
+  updateUserRole,
+  toggleUserStatus,
 }; 

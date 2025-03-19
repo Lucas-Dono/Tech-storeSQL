@@ -7,6 +7,8 @@ const {
   createAdminUser,
   deleteUser,
   getAllUsers,
+  updateUserRole,
+  toggleUserStatus,
 } = require('../controllers/auth');
 const { protect, admin, superadmin } = require('../middleware/auth');
 
@@ -19,5 +21,7 @@ router.get('/profile', protect, getUserProfile);
 router.post('/create-admin', protect, superadmin, createAdminUser);
 router.delete('/users/:id', protect, superadmin, deleteUser);
 router.get('/users', protect, superadmin, getAllUsers);
+router.patch('/users/:id/role', protect, superadmin, updateUserRole);
+router.patch('/users/:id/status', protect, superadmin, toggleUserStatus);
 
 module.exports = router; 
