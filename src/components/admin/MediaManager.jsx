@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import { mediaService } from '../../services/mediaService';
 import { useAlert } from '../../context/AlertContext';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../context/AuthContext';
 
 const MediaManager = ({ images = [], video, onImagesChange, onVideoChange }) => {
   const { t } = useTranslation();
   const { success, error } = useAlert();
+  const { token } = useAuth();
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [isDraggingOver, setIsDraggingOver] = useState(null);
   const [videoUrl, setVideoUrl] = useState(video?.url || '');
@@ -23,7 +25,7 @@ const MediaManager = ({ images = [], video, onImagesChange, onVideoChange }) => 
 
     setIsUploading(true);
     try {
-      const uploadedUrls = await mediaService.uploadImages(files);
+      const uploadedUrls = await mediaService.uploadImages(files, token);
       const newImages = [...images, ...uploadedUrls];
       onImagesChange(newImages);
       success(t('mediaManager.imageUploadSuccess'));
@@ -38,7 +40,7 @@ const MediaManager = ({ images = [], video, onImagesChange, onVideoChange }) => 
   const handleImageRemove = async (index) => {
     try {
       const imageUrl = images[index];
-      await mediaService.deleteMedia(imageUrl);
+      await mediaService.deleteMedia(imageUrl, token);
       const newImages = images.filter((_, i) => i !== index);
       onImagesChange(newImages);
       success(t('mediaManager.imageDeleteSuccess'));

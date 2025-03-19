@@ -64,6 +64,7 @@ export const mediaService = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         },
         body: formData
       });
@@ -74,7 +75,9 @@ export const mediaService = {
       }
 
       const data = await response.json();
-      return data.imageUrls;
+      // Asegurarnos de que data.imageUrls sea un array
+      const imageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [data.imageUrls];
+      return imageUrls;
     } catch (error) {
       console.error('Error al subir las imágenes:', error);
       throw error;
@@ -98,6 +101,7 @@ export const mediaService = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         },
         body: formData
       });

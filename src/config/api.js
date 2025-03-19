@@ -36,7 +36,7 @@ export const ENDPOINTS = {
   CATEGORIES: '/categories',
   
   // Media
-  UPLOAD_IMAGES: '/upload',
+  UPLOAD_IMAGES: '/upload/multiple',
   UPLOAD_VIDEO: '/upload/video',
-  DELETE_MEDIA: '/media',
+  DELETE_MEDIA: '/upload',
 }; 

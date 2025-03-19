@@ -3,6 +3,7 @@ import { API_URL, ENDPOINTS, getHeaders } from '../config/api';
 export const authService = {
   async login(credentials) {
     try {
+      console.log('Intentando login con:', credentials.email);
       const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
         method: 'POST',
         headers: getHeaders(),
@@ -15,6 +16,11 @@ export const authService = {
       }
 
       const data = await response.json();
+      console.log('Login exitoso:', {
+        token: data.token ? 'Presente' : 'Ausente',
+        role: data.role,
+        email: data.email
+      });
       return data;
     } catch (error) {
       console.error('Error en login:', error);
@@ -45,6 +51,7 @@ export const authService = {
 
   async getProfile(token) {
     try {
+      console.log('Obteniendo perfil con token:', token ? 'Presente' : 'Ausente');
       const response = await fetch(`${API_URL}${ENDPOINTS.PROFILE}`, {
         method: 'GET',
         headers: getHeaders(token),
@@ -56,6 +63,11 @@ export const authService = {
       }
 
       const data = await response.json();
+      console.log('Perfil obtenido:', {
+        role: data.role,
+        email: data.email,
+        id: data._id
+      });
       return data;
     } catch (error) {
       console.error('Error en getProfile:', error);

@@ -29,7 +29,9 @@ router.post('/multiple', protect, uploadMultiple, async (req, res) => {
     const uploadPromises = req.files.map(file => uploadToCloudinary(file));
     const results = await Promise.all(uploadPromises);
     
-    res.json(results);
+    // Extraer solo las URLs de las imágenes
+    const imageUrls = results.map(result => result.url);
+    res.json({ imageUrls });
   } catch (error) {
     console.error('Error en la subida de imágenes:', error);
     res.status(500).json({ message: error.message });

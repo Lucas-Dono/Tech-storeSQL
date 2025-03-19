@@ -13,7 +13,7 @@ import {
 const AdminLayout = () => {
   const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin } = useAuth();
   const location = useLocation();
 
   const MENU_ITEMS = [
@@ -30,7 +30,7 @@ const AdminLayout = () => {
   ];
 
   // Verificar si el usuario es admin
-  if (!currentUser?.isAdmin) {
+  if (!currentUser || !isAdmin()) {
     return <Navigate to="/" replace />;
   }
 

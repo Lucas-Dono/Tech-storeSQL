@@ -34,7 +34,16 @@ const AdminRoute = () => {
   const { currentUser, isAdmin } = useAuth();
   const location = useLocation();
 
+  console.log('AdminRoute - Estado:', {
+    currentUser: currentUser ? {
+      role: currentUser.role,
+      email: currentUser.email
+    } : null,
+    isAdmin: isAdmin()
+  });
+
   if (!currentUser || !isAdmin()) {
+    console.log('AdminRoute - Acceso denegado, redirigiendo a /');
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
