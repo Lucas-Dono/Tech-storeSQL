@@ -11,9 +11,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'El email es requerido'],
     unique: true,
-    lowercase: true,
     trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Por favor ingrese un email válido']
+    lowercase: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Por favor ingrese un email válido']
   },
   password: {
     type: String,
@@ -24,6 +24,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin', 'superadmin'],
     default: 'user'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,
@@ -40,7 +48,7 @@ const userSchema = new mongoose.Schema({
 // Middleware para hashear la contraseña antes de guardar
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    return next();
+    next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
