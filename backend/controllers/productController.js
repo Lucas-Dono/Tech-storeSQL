@@ -85,7 +85,7 @@ exports.deleteProduct = async (req, res) => {
       return res.status(403).json({ message: 'No autorizado para eliminar este producto' });
     }
 
-    await product.remove();
+    await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar producto:', error);
