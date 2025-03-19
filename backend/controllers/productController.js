@@ -28,10 +28,14 @@ exports.getProductById = async (req, res) => {
 // Crear un nuevo producto
 exports.createProduct = async (req, res) => {
   try {
-    const product = new Product({
+    // Asegurarse de que el video sea null si no se proporciona
+    const productData = {
       ...req.body,
+      video: req.body.video || null,
       createdBy: req.user.id
-    });
+    };
+
+    const product = new Product(productData);
     await product.save();
     res.status(201).json(product);
   } catch (error) {
@@ -56,9 +60,15 @@ exports.updateProduct = async (req, res) => {
       return res.status(403).json({ message: 'No autorizado para actualizar este producto' });
     }
 
+    // Asegurarse de que el video sea null si no se proporciona
+    const updateData = {
+      ...req.body,
+      video: req.body.video || null
+    };
+
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { ...req.body },
+      updateData,
       { new: true, runValidators: true }
     );
 

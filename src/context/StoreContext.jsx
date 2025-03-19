@@ -44,57 +44,58 @@ export const StoreProvider = ({ children }) => {
     }
   }, [cart]);
 
+  // Función para cargar productos
+  const loadProducts = useCallback(async () => {
+    try {
+      const data = await productService.getProducts();
+      if (Array.isArray(data)) {
+        // Traducir los productos según el idioma actual
+        const translatedProducts = data.map(product => ({
+          ...product,
+          name: product[`name_${i18n.language}`] || product.name,
+          description: product[`description_${i18n.language}`] || product.description,
+          features: product.features ? Object.entries(product.features).reduce((acc, [key, feature]) => ({
+            ...acc,
+            [key]: {
+              ...feature,
+              name: feature[`name_${i18n.language}`] || feature.name,
+              selectedComponent: feature.selectedComponent ? {
+                ...feature.selectedComponent,
+                name: feature.selectedComponent[`name_${i18n.language}`] || feature.selectedComponent.name,
+                description: feature.selectedComponent[`description_${i18n.language}`] || feature.selectedComponent.description
+              } : null,
+              options: feature.options ? feature.options.map(option => ({
+                ...option,
+                name: option[`name_${i18n.language}`] || option.name,
+                description: option[`description_${i18n.language}`] || option.description
+              })) : []
+            }
+          }), {}) : null,
+          models: product.models ? product.models.map(model => ({
+            ...model,
+            name: model[`name_${i18n.language}`] || model.name,
+            description: model[`description_${i18n.language}`] || model.description
+          })) : []
+        }));
+        setProducts(translatedProducts);
+      } else {
+        console.error('Los datos recibidos no son un array:', data);
+        setProducts([]);
+      }
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error al cargar productos:', err);
+      setError(err.message);
+      setProducts([]);
+      setIsLoading(false);
+      showToast('Error al cargar productos', 'error');
+    }
+  }, [i18n.language]);
+
   // Cargar productos al montar el componente o cuando cambie el idioma
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const data = await productService.getProducts();
-        if (Array.isArray(data)) {
-          // Traducir los productos según el idioma actual
-          const translatedProducts = data.map(product => ({
-            ...product,
-            name: product[`name_${i18n.language}`] || product.name,
-            description: product[`description_${i18n.language}`] || product.description,
-            features: product.features ? Object.entries(product.features).reduce((acc, [key, feature]) => ({
-              ...acc,
-              [key]: {
-                ...feature,
-                name: feature[`name_${i18n.language}`] || feature.name,
-                selectedComponent: feature.selectedComponent ? {
-                  ...feature.selectedComponent,
-                  name: feature.selectedComponent[`name_${i18n.language}`] || feature.selectedComponent.name,
-                  description: feature.selectedComponent[`description_${i18n.language}`] || feature.selectedComponent.description
-                } : null,
-                options: feature.options ? feature.options.map(option => ({
-                  ...option,
-                  name: option[`name_${i18n.language}`] || option.name,
-                  description: option[`description_${i18n.language}`] || option.description
-                })) : []
-              }
-            }), {}) : null,
-            models: product.models ? product.models.map(model => ({
-              ...model,
-              name: model[`name_${i18n.language}`] || model.name,
-              description: model[`description_${i18n.language}`] || model.description
-            })) : []
-          }));
-          setProducts(translatedProducts);
-        } else {
-          console.error('Los datos recibidos no son un array:', data);
-          setProducts([]);
-        }
-        setIsLoading(false);
-      } catch (err) {
-        console.error('Error al cargar productos:', err);
-        setError(err.message);
-        setProducts([]);
-        setIsLoading(false);
-        showToast('Error al cargar productos', 'error');
-      }
-    };
-
     loadProducts();
-  }, [i18n.language]); // Recargar cuando cambie el idioma
+  }, [loadProducts]);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
@@ -225,7 +226,8 @@ export const StoreProvider = ({ children }) => {
       }
 
       await productService.deleteProduct(productId, token);
-      setProducts(prev => prev.filter(product => product.id !== productId));
+      // Recargar los productos después de eliminar
+      await loadProducts();
       showToast('Producto eliminado exitosamente', 'success');
     } catch (err) {
       console.error('Error al eliminar el producto:', err);
@@ -238,7 +240,7 @@ export const StoreProvider = ({ children }) => {
       showToast('Error al eliminar el producto', 'error');
       throw err;
     }
-  }, [showToast, getToken]);
+  }, [showToast, getToken, loadProducts]);
 
   // Carrito
   const addToCart = useCallback((product, quantity = 1) => {

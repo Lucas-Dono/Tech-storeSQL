@@ -21,6 +21,7 @@ export const DEFAULT_PRODUCT = {
   description: '',
   basePrice: 0,
   images: [],
+  video: null,
   category: '',
   stock: 0,
   variantType: VARIANT_TYPES.CONFIGURABLE,

@@ -22,7 +22,7 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
     currency: initialData?.currency || DEFAULT_CURRENCY,
     stock: initialData?.stock || '',
     images: initialData?.images || [],
-    video: initialData?.video || '',
+    video: initialData?.video || null,
     variantType: initialData?.variantType || VARIANT_TYPES.CONFIGURABLE,
     features: initialData?.features || {},
     models: initialData?.models || []
@@ -69,7 +69,7 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
           {/* Nombre del producto */}
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              {t('productForm.name')}
+              {t('Nombre del producto')}
             </label>
             <input
               type="text"
