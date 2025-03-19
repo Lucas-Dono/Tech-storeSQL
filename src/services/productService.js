@@ -56,6 +56,18 @@ export const productService = {
 
   // Eliminar un producto
   async deleteProduct(id, token) {
+    if (!id) {
+      throw new Error('ID de producto no proporcionado');
+    }
+
+    if (!token) {
+      throw new Error('Token no proporcionado');
+    }
+
+    console.log('Enviando solicitud DELETE para producto:', id);
+    console.log('Token disponible:', !!token);
+    console.log('Headers:', getHeaders(token));
+
     const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
       method: 'DELETE',
       headers: getHeaders(token),
@@ -63,6 +75,9 @@ export const productService = {
     
     if (!response.ok) {
       const error = await response.json();
+      console.error('Error en la respuesta del servidor:', error);
+      console.error('Status:', response.status);
+      console.error('Status text:', response.statusText);
       throw new Error(error.message || 'Error al eliminar producto');
     }
     

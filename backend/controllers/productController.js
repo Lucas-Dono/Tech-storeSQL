@@ -52,7 +52,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Verificar si el usuario es el creador o un admin
-    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ message: 'No autorizado para actualizar este producto' });
     }
 
@@ -81,7 +81,7 @@ exports.deleteProduct = async (req, res) => {
     }
 
     // Verificar si el usuario es el creador o un admin
-    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ message: 'No autorizado para eliminar este producto' });
     }
 

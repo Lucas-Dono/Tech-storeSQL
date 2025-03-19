@@ -14,8 +14,8 @@ router.get('/', getProducts);
 router.get('/:id', getProductById);
 
 // Rutas protegidas (requieren autenticación)
-router.post('/', protect, authorize(['admin']), createProduct);
-router.put('/:id', protect, authorize(['admin']), updateProduct);
-router.delete('/:id', protect, authorize(['admin']), deleteProduct);
+router.post('/', protect, authorize(['admin', 'superadmin']), createProduct);
+router.put('/:id', protect, authorize(['admin', 'superadmin']), updateProduct);
+router.delete('/:id', protect, authorize(['admin', 'superadmin']), deleteProduct);
 
 module.exports = router; 

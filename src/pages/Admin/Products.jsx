@@ -50,8 +50,17 @@ const AdminProducts = () => {
   };
 
   const handleProductDelete = async (productId) => {
+    console.log('Intentando eliminar producto con ID:', productId);
+    
+    if (!productId) {
+      console.error('ID de producto no válido');
+      error(t('adminProducts.deleteError'));
+      return;
+    }
+
     if (window.confirm(t('adminProducts.confirmDelete'))) {
       try {
+        console.log('Iniciando eliminación del producto:', productId);
         await deleteProduct(productId);
         success(t('adminProducts.deleteSuccess'));
       } catch (err) {
@@ -107,173 +116,180 @@ const AdminProducts = () => {
         <div className="text-center py-8 text-gray-500">{t('adminProducts.noProducts')}</div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="border rounded-lg p-6 bg-white shadow-sm"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">{product.name}</h2>
-                  <p className="text-gray-600">{product.description}</p>
-                  <div className="mt-2 grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-gray-600">{t('productForm.price')}:</span>
-                      <span className="ml-2 font-medium">
-                        {product.currency} {formatNumber(product.basePrice.toString())}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">{t('productForm.stock')}:</span>
-                      <span className="ml-2 font-medium">{product.stock}</span>
+          {filteredProducts.map((product) => {
+            const productId = product.id || product._id;
+            return (
+              <div
+                key={`product-${productId}`}
+                className="border rounded-lg p-6 bg-white shadow-sm"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">{product.name}</h2>
+                    <p className="text-gray-600">{product.description}</p>
+                    <div className="mt-2 grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-gray-600">{t('productForm.price')}:</span>
+                        <span className="ml-2 font-medium">
+                          {product.currency} {formatNumber(product.basePrice.toString())}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">{t('productForm.stock')}:</span>
+                        <span className="ml-2 font-medium">{product.stock}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setEditingProduct(editingProduct?.id === productId ? null : product)}
+                      className={`${editingProduct?.id === productId ? 'text-blue-600' : 'text-gray-400'} hover:text-blue-800`}
+                    >
+                      <PencilIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const idToDelete = product.id || product._id;
+                        console.log('ID del producto a eliminar:', idToDelete);
+                        handleProductDelete(idToDelete);
+                      }}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setEditingProduct(editingProduct?.id === product.id ? null : product)}
-                    className={`${editingProduct?.id === product.id ? 'text-blue-600' : 'text-gray-400'} hover:text-blue-800`}
-                  >
-                    <PencilIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleProductDelete(product.id)}
-                    className="text-gray-400 hover:text-red-600"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
 
-              {editingProduct?.id === product.id && (
-                <>
-                  <div className="border-t pt-4 mb-6">
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t('Nombre del producto')}
-                        </label>
-                        <input
-                          type="text"
-                          value={product.name}
-                          onChange={(e) => updateProduct(product.id, { ...product, name: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <Select
-                          label={t('productForm.category')}
-                          options={[
-                            { value: '', label: 'Seleccionar categoría' },
-                            { value: 'Laptops', label: 'Laptops' },
-                            { value: 'Smartphones', label: 'Smartphones' },
-                            { value: 'Tablets', label: 'Tablets' },
-                            { value: 'Accesorios', label: 'Accesorios' }
-                          ]}
-                          value={product.category}
-                          onChange={(value) => updateProduct(product.id, { ...product, category: value })}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t('productForm.price')}
-                        </label>
-                        <div className="mt-1 flex">
-                          <Select
-                            options={Object.entries(CURRENCIES).map(([code, currency]) => ({
-                              value: code,
-                              label: `${currency.name} (${currency.symbol})`,
-                              icon: <span>{currency.symbol}</span>
-                            }))}
-                            value={product.currency || DEFAULT_CURRENCY}
-                            onChange={(value) => updateProduct(product.id, { ...product, currency: value })}
-                            className="w-32"
-                          />
+                {editingProduct?.id === productId && (
+                  <>
+                    <div className="border-t pt-4 mb-6">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t('Nombre del producto')}
+                          </label>
                           <input
                             type="text"
-                            value={formatNumber(product.basePrice.toString())}
+                            value={product.name}
+                            onChange={(e) => updateProduct(productId, { ...product, name: e.target.value })}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <Select
+                            label={t('productForm.category')}
+                            options={[
+                              { value: '', label: 'Seleccionar categoría' },
+                              { value: 'Laptops', label: 'Laptops' },
+                              { value: 'Smartphones', label: 'Smartphones' },
+                              { value: 'Tablets', label: 'Tablets' },
+                              { value: 'Accesorios', label: 'Accesorios' }
+                            ]}
+                            value={product.category}
+                            onChange={(value) => updateProduct(productId, { ...product, category: value })}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t('productForm.price')}
+                          </label>
+                          <div className="mt-1 flex">
+                            <Select
+                              options={Object.entries(CURRENCIES).map(([code, currency]) => ({
+                                value: code,
+                                label: `${currency.name} (${currency.symbol})`,
+                                icon: <span>{currency.symbol}</span>
+                              }))}
+                              value={product.currency || DEFAULT_CURRENCY}
+                              onChange={(value) => updateProduct(productId, { ...product, currency: value })}
+                              className="w-32"
+                            />
+                            <input
+                              type="text"
+                              value={formatNumber(product.basePrice.toString())}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!/^[\d.,]*$/.test(value)) return;
+                                try {
+                                  const formattedValue = formatNumber(value);
+                                  updateProduct(productId, { 
+                                    ...product, 
+                                    basePrice: parseFloat(formattedValue.replace(/\./g, '').replace(',', '.')) 
+                                  });
+                                } catch (error) {
+                                  console.error('Error al formatear número:', error);
+                                }
+                              }}
+                              placeholder="0,00"
+                              className="block w-full rounded-r-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t('productForm.stock')}
+                          </label>
+                          <input
+                            type="text"
+                            value={product.stock}
                             onChange={(e) => {
                               const value = e.target.value;
-                              if (!/^[\d.,]*$/.test(value)) return;
-                              try {
-                                const formattedValue = formatNumber(value);
-                                updateProduct(product.id, { 
-                                  ...product, 
-                                  basePrice: parseFloat(formattedValue.replace(/\./g, '').replace(',', '.')) 
-                                });
-                              } catch (error) {
-                                console.error('Error al formatear número:', error);
-                              }
+                              if (!/^\d*$/.test(value)) return;
+                              updateProduct(productId, { ...product, stock: value });
                             }}
-                            placeholder="0,00"
-                            className="block w-full rounded-r-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="0"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t('productForm.stock')}
-                        </label>
-                        <input
-                          type="text"
-                          value={product.stock}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (!/^\d*$/.test(value)) return;
-                            updateProduct(product.id, { ...product, stock: value });
-                          }}
-                          placeholder="0"
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
+                      {/* Descripciones */}
+                      <div className="mt-6 space-y-6">
+                        {/* Descripción en español */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t('productForm.descriptionEs')}
+                          </label>
+                          <textarea
+                            value={product.description}
+                            onChange={(e) => updateProduct(productId, { ...product, description: e.target.value })}
+                            rows="3"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        {/* Descripción en inglés */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t('productForm.descriptionEn')}
+                          </label>
+                          <textarea
+                            value={product.description_en || ''}
+                            onChange={(e) => updateProduct(productId, { ...product, description_en: e.target.value })}
+                            rows="3"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Descripciones */}
-                    <div className="mt-6 space-y-6">
-                      {/* Descripción en español */}
-                <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t('productForm.descriptionEs')}
-                        </label>
-                        <textarea
-                          value={product.description}
-                          onChange={(e) => updateProduct(product.id, { ...product, description: e.target.value })}
-                          rows="3"
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                </div>
-
-                      {/* Descripción en inglés */}
-                <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t('productForm.descriptionEn')}
-                        </label>
-                        <textarea
-                          value={product.description_en || ''}
-                          onChange={(e) => updateProduct(product.id, { ...product, description_en: e.target.value })}
-                          rows="3"
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
-                </div>
+                    <div className="border-t pt-4">
+                      <ConfigurableProductManager
+                        product={product}
+                        onUpdate={async (updatedProduct) => {
+                          await updateProduct(updatedProduct.id, updatedProduct);
+                          setEditingProduct(null);
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
-
-                  <div className="border-t pt-4">
-                  <ConfigurableProductManager
-                      product={product}
-                    onUpdate={async (updatedProduct) => {
-                      await updateProduct(updatedProduct.id, updatedProduct);
-                      setEditingProduct(null);
-                    }}
-                  />
-                </div>
-                </>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

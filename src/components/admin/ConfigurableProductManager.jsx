@@ -9,6 +9,13 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
   const { t } = useTranslation();
   const { specifications, products } = useStore();
   
+  // Validar que el producto tenga un ID válido
+  const productId = product.id || product._id;
+  if (!productId) {
+    console.error('Producto sin ID válido:', product);
+    return null;
+  }
+  
   // Estados para la gestión de componentes
   const [selectedFeatures, setSelectedFeatures] = useState(() => {
     const features = {};
@@ -473,330 +480,115 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
           onVideoChange={setProductVideo}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.entries(componentCategories)
-            .filter(([category]) => category !== 'additionalFeatures')
-            .map(([category, categoryInfo]) => (
-            <div key={category} className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">
-                {categoryInfo.name}
-                </h4>
-                
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="text"
-                  placeholder={t('configurableProduct.searchPlaceholder', { component: categoryInfo.name.toLowerCase() })}
-                  value={searchTerms[category] || ''}
-                      onChange={(e) => {
-                    setSearchTerms(prev => ({
-                      ...prev,
-                      [category]: e.target.value
-                    }));
-                        setActiveCategory(category);
-                      }}
-                      className="flex-1 px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
+        {/* Características configurables */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">{t('configurableProduct.features')}</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(componentCategories).map(([category, { name }]) => (
+              <div key={`category-${category}`} className="relative">
+                <button
+                  onClick={() => handleFeatureToggle(category)}
+                  className={`w-full p-4 text-left rounded-lg border ${
+                    selectedFeatures[category]
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{name}</span>
+                    <span className={`text-sm ${selectedFeatures[category] ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {selectedFeatures[category] ? t('configurableProduct.selected') : t('configurableProduct.notSelected')}
+                    </span>
                   </div>
-
-                  <div className="relative">
-                <div className="flex flex-col space-y-2">
-                  {filteredOptionsByCategory[category]?.map((option) => (
-                    <div
-                      key={option.id}
-                      className={`cursor-pointer transition-all ${
-                        selectedComponents[category]?.id === option.id
-                          ? 'ring-2 ring-blue-500 bg-blue-50'
-                          : 'border hover:border-blue-300'
-                      } rounded-lg p-4`}
-                      onClick={() => handleFeatureSelect(category, option)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h5 className="font-medium text-gray-900">{option.name || t('configurableProduct.noName')}</h5>
-                          {option.brand && (
-                            <p className="text-sm text-gray-600">{option.brand}</p>
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          {t('configurableProduct.priceIncrement', { price: (option.priceIncrement || 0).toFixed(2) })}
-                        </span>
-                      </div>
-                      {option.specs && (
-                        <div className="mt-2 text-sm text-gray-500 space-y-1">
-                          {Object.entries(option.specs).map(([key, value]) => (
-                            <div key={key}>
-                              <span className="capitalize">{key.replace('_', ' ')}: </span>
-                              <span>{value}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                </button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Características Adicionales - Siempre visible */}
-        {specifications?.additionalFeatures?.mobile && (
-          <div className="mt-8 space-y-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Características Adicionales</h3>
-              <input
-                type="text"
-                placeholder="Buscar características adicionales..."
-                value={searchTerms.additionalFeatures || ''}
-                onChange={(e) => {
-                  setSearchTerms(prev => ({
-                    ...prev,
-                    additionalFeatures: e.target.value
-                  }));
-                }}
-                className="w-1/3 px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            {['biometrics', 'sound', 'connectivity', 'protection', 'security', 'gaming']
-              .filter(featureType => 
-                Array.isArray(specifications.additionalFeatures.mobile[featureType])
-              )
-              .map((featureType) => {
-                const searchTerm = searchTerms.additionalFeatures?.toLowerCase() || '';
-                const filteredOptions = specifications.additionalFeatures.mobile[featureType]
-                  .filter(option => {
-                    if (!searchTerm) return true;
-                    
-                    const searchableFields = [
-                      option.name,
-                      option.brand,
-                      ...(option.specs ? Object.values(option.specs) : []),
-                      ...(option.description ? Object.values(option.description) : []),
-                      ...(option.advantages || [])
-                    ].filter(Boolean);
-
-                    return searchableFields.some(field => 
-                      String(field).toLowerCase().includes(searchTerm)
-                    );
-                  });
-
-                if (filteredOptions.length === 0) return null;
-
-                return (
-                  <div key={featureType} className="border-b pb-4">
-                    <h4 className="text-lg font-semibold mb-3 capitalize">{featureType}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredOptions.map((option) => (
-                        <div
-                          key={option.id}
-                          className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                            selectedComponents[featureType]?.id === option.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'hover:border-blue-300'
-                          }`}
-                          onClick={() => handleFeatureSelect(featureType, option)}
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <h5 className="font-medium">{option.name || 'Sin nombre'}</h5>
-                            <span className="text-sm text-gray-500">
-                              +${(option.priceIncrement || 0).toFixed(2)}
-                            </span>
-                          </div>
-                          {option.specs && (
-                            <div className="text-sm text-gray-600 space-y-2">
-                              {Object.entries(option.specs).map(([key, value]) => (
-                                <div key={key}>
-                                  <span className="font-medium capitalize">
-                                    {key.replace('_', ' ')}: 
-                                  </span>
-                                  {typeof value === 'boolean' ? (value ? 'Sí' : 'No') : value}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        )}
-
-        {/* Sección de Modelos/Variantes */}
-        <div className="mt-8 space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-900">{t('configurableProduct.productVariants')}</h3>
-            <div className="text-lg font-medium text-gray-900">
-              {t('configurableProduct.basePrice', { price: product.basePrice.toFixed(2) })}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <input
-                type="text"
-                placeholder={t('configurableProduct.searchProductsPlaceholder')}
-                value={productSearchTerm}
-                onChange={(e) => setProductSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-                  </div>
-
-            {/* Lista de productos disponibles */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((prod) => (
-                  <div
-                    key={prod.id}
-                    className={`cursor-pointer transition-all ${
-                      selectedModels.some(m => m.id === prod.id)
-                        ? 'ring-2 ring-blue-500 bg-blue-50'
-                        : 'border hover:border-blue-300'
-                    } rounded-lg p-4`}
-                    onClick={() => handleProductSelect(prod)}
-                  >
-                    <div className="flex space-x-4">
-                      <div className="w-24 h-24 flex-shrink-0">
-                        {prod.images?.length > 0 ? (
-                          <img 
-                            src={prod.images[0]} 
-                            alt={prod.name}
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/placeholder-image.jpg';
-                            }}
-                          />
-                        ) : prod.image ? (
-                          <img 
-                            src={prod.image} 
-                            alt={prod.name}
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/placeholder-image.jpg';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span className="text-gray-400">{t('configurableProduct.noImage')}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h5 className="font-medium text-gray-900">{prod.name}</h5>
-                            <p className="text-sm text-gray-600">{prod.description}</p>
-                          </div>
-                          <span className="text-sm text-gray-500">
-                            ${prod.basePrice.toFixed(2)}
-                          </span>
-                        </div>
-                        {prod.features && (
-                          <div className="mt-2 text-sm text-gray-500">
-                            {Object.entries(prod.features).map(([category, data]) => (
-                              data.selectedComponent && (
-                                <div key={category} className="text-xs">
-                                  <span className="font-medium capitalize">{category}: </span>
-                                  <span>{data.selectedComponent.name}</span>
-                                </div>
-                              )
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-2 text-center py-4 text-gray-500">
-                  {productSearchTerm 
-                    ? t('configurableProduct.noProductsFound')
-                    : t('configurableProduct.noProductsInCategory')}
-                </div>
-              )}
-                  </div>
-
-            {/* Variantes seleccionadas */}
-            {selectedModels.length > 0 && (
-              <div className="mt-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">
-                  {t('configurableProduct.selectedVariants')}
-                </h4>
-                <div className="space-y-4">
-                  {selectedModels.map((model) => (
-                    <div
-                      key={model.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+        {/* Opciones de características */}
+        {Object.entries(selectedFeatures).map(([category, isSelected]) => (
+          isSelected && (
+            <div key={`options-${category}`} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-md font-medium text-gray-900">{componentCategories[category]?.name}</h4>
+                <input
+                  type="text"
+                  placeholder={t('configurableProduct.search')}
+                  value={searchTerms[category] || ''}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, [category]: e.target.value }))}
+                  className="w-64 px-3 py-2 border rounded-md"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredOptionsByCategory[category]?.map((option) => (
+                  <div key={`option-${category}-${option.id || option.name}`} className="relative">
+                    <button
+                      onClick={() => handleFeatureSelect(category, option)}
+                      className={`w-full p-4 text-left rounded-lg border ${
+                        selectedComponents[category]?.id === option.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
                     >
-                      <div className="flex space-x-4">
-                        <div className="w-20 h-20 flex-shrink-0">
-                          {model.images?.length > 0 ? (
-                            <img 
-                              src={model.images[0]} 
-                              alt={model.name}
-                              className="w-full h-full object-cover rounded-lg"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = '/placeholder-image.jpg';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                              <span className="text-gray-400">{t('configurableProduct.noImage')}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h5 className="font-medium text-gray-900">{model.name}</h5>
-                              <p className="text-sm text-gray-600">{model.description}</p>
-                            </div>
-                            <span className="text-sm text-gray-500">
-                              ${model.price.toFixed(2)}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{option.name}</span>
+                          {option.priceIncrement > 0 && (
+                            <span className="text-sm text-green-600">
+                              +{option.priceIncrement}
                             </span>
-                          </div>
-                          {model.features && (
-                            <div className="mt-2 text-sm text-gray-500">
-                              {Object.entries(model.features).map(([category, data]) => (
-                                data.selectedComponent && (
-                                  <div key={category} className="text-xs">
-                                    <span className="font-medium capitalize">{category}: </span>
-                                    <span>{data.selectedComponent.name}</span>
-                                  </div>
-                                )
-                              ))}
-                            </div>
                           )}
                         </div>
+                        {option.description && (
+                          <p className="text-sm text-gray-600">{option.description}</p>
+                        )}
                       </div>
-                      <button
-                        onClick={() => handleModelRemove(model.id)}
-                        className="ml-4 text-red-600 hover:text-red-800"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        ))}
+
+        {/* Modelos */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">{t('configurableProduct.models')}</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {selectedModels.map((model) => (
+              <div key={`model-${model.id || model.name}`} className="relative">
+                <div className="p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium">{model.name}</span>
+                    <button
+                      onClick={() => handleModelRemove(model.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <span className="sr-only">{t('common.remove')}</span>
+                      ×
+                    </button>
+                  </div>
+                  {model.description && (
+                    <p className="text-sm text-gray-600">{model.description}</p>
+                  )}
+                  {model.price && (
+                    <p className="text-sm text-green-600 mt-2">+{model.price}</p>
+                  )}
                 </div>
               </div>
-            )}
+            ))}
           </div>
-            </div>
+        </div>
 
         <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleSave}
+          <button
+            onClick={handleSave}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
+          >
             {t('configurableProduct.saveConfiguration')}
-            </button>
-          </div>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -804,7 +596,8 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
 
 ConfigurableProductManager.propTypes = {
   product: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     name: PropTypes.string.isRequired,
     category: PropTypes.string.isRequired,
     basePrice: PropTypes.number.isRequired,

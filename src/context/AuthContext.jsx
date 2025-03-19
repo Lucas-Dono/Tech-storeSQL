@@ -111,7 +111,12 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     isUser,
     ROLES,
-    token: localStorage.getItem('token')
+    token: localStorage.getItem('token'),
+    getToken: () => {
+      const token = localStorage.getItem('token');
+      console.log('Obteniendo token:', token ? 'Presente' : 'Ausente');
+      return token;
+    }
   };
 
   if (loading) {

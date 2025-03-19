@@ -4,6 +4,7 @@ import Toast from '../components/Toast';
 import { productService } from '../services/productService';
 import specifications from '../data/specifications.json';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from './AuthContext';
 
 const StoreContext = createContext();
 
@@ -17,6 +18,7 @@ export const useStore = () => {
 
 export const StoreProvider = ({ children }) => {
   const { i18n } = useTranslation();
+  const { getToken } = useAuth();
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem('cart');
@@ -143,7 +145,7 @@ export const StoreProvider = ({ children }) => {
         })) : []
       };
 
-      const newProduct = await productService.createProduct(productWithTranslations);
+      const newProduct = await productService.createProduct(productWithTranslations, getToken());
       setProducts(prev => [...prev, newProduct]);
       showToast('Producto agregado exitosamente', 'success');
       return newProduct;
@@ -152,7 +154,7 @@ export const StoreProvider = ({ children }) => {
       showToast('Error al agregar el producto', 'error');
       throw err;
     }
-  }, [showToast]);
+  }, [showToast, getToken]);
 
   const updateProduct = useCallback(async (productId, productData) => {
     try {
@@ -194,7 +196,7 @@ export const StoreProvider = ({ children }) => {
         })) : []
       };
 
-      const updatedProduct = await productService.updateProduct(productId, productWithTranslations);
+      const updatedProduct = await productService.updateProduct(productId, productWithTranslations, getToken());
       setProducts(prev => prev.map(product => 
         product.id === productId ? updatedProduct : product
       ));
@@ -205,19 +207,38 @@ export const StoreProvider = ({ children }) => {
       showToast('Error al actualizar el producto', 'error');
       throw err;
     }
-  }, [showToast]);
+  }, [showToast, getToken]);
 
   const deleteProduct = useCallback(async (productId) => {
     try {
-      await productService.deleteProduct(productId);
+      console.log('Intentando eliminar producto:', productId);
+      const token = getToken();
+      console.log('Token disponible:', !!token);
+      console.log('Token completo:', token);
+      
+      if (!token) {
+        throw new Error('No hay token de autenticación disponible');
+      }
+
+      if (!productId) {
+        throw new Error('ID de producto no proporcionado');
+      }
+
+      await productService.deleteProduct(productId, token);
       setProducts(prev => prev.filter(product => product.id !== productId));
       showToast('Producto eliminado exitosamente', 'success');
     } catch (err) {
-      setError(err.message);
+      console.error('Error al eliminar el producto:', err);
+      console.error('Detalles del error:', {
+        message: err.message,
+        stack: err.stack,
+        productId,
+        hasToken: !!token
+      });
       showToast('Error al eliminar el producto', 'error');
       throw err;
     }
-  }, [showToast]);
+  }, [showToast, getToken]);
 
   // Carrito
   const addToCart = useCallback((product, quantity = 1) => {
