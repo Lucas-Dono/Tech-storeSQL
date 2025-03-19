@@ -7,7 +7,7 @@ const path = require('path');
 const connectDB = require('./config/db');
 const { initSuperAdmin } = require('./controllers/auth');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes');
 
 // Cargar variables de entorno
@@ -95,7 +95,7 @@ app.get('/test', (req, res) => {
   res.json(testResponse);
 });
 
-// Rutas de autenticación
+// Rutas
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 
