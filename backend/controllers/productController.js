@@ -32,8 +32,17 @@ exports.createProduct = async (req, res) => {
     const productData = {
       ...req.body,
       video: req.body.video || null,
-      createdBy: req.user.id
+      createdBy: req.user.id,
+      // Asegurar que los campos de traducción estén presentes
+      name_es: req.body.name,
+      name_en: req.body.name_en || req.body.name,
+      description_es: req.body.description,
+      description_en: req.body.description_en || req.body.description
     };
+
+    // Eliminar campos que no deben estar en el modelo
+    delete productData.id;
+    delete productData._id;
 
     const product = new Product(productData);
     await product.save();
@@ -63,8 +72,17 @@ exports.updateProduct = async (req, res) => {
     // Asegurarse de que el video sea null si no se proporciona
     const updateData = {
       ...req.body,
-      video: req.body.video || null
+      video: req.body.video || null,
+      // Asegurar que los campos de traducción estén presentes
+      name_es: req.body.name,
+      name_en: req.body.name_en || req.body.name,
+      description_es: req.body.description,
+      description_en: req.body.description_en || req.body.description
     };
+
+    // Eliminar campos que no deben estar en el modelo
+    delete updateData.id;
+    delete updateData._id;
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,

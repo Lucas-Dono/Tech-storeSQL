@@ -57,6 +57,12 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
       basePrice: parseFloat(formData.basePrice.replace(/\./g, '').replace(',', '.')),
       stock: parseInt(formData.stock, 10) || 0
     };
+
+    // Eliminar el campo id si estamos creando un nuevo producto
+    if (!initialData?.id) {
+      delete processedData.id;
+    }
+
     await onSubmit(processedData);
   };
 

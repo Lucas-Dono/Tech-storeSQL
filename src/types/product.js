@@ -16,7 +16,6 @@ export const FEATURE_TYPES = {
 
 // Estructura de producto base
 export const DEFAULT_PRODUCT = {
-  id: '',
   name: '',
   description: '',
   basePrice: 0,
