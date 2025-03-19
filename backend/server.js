@@ -9,6 +9,7 @@ const { initSuperAdmin } = require('./controllers/auth');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -20,8 +21,16 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
 console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Configurado' : 'No configurado');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Configurado' : 'No configurado');
+console.log('CLOUDINARY:', process.env.CLOUDINARY_CLOUD_NAME ? 'Configurado' : 'No configurado');
 
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const requiredEnvVars = [
+  'MONGODB_URI', 
+  'JWT_SECRET',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET'
+];
+
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
@@ -76,6 +85,7 @@ app.get('/health', (req, res) => {
       status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
       host: mongoose.connection.host
     },
+    cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'not configured',
     uptime: process.uptime()
   };
   
@@ -98,6 +108,7 @@ app.get('/test', (req, res) => {
 // Rutas
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
+app.use('/upload', uploadRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
