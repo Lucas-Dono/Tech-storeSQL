@@ -6,6 +6,7 @@ exports.protect = async (req, res, next) => {
   try {
     console.log('Middleware de autenticación - URL:', req.url);
     console.log('Middleware de autenticación - Método:', req.method);
+    console.log('Middleware de autenticación - Parámetros:', req.params);
     console.log('Middleware de autenticación - Headers:', req.headers);
     
     let token;

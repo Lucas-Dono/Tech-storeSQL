@@ -5,7 +5,19 @@ const bcrypt = require('bcryptjs');
 // Cambiar estado de un usuario (activo/inactivo)
 exports.toggleUserStatus = async (req, res) => {
   try {
+    console.log('Intentando cambiar estado del usuario:', {
+      userId: req.params.id,
+      currentUser: req.user._id,
+      currentUserRole: req.user.role
+    });
+
     const user = await User.findById(req.params.id);
+    console.log('Usuario encontrado:', user ? {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    } : 'No encontrado');
 
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -27,6 +39,11 @@ exports.toggleUserStatus = async (req, res) => {
 
     user.isActive = !user.isActive;
     await user.save();
+
+    console.log('Estado actualizado:', {
+      userId: user._id,
+      newStatus: user.isActive
+    });
 
     res.json({
       message: `Usuario ${user.isActive ? 'activado' : 'desactivado'} correctamente`,

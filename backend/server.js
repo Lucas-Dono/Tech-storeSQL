@@ -103,6 +103,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
 
+// Log de rutas registradas
+console.log('Rutas registradas:');
+app._router.stack.forEach(function(r){
+    if (r.route && r.route.path){
+        console.log(`${Object.keys(r.route.methods)} ${r.route.path}`);
+    }
+});
+
 // Middleware de logging
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();

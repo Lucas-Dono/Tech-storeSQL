@@ -17,38 +17,27 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    const loadUserProfile = async () => {
+    // Si hay un token en localStorage, intentamos recuperar la información del usuario
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
       try {
-        console.log('Cargando perfil de usuario:', token ? 'Token presente' : 'Sin token');
-        
-        if (token) {
-          const userData = await authService.getProfile(token);
-          console.log('Usuario cargado:', {
-            role: userData.role,
-            email: userData.email,
-            isAdmin: userData.role === ROLES.ADMIN,
-            isSuperAdmin: userData.role === ROLES.SUPERADMIN
-          });
-          setCurrentUser(userData);
-        }
+        const userData = JSON.parse(storedUser);
+        setCurrentUser(userData);
       } catch (error) {
-        console.error('Error al cargar perfil:', error);
+        console.error('Error al parsear datos del usuario:', error);
+        localStorage.removeItem('user');
         localStorage.removeItem('token');
-        setToken(null);
-        setCurrentUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    loadUserProfile();
-  }, [token]);
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email, password) => {
     try {
       const response = await authService.login({ email, password });
       if (response.token) {
         localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response));
         setToken(response.token);
         setCurrentUser(response);
         return { success: true };
@@ -62,6 +51,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setToken(null);
     setCurrentUser(null);
   };
