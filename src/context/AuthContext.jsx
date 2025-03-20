@@ -34,7 +34,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Intentando login con:', { email });
       const response = await authService.login({ email, password });
+      console.log('Respuesta del login:', { ...response, token: response.token ? '[TOKEN]' : null });
+      
       if (response.token) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response));
@@ -44,8 +47,9 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, error: 'Error en las credenciales' };
     } catch (error) {
-      console.error('Error en login:', error);
-      return { success: false, error: error.message };
+      console.error('Error detallado en login:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Error al iniciar sesión';
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -58,11 +62,26 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('Intentando registro con:', { ...userData, password: '[PROTECTED]' });
       const response = await authService.register(userData);
-      return { success: true, user: response };
+      console.log('Respuesta del registro:', response);
+      
+      // Si el registro fue exitoso, guardamos el token y los datos del usuario
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response));
+        setToken(response.token);
+        setCurrentUser(response);
+        return { success: true, user: response };
+      }
+      
+      return { success: false, error: 'Error al crear la cuenta' };
     } catch (error) {
-      console.error('Error en register:', error);
-      return { success: false, error: error.message };
+      console.error('Error detallado en registro:', error);
+      return { 
+        success: false, 
+        error: error.response?.message || error.message || 'Error al crear la cuenta'
+      };
     }
   };
 

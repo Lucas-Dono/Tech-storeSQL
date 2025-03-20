@@ -97,20 +97,32 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('handleSubmit iniciado');
     
     try {
+      console.log('Validando formulario de login...');
+      
       // Validaciones del formulario de login
-      if (!loginForm.email || !loginForm.password) {
-        showError('Por favor, complete todos los campos');
+      if (!loginForm.email) {
+        console.log('Email vacío en login');
+        showError('El email es requerido');
+        return;
+      }
+
+      if (!loginForm.password) {
+        console.log('Contraseña vacía en login');
+        showError('La contraseña es requerida');
         return;
       }
 
       // Validar formato de email
       if (!validateEmail(loginForm.email)) {
-        showError('El formato del email no es válido');
+        console.log('Email inválido en login');
+        showError('El formato del email no es válido. Debe ser un email válido (ejemplo@dominio.com)');
         return;
       }
 
+      console.log('Formulario válido, procediendo con el login');
       info('Iniciando sesión...');
       const result = await login(loginForm.email, loginForm.password);
       
@@ -119,37 +131,52 @@ const Auth = () => {
         const from = location.state?.from?.pathname || '/';
         navigate(from, { replace: true });
       } else {
-        showError(result.error || 'Error al iniciar sesión');
+        console.log('Error en login:', result.error);
+        showError(result.error || 'Error al iniciar sesión. Por favor, verifica tus credenciales');
       }
     } catch (err) {
-      console.error('Error en login:', err);
-      showError(err.message || 'Error al procesar la solicitud');
+      console.error('Error detallado en login:', err);
+      showError(err.message || 'Error al procesar la solicitud. Por favor, intenta nuevamente');
     }
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    console.log('handleRegister iniciado');
     
     try {
-      // Validaciones del formulario de registro
-      if (!validateEmail(registerForm.email)) {
-        showError('El formato del email no es válido');
+      console.log('Validando formulario...');
+      
+      // Validar email
+      if (!registerForm.email) {
+        console.log('Email vacío');
+        showError('El email es requerido');
         return;
       }
 
-      const passwordValidation = validatePassword(registerForm.password);
+      if (!validateEmail(registerForm.email)) {
+        console.log('Email inválido');
+        showError('El formato del email no es válido. Debe ser un email válido (ejemplo@dominio.com)');
+        return;
+      }
+
+      // Validar contraseña
+      const passwordValidation = validatePassword(registerForm.password, registerForm.email);
       if (!passwordValidation.isValid) {
+        console.log('Contraseña inválida:', passwordValidation.message);
         showError(passwordValidation.message);
         return;
       }
 
+      // Validar nombre
       if (!registerForm.name.trim()) {
-        showError('El nombre es requerido');
+        console.log('Nombre vacío');
+        showError('El nombre es requerido y no puede estar vacío');
         return;
       }
 
-      // Validación de fecha de nacimiento
+      // Validar fecha de nacimiento
       if (!registerForm.birthDate) {
+        console.log('Fecha de nacimiento vacía');
         showError('La fecha de nacimiento es requerida');
         return;
       }
@@ -159,11 +186,13 @@ const Auth = () => {
       const minDate = new Date('1900-01-01');
 
       if (birthDate > today) {
+        console.log('Fecha de nacimiento posterior a hoy');
         showError('La fecha de nacimiento no puede ser posterior a hoy');
         return;
       }
 
       if (birthDate < minDate) {
+        console.log('Fecha de nacimiento anterior a 1900');
         showError('La fecha de nacimiento no puede ser anterior a 1900');
         return;
       }
@@ -176,62 +205,40 @@ const Auth = () => {
       }
 
       if (age < 13) {
+        console.log('Edad menor a 13 años');
         showError('Debes tener al menos 13 años para registrarte');
         return;
       }
 
+      // Validar coincidencia de contraseñas
       if (registerForm.password !== registerForm.confirmPassword) {
-        showError('Las contraseñas no coinciden');
+        console.log('Contraseñas no coinciden');
+        showError('Las contraseñas no coinciden. Por favor, asegúrate de escribir la misma contraseña en ambos campos');
         return;
       }
 
-      // Verificar que todos los campos requeridos estén completos
-      const requiredFields = {
-        name: 'nombre',
-        email: 'email',
-        password: 'contraseña',
-        confirmPassword: 'confirmación de contraseña',
-        birthDate: 'fecha de nacimiento'
-      };
-
-      for (const [field, fieldName] of Object.entries(requiredFields)) {
-        if (!registerForm[field]) {
-          showError(`El campo ${fieldName} es requerido`);
-          return;
-        }
-      }
-
+      console.log('Formulario válido, procediendo con el registro');
       info('Creando cuenta...');
       console.log('Datos del formulario:', { ...registerForm, password: '[PROTECTED]' });
 
       const { confirmPassword, ...newUser } = registerForm;
+      console.log('Llamando a register con:', { ...newUser, password: '[PROTECTED]' });
       const result = await register(newUser);
-      console.log('Resultado del registro:', { ...result, user: result.user ? '[PROTECTED]' : null });
-
+      console.log('Resultado del registro:', result);
+      
       if (result.success) {
-        success('¡Cuenta creada correctamente!');
-        
-        // Iniciar sesión automáticamente
-        info('Iniciando sesión...');
-        const loginResult = await login(registerForm.email, registerForm.password);
-        
-        if (loginResult.success) {
-          success('¡Bienvenido a Tech Store!');
-          const from = location.state?.from?.pathname || '/';
-          navigate(from, { replace: true });
-        } else {
-          // Si falla el login automático, redirigir a la página de login
-          info('Por favor, inicia sesión con tu nueva cuenta');
-          setIsLogin(true);
-        }
+        success('¡Cuenta creada correctamente! Por favor, inicia sesión con tus credenciales.');
+        setIsLogin(true);
+        setLoginForm({
+          email: registerForm.email,
+          password: registerForm.password
+        });
       } else {
-        const errorMessage = result.error || result.message || 'Error al crear la cuenta';
-        console.error('Error en el registro:', errorMessage);
-        showError(errorMessage);
+        showError(result.error || 'Error al crear la cuenta. Por favor, intenta nuevamente');
       }
     } catch (err) {
       console.error('Error detallado:', err);
-      showError(err.message || 'Error al procesar la solicitud');
+      showError(err.message || 'Error al procesar la solicitud. Por favor, intenta nuevamente');
     }
   };
 
@@ -295,7 +302,19 @@ const Auth = () => {
             </div>
           )}
 
-          <form onSubmit={isLogin ? handleSubmit : handleRegister} className="space-y-6" noValidate>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              console.log('Formulario enviado');
+              if (isLogin) {
+                handleSubmit(e);
+              } else {
+                handleRegister(e);
+              }
+            }} 
+            className="space-y-6" 
+            noValidate
+          >
             {isLogin ? (
               <>
                 <div>

@@ -5,31 +5,67 @@ const getHeaders = (token) => ({
   'Authorization': `Bearer ${token}`
 });
 
+const handleResponse = async (response) => {
+  const data = await response.json();
+  
+  if (!response.ok) {
+    const error = new Error(data.message || 'Error en la solicitud');
+    error.response = data;
+    throw error;
+  }
+  
+  return data;
+};
+
 export const authService = {
   async login(credentials) {
     try {
+      console.log('Preparando solicitud de login:', {
+        url: `${API_URL}${ENDPOINTS.LOGIN}`,
+        email: credentials.email,
+        tienePassword: !!credentials.password,
+        longitudPassword: credentials.password ? credentials.password.length : 0
+      });
+
+      const requestBody = {
+        email: credentials.email,
+        password: credentials.password
+      };
+
+      console.log('Body de la solicitud:', {
+        ...requestBody,
+        password: '[PROTECTED]'
+      });
+
       const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify(requestBody)
       });
 
+      const data = await response.json();
+      console.log('Respuesta del servidor:', {
+        status: response.status,
+        ok: response.ok,
+        data: data.message ? { message: data.message } : 'Respuesta exitosa'
+      });
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al iniciar sesión');
+        throw new Error(data.message || 'Error en la solicitud');
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error('Error detallado en login:', error);
       throw error;
     }
   },
 
   async register(userData) {
     try {
+      console.log('Enviando solicitud de registro a:', `${API_URL}${ENDPOINTS.REGISTER}`);
       const response = await fetch(`${API_URL}${ENDPOINTS.REGISTER}`, {
         method: 'POST',
         headers: {
@@ -38,14 +74,15 @@ export const authService = {
         body: JSON.stringify(userData)
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al registrar usuario');
+        throw new Error(data.message || 'Error al registrar usuario');
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
-      console.error('Error en register:', error);
+      console.error('Error detallado en registro:', error);
       throw error;
     }
   },

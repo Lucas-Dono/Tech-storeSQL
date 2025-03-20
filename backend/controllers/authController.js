@@ -6,23 +6,33 @@ const bcrypt = require('bcryptjs');
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, birthDate } = req.body;
+    console.log('Intento de registro para:', email);
 
     // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
     if (userExists) {
+      console.log('Usuario ya existe:', email);
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
     // Encriptar contraseña
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    console.log('Contraseña encriptada para:', email);
 
     // Crear usuario
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      birthDate
+      birthDate,
+      role: 'user'
+    });
+
+    console.log('Usuario creado:', {
+      id: user._id,
+      email: user.email,
+      role: user.role
     });
 
     // Generar token
@@ -49,21 +59,47 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Datos recibidos en login:', {
+      email,
+      passwordRecibida: password,
+      tienePassword: !!password,
+      longitudPassword: password ? password.length : 0
+    });
 
     // Verificar si el usuario existe
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('Usuario no encontrado:', email);
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
+    console.log('Usuario encontrado:', {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      passwordAlmacenada: user.password.substring(0, 10) + '...',
+      longitudPasswordAlmacenada: user.password.length
+    });
+
     // Verificar contraseña
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Credenciales inválidas' });
+    console.log('Intentando comparar contraseñas...');
+    try {
+      const isMatch = await bcrypt.compare(password, user.password);
+      console.log('Resultado de comparación de contraseña:', isMatch);
+
+      if (!isMatch) {
+        console.log('Contraseña incorrecta para usuario:', email);
+        return res.status(401).json({ message: 'Credenciales inválidas' });
+      }
+    } catch (bcryptError) {
+      console.error('Error en la comparación de contraseñas:', bcryptError);
+      return res.status(500).json({ message: 'Error en la verificación de credenciales' });
     }
 
     // Verificar si el usuario está activo
     if (!user.isActive) {
+      console.log('Usuario desactivado:', email);
       return res.status(401).json({ message: 'Tu cuenta está desactivada' });
     }
 
@@ -74,6 +110,7 @@ exports.loginUser = async (req, res) => {
       { expiresIn: '30d' }
     );
 
+    console.log('Login exitoso para:', email);
     res.json({
       _id: user._id,
       name: user.name,

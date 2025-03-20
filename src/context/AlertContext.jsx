@@ -11,6 +11,11 @@ export const AlertProvider = ({ children }) => {
   const nextId = useRef(1);
 
   const showAlert = useCallback(({ type, message, title, autoClose = true, autoCloseDuration = 5000 }) => {
+    if (!message) {
+      console.warn('Se intentó mostrar una alerta sin mensaje');
+      return;
+    }
+
     const id = nextId.current++;
     setAlerts(prev => [...prev, { id, type, message, title, autoClose, autoCloseDuration }]);
     return id;
@@ -20,20 +25,20 @@ export const AlertProvider = ({ children }) => {
     setAlerts(prev => prev.filter(alert => alert.id !== id));
   }, []);
 
-  const success = useCallback((message, title = '¡Éxito!') => {
-    return showAlert({ type: 'success', message, title });
+  const error = useCallback((message = 'Ha ocurrido un error') => {
+    return showAlert({ type: 'error', message });
   }, [showAlert]);
 
-  const error = useCallback((message, title = 'Error') => {
-    return showAlert({ type: 'error', message, title });
+  const success = useCallback((message = 'Operación exitosa') => {
+    return showAlert({ type: 'success', message });
   }, [showAlert]);
 
-  const warning = useCallback((message, title = 'Advertencia') => {
-    return showAlert({ type: 'warning', message, title });
+  const info = useCallback((message = 'Información') => {
+    return showAlert({ type: 'info', message });
   }, [showAlert]);
 
-  const info = useCallback((message, title = 'Información') => {
-    return showAlert({ type: 'info', message, title });
+  const warning = useCallback((message = 'Advertencia') => {
+    return showAlert({ type: 'warning', message });
   }, [showAlert]);
 
   const confirm = useCallback((message, title = 'Confirmar') => {
