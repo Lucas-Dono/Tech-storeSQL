@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAlert } from '../../context/AlertContext';
 import { authService } from '../../services/authService';
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentUser, ROLES } = useAuth();
-  const { error: showError, success } = useAlert();
+  const { error: showError, success, confirm } = useAlert();
 
   useEffect(() => {
     loadUsers();
@@ -16,13 +17,10 @@ const UserManagement = () => {
   const loadUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Token:', token); // Debug log
-      console.log('Fetching users...'); // Debug log
       const response = await authService.getAllUsers(token);
-      console.log('Users response:', response); // Debug log
       setUsers(response);
     } catch (err) {
-      console.error('Error completo:', err); // Debug log
+      console.error('Error al cargar usuarios:', err);
       showError('Error al cargar usuarios');
     } finally {
       setLoading(false);
@@ -36,7 +34,7 @@ const UserManagement = () => {
       success('Rol actualizado correctamente');
       loadUsers();
     } catch (err) {
-      console.error('Error al actualizar rol:', err); // Debug log
+      console.error('Error al actualizar rol:', err);
       showError('Error al actualizar el rol');
     }
   };
@@ -44,12 +42,31 @@ const UserManagement = () => {
   const handleToggleActive = async (userId, currentStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await authService.toggleUserActive(userId, !currentStatus, token);
+      await authService.toggleUserStatus(userId, token);
       success(currentStatus ? 'Usuario desactivado' : 'Usuario activado');
       loadUsers();
     } catch (err) {
-      console.error('Error al cambiar estado:', err); // Debug log
+      console.error('Error al cambiar estado:', err);
       showError('Error al cambiar el estado del usuario');
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      const confirmed = await confirm(
+        '¿Estás seguro de que deseas eliminar este usuario?',
+        'Esta acción no se puede deshacer.'
+      );
+
+      if (confirmed) {
+        const token = localStorage.getItem('token');
+        await authService.deleteUser(userId, token);
+        success('Usuario eliminado correctamente');
+        loadUsers();
+      }
+    } catch (err) {
+      console.error('Error al eliminar usuario:', err);
+      showError('Error al eliminar el usuario');
     }
   };
 
@@ -118,18 +135,28 @@ const UserManagement = () => {
                     {user.isActive ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   {currentUser._id !== user._id && user.role !== ROLES.SUPERADMIN && (
-                    <button
-                      onClick={() => handleToggleActive(user._id, user.isActive)}
-                      className={`text-sm ${
-                        user.isActive 
-                          ? 'text-red-600 hover:text-red-900' 
-                          : 'text-green-600 hover:text-green-900'
-                      }`}
-                    >
-                      {user.isActive ? 'Desactivar' : 'Activar'}
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleToggleActive(user._id, user.isActive)}
+                        className={`text-sm ${
+                          user.isActive 
+                            ? 'text-red-600 hover:text-red-900' 
+                            : 'text-green-600 hover:text-green-900'
+                        }`}
+                      >
+                        {user.isActive ? 'Desactivar' : 'Activar'}
+                      </button>
+                      {currentUser.role === ROLES.SUPERADMIN && (
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                    </>
                   )}
                 </td>
               </tr>

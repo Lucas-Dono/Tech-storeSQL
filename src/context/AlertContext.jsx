@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Alert from '../components/common/Alert';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 
 const AlertContext = createContext(null);
 
 export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState(null);
   const nextId = useRef(1);
 
   const showAlert = useCallback(({ type, message, title, autoClose = true, autoCloseDuration = 5000 }) => {
@@ -34,8 +36,25 @@ export const AlertProvider = ({ children }) => {
     return showAlert({ type: 'info', message, title });
   }, [showAlert]);
 
+  const confirm = useCallback((message, title = 'Confirmar') => {
+    return new Promise((resolve) => {
+      setConfirmDialog({
+        title,
+        message,
+        onConfirm: () => {
+          setConfirmDialog(null);
+          resolve(true);
+        },
+        onCancel: () => {
+          setConfirmDialog(null);
+          resolve(false);
+        }
+      });
+    });
+  }, []);
+
   return (
-    <AlertContext.Provider value={{ showAlert, hideAlert, success, error, warning, info }}>
+    <AlertContext.Provider value={{ showAlert, hideAlert, success, error, warning, info, confirm }}>
       {children}
       <div className="fixed bottom-4 right-4 z-50 space-y-2">
         {alerts.map(alert => (
@@ -50,6 +69,14 @@ export const AlertProvider = ({ children }) => {
           />
         ))}
       </div>
+      {confirmDialog && (
+        <ConfirmDialog
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={confirmDialog.onCancel}
+        />
+      )}
     </AlertContext.Provider>
   );
 };

@@ -1,16 +1,15 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'https://tech-store-backend-54ph.onrender.com';
+export const API_URL = 'https://tech-store-backend-54ph.onrender.com';
 export const API_TIMEOUT = 30000; // 30 seconds
 
 // Headers Configuration
-export const getHeaders = (token = null) => {
+export const getHeaders = (token) => {
   const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Content-Type': 'application/json'
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   return headers;
@@ -19,24 +18,25 @@ export const getHeaders = (token = null) => {
 // API Endpoints
 export const ENDPOINTS = {
   // Auth
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  PROFILE: '/auth/profile',
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/auth/register',
+  PROFILE: '/api/auth/me',
   
   // Users Management
-  USERS: '/auth/users',
-  USER_ROLE: (id) => `/auth/users/${id}/role`,
-  USER_STATUS: (id) => `/auth/users/${id}/status`,
+  USERS: '/api/auth/users',
+  USER_ROLE: (userId) => `/api/auth/users/${userId}/role`,
+  USER_STATUS: (userId) => `/api/auth/users/${userId}/status`,
+  USER_DELETE: (userId) => `/api/auth/users/${userId}`,
   
   // Products
-  PRODUCTS: '/products',
-  PRODUCT_BY_ID: (id) => `/products/${id}`,
+  PRODUCTS: '/api/products',
+  PRODUCT_BY_ID: (id) => `/api/products/${id}`,
   
   // Categories
-  CATEGORIES: '/categories',
+  CATEGORIES: '/api/categories',
   
   // Media
-  UPLOAD_IMAGES: '/upload/multiple',
-  UPLOAD_VIDEO: '/upload/video',
-  DELETE_MEDIA: '/upload',
+  UPLOAD_IMAGES: '/api/upload/multiple',
+  UPLOAD_VIDEO: '/api/upload/video',
+  DELETE_MEDIA: '/api/upload'
 }; 

@@ -117,24 +117,41 @@ export const authService = {
     }
   },
 
-  async toggleUserActive(userId, isActive, token) {
+  async toggleUserStatus(userId, token) {
     try {
       const response = await fetch(`${API_URL}${ENDPOINTS.USER_STATUS(userId)}`, {
         method: 'PATCH',
-        headers: getHeaders(token),
-        body: JSON.stringify({ isActive }),
+        headers: getHeaders(token)
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error al cambiar estado del usuario');
+        throw new Error(error.message || 'Error al cambiar el estado del usuario');
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
-      console.error('Error en toggleUserActive:', error);
+      console.error('Error en toggleUserStatus:', error);
       throw error;
     }
   },
+
+  async deleteUser(userId, token) {
+    try {
+      const response = await fetch(`${API_URL}${ENDPOINTS.USER_DELETE(userId)}`, {
+        method: 'DELETE',
+        headers: getHeaders(token)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al eliminar el usuario');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error en deleteUser:', error);
+      throw error;
+    }
+  }
 }; 
