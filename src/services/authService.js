@@ -1,27 +1,27 @@
-import { API_URL, ENDPOINTS, getHeaders } from '../config/api';
+import { API_URL, ENDPOINTS } from '../config/api';
+
+const getHeaders = (token) => ({
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${token}`
+});
 
 export const authService = {
   async login(credentials) {
     try {
-      console.log('Intentando login con:', credentials.email);
       const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
         method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(credentials),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error en el inicio de sesión');
+        throw new Error(error.message || 'Error al iniciar sesión');
       }
 
-      const data = await response.json();
-      console.log('Login exitoso:', {
-        token: data.token ? 'Presente' : 'Ausente',
-        role: data.role,
-        email: data.email
-      });
-      return data;
+      return await response.json();
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
@@ -32,55 +32,57 @@ export const authService = {
     try {
       const response = await fetch(`${API_URL}${ENDPOINTS.REGISTER}`, {
         method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error en el registro');
+        throw new Error(error.message || 'Error al registrar usuario');
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       console.error('Error en register:', error);
       throw error;
     }
   },
 
-  async getProfile(token) {
+  async getProfile() {
     try {
-      console.log('Obteniendo perfil con token:', token ? 'Presente' : 'Ausente');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
       const response = await fetch(`${API_URL}${ENDPOINTS.PROFILE}`, {
-        method: 'GET',
-        headers: getHeaders(token),
+        headers: getHeaders(token)
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error al obtener el perfil');
+        throw new Error(error.message || 'Error al obtener perfil');
       }
 
-      const data = await response.json();
-      console.log('Perfil obtenido:', {
-        role: data.role,
-        email: data.email,
-        id: data._id
-      });
-      return data;
+      return await response.json();
     } catch (error) {
       console.error('Error en getProfile:', error);
       throw error;
     }
   },
 
-  // Funciones para gestión de usuarios
-  async getAllUsers(token) {
+  async getAllUsers() {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      console.log('Obteniendo usuarios con token:', token.substring(0, 10) + '...');
       const response = await fetch(`${API_URL}${ENDPOINTS.USERS}`, {
-        method: 'GET',
-        headers: getHeaders(token),
+        headers: getHeaders(token)
       });
 
       if (!response.ok) {
@@ -88,8 +90,7 @@ export const authService = {
         throw new Error(error.message || 'Error al obtener usuarios');
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       console.error('Error en getAllUsers:', error);
       throw error;
@@ -124,12 +125,9 @@ export const authService = {
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`${API_URL}/api/auth/users/toggle-status`, {
+      const response = await fetch(`${API_URL}${ENDPOINTS.USER_STATUS}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ userId })
       });
 
@@ -145,8 +143,13 @@ export const authService = {
     }
   },
 
-  async deleteUser(userId, token) {
+  async deleteUser(userId) {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
       const response = await fetch(`${API_URL}${ENDPOINTS.USER_DELETE(userId)}`, {
         method: 'DELETE',
         headers: getHeaders(token)
@@ -154,7 +157,7 @@ export const authService = {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error al eliminar el usuario');
+        throw new Error(error.message || 'Error al eliminar usuario');
       }
 
       return await response.json();

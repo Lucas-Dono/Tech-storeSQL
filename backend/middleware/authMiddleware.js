@@ -4,10 +4,13 @@ const User = require('../models/User');
 // Middleware para proteger rutas
 exports.protect = async (req, res, next) => {
   try {
-    console.log('Middleware de autenticación - URL:', req.url);
-    console.log('Middleware de autenticación - Método:', req.method);
-    console.log('Middleware de autenticación - Parámetros:', req.params);
-    console.log('Middleware de autenticación - Headers:', req.headers);
+    console.log('=== Middleware de Autenticación ===');
+    console.log('URL:', req.url);
+    console.log('Método:', req.method);
+    console.log('Headers:', {
+      ...req.headers,
+      authorization: req.headers.authorization ? 'Bearer [TOKEN]' : 'No presente'
+    });
     
     let token;
 
@@ -37,7 +40,8 @@ exports.protect = async (req, res, next) => {
       console.log('Usuario encontrado:', {
         id: user._id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        isActive: user.isActive
       });
 
       // Agregar usuario a la request
@@ -56,19 +60,28 @@ exports.protect = async (req, res, next) => {
 // Middleware para verificar roles
 exports.authorize = (roles = []) => {
   return (req, res, next) => {
+    console.log('=== Middleware de Autorización ===');
+    console.log('Roles permitidos:', roles);
+    console.log('Usuario actual:', {
+      id: req.user?._id,
+      email: req.user?.email,
+      role: req.user?.role,
+      isActive: req.user?.isActive
+    });
+
     if (!req.user) {
       console.log('No hay usuario en la request');
       return res.status(401).json({ message: 'No autorizado - Usuario no encontrado' });
     }
 
     if (!roles.includes(req.user.role)) {
-      console.log(`Usuario ${req.user.id} con rol ${req.user.role} intentó acceder a ruta protegida para roles:`, roles);
+      console.log(`Usuario ${req.user._id} con rol ${req.user.role} intentó acceder a ruta protegida para roles:`, roles);
       return res.status(403).json({ 
         message: 'No autorizado - No tiene los permisos necesarios'
       });
     }
 
-    console.log(`Usuario ${req.user.id} autorizado con rol ${req.user.role}`);
+    console.log(`Usuario ${req.user._id} autorizado con rol ${req.user.role}`);
     next();
   };
 }; 

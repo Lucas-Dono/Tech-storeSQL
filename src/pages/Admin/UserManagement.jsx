@@ -16,12 +16,12 @@ const UserManagement = () => {
 
   const loadUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await authService.getAllUsers(token);
+      setLoading(true);
+      const response = await authService.getAllUsers();
       setUsers(response);
     } catch (err) {
       console.error('Error al cargar usuarios:', err);
-      showError('Error al cargar usuarios');
+      showError(err.message || 'Error al cargar usuarios');
     } finally {
       setLoading(false);
     }
