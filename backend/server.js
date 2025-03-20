@@ -49,16 +49,6 @@ connectDB().then(() => {
 
 const app = express();
 
-// Middleware de logging
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Query:', req.query);
-  console.log('Body:', req.body);
-  next();
-});
-
 // Configuración de CORS
 const corsOptions = {
   origin: '*',
@@ -112,6 +102,16 @@ app.get('/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// Middleware de logging
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Query:', req.query);
+  console.log('Body:', req.body);
+  next();
+});
 
 // Middleware de logging de rutas no encontradas
 app.use((req, res, next) => {

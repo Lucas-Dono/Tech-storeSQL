@@ -4,11 +4,16 @@ const User = require('../models/User');
 // Middleware para proteger rutas
 exports.protect = async (req, res, next) => {
   try {
+    console.log('Middleware de autenticación - URL:', req.url);
+    console.log('Middleware de autenticación - Método:', req.method);
+    console.log('Middleware de autenticación - Headers:', req.headers);
+    
     let token;
 
     // Verificar si hay token en el header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+      console.log('Token encontrado en headers');
     }
 
     if (!token) {
@@ -27,6 +32,12 @@ exports.protect = async (req, res, next) => {
         console.log('Usuario no encontrado con el token proporcionado');
         return res.status(401).json({ message: 'No autorizado - Usuario no encontrado' });
       }
+
+      console.log('Usuario encontrado:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
 
       // Agregar usuario a la request
       req.user = user;
