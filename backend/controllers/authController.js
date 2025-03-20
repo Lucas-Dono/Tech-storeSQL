@@ -8,7 +8,6 @@ exports.registerUser = async (req, res) => {
     const { name, email, password, birthDate } = req.body;
     console.log('Datos recibidos en registro:', {
       email,
-      passwordRecibida: password,
       tienePassword: !!password,
       longitudPassword: password ? password.length : 0
     });
@@ -20,50 +19,19 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
-    // Encriptar contraseña
-    console.log('Generando salt...');
-    const salt = await bcrypt.genSalt(10);
-    console.log('Salt generado:', salt);
-    
-    console.log('Encriptando contraseña...');
-    const hashedPassword = await bcrypt.hash(password, salt);
-    console.log('Contraseña encriptada:', {
-      original: password,
-      encriptada: hashedPassword,
-      longitud: hashedPassword.length
-    });
-
-    // Verificar que la contraseña se pueda validar
-    const testCompare = await bcrypt.compare(password, hashedPassword);
-    console.log('Prueba de validación:', {
-      resultado: testCompare,
-      passwordOriginal: password,
-      passwordHash: hashedPassword
-    });
-
-    // Crear usuario
+    // Crear usuario (el modelo se encargará de hashear la contraseña)
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       birthDate,
       role: 'user'
     });
 
-    // Verificar que la contraseña se guardó correctamente
-    const savedUser = await User.findById(user._id);
-    console.log('Verificación de contraseña guardada:', {
-      hashAntes: hashedPassword,
-      hashGuardado: savedUser.password,
-      coinciden: hashedPassword === savedUser.password
-    });
-
-    // Verificar que la contraseña funciona con el hash guardado
-    const finalCheck = await bcrypt.compare(password, savedUser.password);
-    console.log('Verificación final:', {
-      resultado: finalCheck,
-      passwordOriginal: password,
-      hashFinal: savedUser.password
+    console.log('Usuario creado:', {
+      id: user._id,
+      email: user.email,
+      role: user.role
     });
 
     // Generar token
