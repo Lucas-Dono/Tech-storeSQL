@@ -159,7 +159,7 @@ const Navbar = () => {
                     {isProfileMenuOpen && (
                       <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
                         {/* Opción de Admin solo para admin y superadmin */}
-                        {isAdmin() && (
+                        {isAdmin && (
                           <Link
                             to="/admin"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -170,7 +170,7 @@ const Navbar = () => {
                         )}
 
                         {/* Gestión de Usuarios solo para superadmin */}
-                        {isSuperAdmin() && (
+                        {isSuperAdmin && (
                           <Link
                             to="/admin/users"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -239,7 +239,7 @@ const Navbar = () => {
                 <div className="text-sm text-gray-500">
                   {currentUser.email}
                 </div>
-                {currentUser.isAdmin && (
+                {isAdmin && (
                   <Link
                     to="/admin"
                     className="block text-sm text-gray-700 hover:text-blue-600 transition-colors"
@@ -248,6 +248,18 @@ const Navbar = () => {
                     <div className="flex items-center gap-2">
                       <ChartBarIcon className="h-5 w-5" />
                       {t('nav.admin')}
+                    </div>
+                  </Link>
+                )}
+                {isSuperAdmin && (
+                  <Link
+                    to="/admin/users"
+                    className="block text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserCircleIcon className="h-5 w-5" />
+                      {t('nav.userManagement')}
                     </div>
                   </Link>
                 )}

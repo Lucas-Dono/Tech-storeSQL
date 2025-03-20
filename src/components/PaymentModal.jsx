@@ -5,9 +5,9 @@ import { useAlert } from '../context/AlertContext';
 
 const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
   const { error, success, info } = useAlert();
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
+  const [cardNumber, setCardNumber] = useState('4242 4242 4242 4242');
+  const [expiryDate, setExpiryDate] = useState('12/30');
+  const [cvv, setCvv] = useState('123');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -117,6 +117,14 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
         {!showSuccess ? (
           <>
             <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 mb-6`}>Completar Pago</h2>
+            
+            {/* Mensaje de demostración */}
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
+              <p className="text-sm text-blue-700">
+                <span className="font-semibold">Nota:</span> Esta es una demostración. Los datos de la tarjeta son ficticios y no se realizará ningún cargo real.
+              </p>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -129,49 +137,53 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Número de Tarjeta
+                  Número de Tarjeta (Demo)
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-base"
+                  className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
                   placeholder="1234 5678 9012 3456"
                   value={cardNumber}
                   onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                   maxLength={19}
                   required
                   pattern="\d{4}\s\d{4}\s\d{4}\s\d{4}"
+                  readOnly
                 />
+                <p className="text-xs text-gray-500 mt-1">Tarjeta de prueba pre-rellenada</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fecha de Expiración
+                    Fecha de Expiración (Demo)
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded-md text-base"
+                    className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
                     placeholder="MM/YY"
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
                     maxLength={5}
                     required
                     pattern="\d{2}/\d{2}"
+                    readOnly
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CVV
+                    CVV (Demo)
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded-md text-base"
+                    className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
                     placeholder="123"
                     value={cvv}
                     onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
                     maxLength={3}
                     required
                     pattern="\d{3}"
+                    readOnly
                   />
                 </div>
               </div>
@@ -196,7 +208,7 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
                       <span>Procesando...</span>
                     </div>
                   ) : (
-                    'Pagar'
+                    'Simular Pago'
                   )}
                 </button>
               </div>

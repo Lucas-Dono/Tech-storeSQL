@@ -9,9 +9,11 @@ export const FEATURE_TYPES = {
   PROCESSOR: 'processor',
   RAM: 'ram',
   STORAGE: 'storage',
-  GPU: 'gpu',
   SCREEN: 'screen',
-  COLOR: 'color'
+  BATTERY: 'battery',
+  SECURITY: 'security',
+  GAMING: 'gaming',
+  ADDITIONAL_FEATURES: 'additionalFeatures'
 };
 
 // Estructura de producto base
@@ -29,43 +31,226 @@ export const DEFAULT_PRODUCT = {
   defaultConfiguration: {} // Configuración por defecto para productos configurables
 };
 
-// Ejemplo de estructura para características
-export const FEATURE_STRUCTURE = {
-  [FEATURE_TYPES.PROCESSOR]: {
-    name: 'Procesador',
-    options: [
-      { value: 'i3', label: 'Intel Core i3', priceIncrement: 0 },
-      { value: 'i5', label: 'Intel Core i5', priceIncrement: 100 },
-      { value: 'i7', label: 'Intel Core i7', priceIncrement: 200 },
-      { value: 'i9', label: 'Intel Core i9', priceIncrement: 400 }
+// Estructura de especificaciones
+export const SPECIFICATIONS_STRUCTURE = {
+  processors: {
+    mobile: [
+      {
+        name: 'Snapdragon 8 Gen 3',
+        brand: 'Qualcomm',
+        description: {
+          es: 'Procesador de última generación para dispositivos móviles',
+          en: 'Latest generation processor for mobile devices'
+        },
+        specs: {
+          cores: '8',
+          architecture: '4nm',
+          maxSpeed: '3.3 GHz'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más procesadores aquí
     ]
   },
-  [FEATURE_TYPES.RAM]: {
-    name: 'Memoria RAM',
-    options: [
-      { value: '8gb', label: '8GB', priceIncrement: 0 },
-      { value: '16gb', label: '16GB', priceIncrement: 50 },
-      { value: '32gb', label: '32GB', priceIncrement: 150 },
-      { value: '64gb', label: '64GB', priceIncrement: 300 }
+  ram: {
+    mobile: [
+      {
+        name: '8GB LPDDR5X',
+        brand: 'Samsung',
+        description: {
+          es: 'Memoria RAM de alta velocidad',
+          en: 'High-speed RAM memory'
+        },
+        specs: {
+          capacity: '8GB',
+          type: 'LPDDR5X',
+          speed: '8533 MHz'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de RAM aquí
     ]
   },
-  [FEATURE_TYPES.STORAGE]: {
-    name: 'Almacenamiento',
-    options: [
-      { value: '256gb-ssd', label: '256GB SSD', priceIncrement: 0 },
-      { value: '512gb-ssd', label: '512GB SSD', priceIncrement: 50 },
-      { value: '1tb-ssd', label: '1TB SSD', priceIncrement: 100 },
-      { value: '2tb-ssd', label: '2TB SSD', priceIncrement: 200 }
+  storage: {
+    mobile: [
+      {
+        name: '256GB UFS 4.0',
+        brand: 'Samsung',
+        description: {
+          es: 'Almacenamiento ultrarrápido',
+          en: 'Ultra-fast storage'
+        },
+        specs: {
+          capacity: '256GB',
+          type: 'UFS 4.0',
+          readSpeed: '4200 MB/s'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de almacenamiento aquí
     ]
   },
-  [FEATURE_TYPES.GPU]: {
-    name: 'Tarjeta Gráfica',
-    options: [
-      { value: 'integrated', label: 'Gráficos Integrados', priceIncrement: 0 },
-      { value: 'rtx3050', label: 'NVIDIA RTX 3050', priceIncrement: 200 },
-      { value: 'rtx3060', label: 'NVIDIA RTX 3060', priceIncrement: 300 },
-      { value: 'rtx3070', label: 'NVIDIA RTX 3070', priceIncrement: 500 }
+  screen: {
+    mobile: [
+      {
+        name: 'AMOLED 6.8"',
+        brand: 'Samsung',
+        description: {
+          es: 'Pantalla AMOLED de alta resolución',
+          en: 'High-resolution AMOLED display'
+        },
+        specs: {
+          size: '6.8"',
+          resolution: '3088 x 1440',
+          refreshRate: '120Hz'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de pantalla aquí
     ]
+  },
+  battery: {
+    mobile: [
+      {
+        name: '5000mAh',
+        brand: 'Samsung',
+        description: {
+          es: 'Batería de alta capacidad',
+          en: 'High-capacity battery'
+        },
+        specs: {
+          capacity: '5000mAh',
+          chargingSpeed: '45W',
+          wirelessCharging: '15W'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de batería aquí
+    ]
+  },
+  security: {
+    mobile: [
+      {
+        name: 'Huella Digital + Face ID',
+        brand: 'Samsung',
+        description: {
+          es: 'Sistema de seguridad biométrico',
+          en: 'Biometric security system'
+        },
+        specs: {
+          fingerprint: 'Ultrasonic',
+          faceRecognition: '3D',
+          securityLevel: 'High'
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de seguridad aquí
+    ]
+  },
+  gaming: {
+    mobile: [
+      {
+        name: 'Gaming Mode',
+        brand: 'Samsung',
+        description: {
+          es: 'Modo gaming optimizado',
+          en: 'Optimized gaming mode'
+        },
+        specs: {
+          cooling: 'Vapor Chamber',
+          performance: 'Enhanced',
+          features: ['Game Launcher', 'Game Tools']
+        },
+        priceIncrement: 0
+      },
+      // Añadir más opciones de gaming aquí
+    ]
+  },
+  additionalFeatures: {
+    mobile: {
+      biometrics: [
+        {
+          name: 'Huella Digital',
+          description: {
+            es: 'Sensor de huella digital ultrasónico',
+            en: 'Ultrasonic fingerprint sensor'
+          },
+          specs: {
+            type: 'Ultrasonic',
+            speed: 'Fast',
+            security: 'High'
+          }
+        }
+      ],
+      sound: [
+        {
+          name: 'Dolby Atmos',
+          description: {
+            es: 'Sistema de audio inmersivo',
+            en: 'Immersive audio system'
+          },
+          specs: {
+            type: 'Stereo',
+            quality: 'High',
+            features: ['Dolby Atmos', 'Hi-Res Audio']
+          }
+        }
+      ],
+      connectivity: [
+        {
+          name: '5G',
+          description: {
+            es: 'Conectividad 5G',
+            en: '5G connectivity'
+          },
+          specs: {
+            type: '5G',
+            bands: 'Multi-band',
+            speed: 'High'
+          }
+        }
+      ],
+      protection: [
+        {
+          name: 'IP68',
+          description: {
+            es: 'Protección contra agua y polvo',
+            en: 'Water and dust protection'
+          },
+          specs: {
+            rating: 'IP68',
+            waterResistance: '1.5m for 30min',
+            dustResistance: 'Complete'
+          }
+        }
+      ],
+      security: [
+        {
+          name: 'Knox',
+          description: {
+            es: 'Sistema de seguridad Samsung Knox',
+            en: 'Samsung Knox security system'
+          },
+          specs: {
+            level: 'Enterprise',
+            features: ['Secure Folder', 'Real-time Protection']
+          }
+        }
+      ],
+      gaming: [
+        {
+          name: 'Game Launcher',
+          description: {
+            es: 'Centro de juegos optimizado',
+            en: 'Optimized gaming center'
+          },
+          specs: {
+            features: ['Performance Mode', 'Game Tools'],
+            optimization: 'High'
+          }
+        }
+      ]
+    }
   }
 };
 

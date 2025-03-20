@@ -52,6 +52,10 @@ const productSchema = new mongoose.Schema({
     enum: ['SIMPLE', 'CONFIGURABLE'],
     default: 'SIMPLE'
   },
+  features: {
+    type: Object,
+    default: {}
+  },
   models: [{
     name: String,
     images: [String],

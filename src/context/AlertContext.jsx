@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Alert from '../components/common/Alert';
 
@@ -6,9 +6,10 @@ const AlertContext = createContext(null);
 
 export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
+  const nextId = useRef(1);
 
   const showAlert = useCallback(({ type, message, title, autoClose = true, autoCloseDuration = 5000 }) => {
-    const id = Date.now();
+    const id = nextId.current++;
     setAlerts(prev => [...prev, { id, type, message, title, autoClose, autoCloseDuration }]);
     return id;
   }, []);

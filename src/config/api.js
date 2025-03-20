@@ -1,5 +1,5 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const API_URL = import.meta.env.VITE_API_URL || 'https://tech-store-backend-54ph.onrender.com';
 export const API_TIMEOUT = 30000; // 30 seconds
 
 // Headers Configuration

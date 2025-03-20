@@ -5,7 +5,7 @@ import { authService } from '../services/authService';
 const AuthContext = createContext();
 
 // Funciones de utilidad para roles
-const ROLES = {
+export const ROLES = {
   SUPERADMIN: 'superadmin',
   ADMIN: 'admin',
   USER: 'user'
@@ -14,11 +14,11 @@ const ROLES = {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
         console.log('Cargando perfil de usuario:', token ? 'Token presente' : 'Sin token');
         
         if (token) {
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error al cargar perfil:', error);
         localStorage.removeItem('token');
+        setToken(null);
         setCurrentUser(null);
       } finally {
         setLoading(false);
@@ -41,13 +42,14 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUserProfile();
-  }, []);
+  }, [token]);
 
   const login = async (email, password) => {
     try {
       const response = await authService.login({ email, password });
       if (response.token) {
         localStorage.setItem('token', response.token);
+        setToken(response.token);
         setCurrentUser(response);
         return { success: true };
       }
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    setToken(null);
     setCurrentUser(null);
   };
 
@@ -74,32 +77,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Funciones de verificación de roles
-  const isSuperAdmin = () => {
-    const result = currentUser?.role === ROLES.SUPERADMIN;
-    console.log('isSuperAdmin:', {
-      currentUserRole: currentUser?.role,
-      result
-    });
-    return result;
-  };
-  
-  const isAdmin = () => {
-    const result = currentUser?.role === ROLES.ADMIN || currentUser?.role === ROLES.SUPERADMIN;
-    console.log('isAdmin:', {
-      currentUserRole: currentUser?.role,
-      result
-    });
-    return result;
-  };
-  
-  const isUser = () => {
-    const result = !!currentUser;
-    console.log('isUser:', {
-      currentUser: currentUser ? 'Presente' : 'Ausente',
-      result
-    });
-    return result;
-  };
+  const isSuperAdmin = currentUser?.role === ROLES.SUPERADMIN;
+  const isAdmin = currentUser?.role === ROLES.ADMIN || isSuperAdmin;
+  const isUser = !!currentUser;
 
   const value = {
     currentUser,
@@ -111,12 +91,8 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     isUser,
     ROLES,
-    token: localStorage.getItem('token'),
-    getToken: () => {
-      const token = localStorage.getItem('token');
-      console.log('Obteniendo token:', token ? 'Presente' : 'Ausente');
-      return token;
-    }
+    token,
+    getToken: () => token
   };
 
   if (loading) {

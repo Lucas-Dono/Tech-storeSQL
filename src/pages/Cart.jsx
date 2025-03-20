@@ -104,7 +104,7 @@ const Cart = () => {
                   </div>
                 )}
                 <p className="text-blue-600 font-bold mt-1">
-                  ${item.price.toLocaleString()}
+                  ${(item.price || 0).toLocaleString()}
                 </p>
                 <div className="mt-2 flex items-center gap-4">
                   <div className="flex items-center border rounded-md overflow-hidden">
@@ -136,7 +136,7 @@ const Cart = () => {
               <div className="text-right">
                 <p className="text-sm text-gray-500">Subtotal</p>
                 <p className="text-lg font-bold text-gray-900">
-                  ${(item.price * item.quantity).toLocaleString()}
+                  ${((item.price || 0) * item.quantity).toLocaleString()}
                 </p>
               </div>
             </div>

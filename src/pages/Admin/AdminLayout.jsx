@@ -30,7 +30,7 @@ const AdminLayout = () => {
   ];
 
   // Verificar si el usuario es admin
-  if (!currentUser || !isAdmin()) {
+  if (!currentUser || !isAdmin) {
     return <Navigate to="/" replace />;
   }
 

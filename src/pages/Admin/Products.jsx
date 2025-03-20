@@ -7,6 +7,7 @@ import { useAlert } from '../../context/AlertContext';
 import Select from '../../components/common/Select';
 import { CURRENCIES, DEFAULT_CURRENCY } from '../../types/product';
 import { Link } from 'react-router-dom';
+import ProductForm from '../../components/ProductForm';
 
 const AdminProducts = () => {
   const { t } = useTranslation();
@@ -30,13 +31,41 @@ const AdminProducts = () => {
 
   const handleProductSubmit = async (productData) => {
     try {
+      console.log('Datos recibidos para guardar:', productData);
+
+      // Procesar el precio base
+      const basePrice = Number(productData.basePrice.toString().replace(/\./g, '').replace(',', '.'));
+
+      // Asegurarse de que las características estén en el formato correcto
+      const features = {};
+      if (productData.features) {
+        Object.entries(productData.features).forEach(([category, data]) => {
+          if (data.selectedComponent) {
+            features[category] = {
+              selectedComponent: {
+                ...data.selectedComponent,
+                category: category // Asegurarse de que la categoría esté incluida
+              }
+            };
+          }
+        });
+      }
+
       const processedData = {
         ...productData,
-        basePrice: Number(productData.basePrice)
+        basePrice,
+        features, // Incluir las características procesadas
+        variantType: 'CONFIGURABLE'
       };
 
+      console.log('Datos procesados para enviar:', processedData);
+
       if (editingProduct) {
-        await updateProduct(editingProduct.id, processedData);
+        const productId = editingProduct._id || editingProduct.id;
+        if (!productId) {
+          throw new Error('ID de producto no válido');
+        }
+        await updateProduct(productId, processedData);
         success(t('adminProducts.saveSuccess'));
       } else {
         await addProduct(processedData);
@@ -142,8 +171,14 @@ const AdminProducts = () => {
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => setEditingProduct(editingProduct?.id === productId ? null : product)}
-                      className={`${editingProduct?.id === productId ? 'text-blue-600' : 'text-gray-400'} hover:text-blue-800`}
+                      onClick={() => {
+                        const productToEdit = {
+                          ...product,
+                          id: product._id || product.id
+                        };
+                        setEditingProduct(productToEdit);
+                      }}
+                      className={`${editingProduct?._id === productId ? 'text-blue-600' : 'text-gray-400'} hover:text-blue-800`}
                     >
                       <PencilIcon className="w-5 h-5" />
                     </button>
@@ -160,132 +195,13 @@ const AdminProducts = () => {
                   </div>
                 </div>
 
-                {editingProduct?.id === productId && (
-                  <>
-                    <div className="border-t pt-4 mb-6">
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t('Nombre del producto')}
-                          </label>
-                          <input
-                            type="text"
-                            value={product.name}
-                            onChange={(e) => updateProduct(productId, { ...product, name: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        <div>
-                          <Select
-                            label={t('productForm.category')}
-                            options={[
-                              { value: '', label: 'Seleccionar categoría' },
-                              { value: 'Laptops', label: 'Laptops' },
-                              { value: 'Smartphones', label: 'Smartphones' },
-                              { value: 'Tablets', label: 'Tablets' },
-                              { value: 'Accesorios', label: 'Accesorios' }
-                            ]}
-                            value={product.category}
-                            onChange={(value) => updateProduct(productId, { ...product, category: value })}
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t('productForm.price')}
-                          </label>
-                          <div className="mt-1 flex">
-                            <Select
-                              options={Object.entries(CURRENCIES).map(([code, currency]) => ({
-                                value: code,
-                                label: `${currency.name} (${currency.symbol})`,
-                                icon: <span>{currency.symbol}</span>
-                              }))}
-                              value={product.currency || DEFAULT_CURRENCY}
-                              onChange={(value) => updateProduct(productId, { ...product, currency: value })}
-                              className="w-32"
-                            />
-                            <input
-                              type="text"
-                              value={formatNumber(product.basePrice.toString())}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!/^[\d.,]*$/.test(value)) return;
-                                try {
-                                  const formattedValue = formatNumber(value);
-                                  updateProduct(productId, { 
-                                    ...product, 
-                                    basePrice: parseFloat(formattedValue.replace(/\./g, '').replace(',', '.')) 
-                                  });
-                                } catch (error) {
-                                  console.error('Error al formatear número:', error);
-                                }
-                              }}
-                              placeholder="0,00"
-                              className="block w-full rounded-r-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t('productForm.stock')}
-                          </label>
-                          <input
-                            type="text"
-                            value={product.stock}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (!/^\d*$/.test(value)) return;
-                              updateProduct(productId, { ...product, stock: value });
-                            }}
-                            placeholder="0"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Descripciones */}
-                      <div className="mt-6 space-y-6">
-                        {/* Descripción en español */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t('productForm.descriptionEs')}
-                          </label>
-                          <textarea
-                            value={product.description}
-                            onChange={(e) => updateProduct(productId, { ...product, description: e.target.value })}
-                            rows="3"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* Descripción en inglés */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t('productForm.descriptionEn')}
-                          </label>
-                          <textarea
-                            value={product.description_en || ''}
-                            onChange={(e) => updateProduct(productId, { ...product, description_en: e.target.value })}
-                            rows="3"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <ConfigurableProductManager
-                        product={product}
-                        onUpdate={async (updatedProduct) => {
-                          await updateProduct(updatedProduct.id, updatedProduct);
-                          setEditingProduct(null);
-                        }}
-                      />
-                    </div>
-                  </>
+                {editingProduct?._id === productId && (
+                  <div className="border-t pt-4">
+                    <ProductForm
+                      initialData={editingProduct}
+                      onSubmit={handleProductSubmit}
+                    />
+                  </div>
                 )}
               </div>
             );

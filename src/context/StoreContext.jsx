@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Toast from '../components/Toast';
 import { productService } from '../services/productService';
 import specifications from '../data/specifications.json';
+import { fallbackProducts } from '../data/fallbackProducts';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 
@@ -22,7 +23,6 @@ export const StoreProvider = ({ children }) => {
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem('cart');
-      console.log('Initializing cart from localStorage:', savedCart);
       return savedCart ? JSON.parse(savedCart) : [];
     } catch (error) {
       console.error('Error loading cart from localStorage:', error);
@@ -31,71 +31,73 @@ export const StoreProvider = ({ children }) => {
   });
   const [products, setProducts] = useState([]);
   const [toast, setToast] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isServerAvailable, setIsServerAvailable] = useState(false);
+
+  const checkServerStatus = useCallback(async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/health`);
+      if (response.ok) {
+        setIsServerAvailable(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const serverAvailable = await checkServerStatus();
+      
+      if (serverAvailable) {
+        const data = await productService.getProducts();
+        setProducts(data);
+        setError(null);
+      } else {
+        setProducts(fallbackProducts);
+        setError('Servidor no disponible. Mostrando productos de respaldo.');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error al cargar productos:', err);
+      setProducts(fallbackProducts);
+    } finally {
+      setLoading(false);
+    }
+  }, [checkServerStatus]);
+
+  // Cargar productos al iniciar
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Verificar estado del servidor periódicamente
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const serverAvailable = await checkServerStatus();
+      if (serverAvailable !== isServerAvailable) {
+        setIsServerAvailable(serverAvailable);
+        if (serverAvailable) {
+          await fetchProducts();
+        }
+      }
+    }, 30000); // Verificar cada 30 segundos
+
+    return () => clearInterval(interval);
+  }, [checkServerStatus, isServerAvailable, fetchProducts]);
 
   // Guardar carrito en localStorage cuando cambie
   useEffect(() => {
     try {
-      console.log('Saving cart to localStorage:', cart);
       localStorage.setItem('cart', JSON.stringify(cart));
     } catch (error) {
       console.error('Error saving cart to localStorage:', error);
     }
   }, [cart]);
-
-  // Función para cargar productos
-  const loadProducts = useCallback(async () => {
-    try {
-      const data = await productService.getProducts();
-      if (Array.isArray(data)) {
-        // Traducir los productos según el idioma actual
-        const translatedProducts = data.map(product => ({
-          ...product,
-          name: product[`name_${i18n.language}`] || product.name,
-          description: product[`description_${i18n.language}`] || product.description,
-          features: product.features ? Object.entries(product.features).reduce((acc, [key, feature]) => ({
-            ...acc,
-            [key]: {
-              ...feature,
-              name: feature[`name_${i18n.language}`] || feature.name,
-              selectedComponent: feature.selectedComponent ? {
-                ...feature.selectedComponent,
-                name: feature.selectedComponent[`name_${i18n.language}`] || feature.selectedComponent.name,
-                description: feature.selectedComponent[`description_${i18n.language}`] || feature.selectedComponent.description
-              } : null,
-              options: feature.options ? feature.options.map(option => ({
-                ...option,
-                name: option[`name_${i18n.language}`] || option.name,
-                description: option[`description_${i18n.language}`] || option.description
-              })) : []
-            }
-          }), {}) : null,
-          models: product.models ? product.models.map(model => ({
-            ...model,
-            name: model[`name_${i18n.language}`] || model.name,
-            description: model[`description_${i18n.language}`] || model.description
-          })) : []
-        }));
-        setProducts(translatedProducts);
-      } else {
-        console.error('Los datos recibidos no son un array:', data);
-        setProducts([]);
-      }
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error al cargar productos:', err);
-      setError(err.message);
-      setProducts([]);
-      setIsLoading(false);
-      showToast('Error al cargar productos', 'error');
-    }
-  }, [i18n.language]);
-
-  // Cargar productos al montar el componente o cuando cambie el idioma
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
@@ -108,46 +110,15 @@ export const StoreProvider = ({ children }) => {
   // Productos
   const addProduct = useCallback(async (productData) => {
     try {
-      // Preparar datos con traducciones
-      const productWithTranslations = {
-        ...productData,
-        name_es: productData.name,
-        name_en: productData.name_en || productData.name,
-        description_es: productData.description,
-        description_en: productData.description_en || productData.description,
-        features: productData.features ? Object.entries(productData.features).reduce((acc, [key, feature]) => ({
-          ...acc,
-          [key]: {
-            ...feature,
-            name_es: feature.name,
-            name_en: feature.name_en || feature.name,
-            selectedComponent: feature.selectedComponent ? {
-              ...feature.selectedComponent,
-              name_es: feature.selectedComponent.name,
-              name_en: feature.selectedComponent.name_en || feature.selectedComponent.name,
-              description_es: feature.selectedComponent.description,
-              description_en: feature.selectedComponent.description_en || feature.selectedComponent.description
-            } : null,
-            options: feature.options ? feature.options.map(option => ({
-              ...option,
-              name_es: option.name,
-              name_en: option.name_en || option.name,
-              description_es: option.description,
-              description_en: option.description_en || option.description
-            })) : []
-          }
-        }), {}) : null,
-        models: productData.models ? productData.models.map(model => ({
-          ...model,
-          name_es: model.name,
-          name_en: model.name_en || model.name,
-          description_es: model.description,
-          description_en: model.description_en || model.description
-        })) : []
-      };
-
-      const newProduct = await productService.createProduct(productWithTranslations, getToken());
-      setProducts(prev => [...prev, newProduct]);
+      if (!isServerAvailable) {
+        throw new Error('No se pueden agregar productos mientras el servidor no esté disponible');
+      }
+      const token = getToken();
+      if (!token) {
+        throw new Error('No hay token de autenticación disponible');
+      }
+      const newProduct = await productService.createProduct(productData, token);
+      await fetchProducts();
       showToast('Producto agregado exitosamente', 'success');
       return newProduct;
     } catch (err) {
@@ -155,52 +126,19 @@ export const StoreProvider = ({ children }) => {
       showToast('Error al agregar el producto', 'error');
       throw err;
     }
-  }, [showToast, getToken]);
+  }, [showToast, getToken, fetchProducts, isServerAvailable]);
 
   const updateProduct = useCallback(async (productId, productData) => {
     try {
-      // Preparar datos con traducciones
-      const productWithTranslations = {
-        ...productData,
-        name_es: productData.name,
-        name_en: productData.name_en || productData.name,
-        description_es: productData.description,
-        description_en: productData.description_en || productData.description,
-        features: productData.features ? Object.entries(productData.features).reduce((acc, [key, feature]) => ({
-          ...acc,
-          [key]: {
-            ...feature,
-            name_es: feature.name,
-            name_en: feature.name_en || feature.name,
-            selectedComponent: feature.selectedComponent ? {
-              ...feature.selectedComponent,
-              name_es: feature.selectedComponent.name,
-              name_en: feature.selectedComponent.name_en || feature.selectedComponent.name,
-              description_es: feature.selectedComponent.description,
-              description_en: feature.selectedComponent.description_en || feature.selectedComponent.description
-            } : null,
-            options: feature.options ? feature.options.map(option => ({
-              ...option,
-              name_es: option.name,
-              name_en: option.name_en || option.name,
-              description_es: option.description,
-              description_en: option.description_en || option.description
-            })) : []
-          }
-        }), {}) : null,
-        models: productData.models ? productData.models.map(model => ({
-          ...model,
-          name_es: model.name,
-          name_en: model.name_en || model.name,
-          description_es: model.description,
-          description_en: model.description_en || model.description
-        })) : []
-      };
-
-      const updatedProduct = await productService.updateProduct(productId, productWithTranslations, getToken());
-      setProducts(prev => prev.map(product => 
-        product.id === productId ? updatedProduct : product
-      ));
+      if (!isServerAvailable) {
+        throw new Error('No se pueden actualizar productos mientras el servidor no esté disponible');
+      }
+      const token = getToken();
+      if (!token) {
+        throw new Error('No hay token de autenticación disponible');
+      }
+      const updatedProduct = await productService.updateProduct(productId, productData, token);
+      await fetchProducts();
       showToast('Producto actualizado exitosamente', 'success');
       return updatedProduct;
     } catch (err) {
@@ -208,39 +146,26 @@ export const StoreProvider = ({ children }) => {
       showToast('Error al actualizar el producto', 'error');
       throw err;
     }
-  }, [showToast, getToken]);
+  }, [showToast, getToken, fetchProducts, isServerAvailable]);
 
   const deleteProduct = useCallback(async (productId) => {
     try {
-      console.log('Intentando eliminar producto:', productId);
+      if (!isServerAvailable) {
+        throw new Error('No se pueden eliminar productos mientras el servidor no esté disponible');
+      }
       const token = getToken();
-      console.log('Token disponible:', !!token);
-      console.log('Token completo:', token);
-      
       if (!token) {
         throw new Error('No hay token de autenticación disponible');
       }
-
-      if (!productId) {
-        throw new Error('ID de producto no proporcionado');
-      }
-
       await productService.deleteProduct(productId, token);
-      // Recargar los productos después de eliminar
-      await loadProducts();
+      await fetchProducts();
       showToast('Producto eliminado exitosamente', 'success');
     } catch (err) {
-      console.error('Error al eliminar el producto:', err);
-      console.error('Detalles del error:', {
-        message: err.message,
-        stack: err.stack,
-        productId,
-        hasToken: !!token
-      });
+      setError(err.message);
       showToast('Error al eliminar el producto', 'error');
       throw err;
     }
-  }, [showToast, getToken, loadProducts]);
+  }, [showToast, getToken, fetchProducts, isServerAvailable]);
 
   // Carrito
   const addToCart = useCallback((product, quantity = 1) => {
@@ -248,6 +173,10 @@ export const StoreProvider = ({ children }) => {
       console.error('Producto inválido:', product);
       return;
     }
+
+    const price = typeof product.price === 'string' 
+      ? parseFloat(product.price) 
+      : product.price;
 
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
@@ -274,7 +203,7 @@ export const StoreProvider = ({ children }) => {
       return [...prevCart, {
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: price,
         image: product.image,
         stock: product.stock,
         quantity: quantity,
@@ -291,27 +220,16 @@ export const StoreProvider = ({ children }) => {
   }, [showToast]);
 
   const updateQuantity = useCallback((productId, newQuantity) => {
-    if (newQuantity < 1) {
-      showToast('La cantidad debe ser mayor a 0', 'warning');
-      return;
-    }
-    
-    setCart(prevCart => {
-      const item = prevCart.find(item => item.id === productId);
-      if (!item) return prevCart;
+    if (newQuantity < 1) return;
 
-      if (newQuantity > item.stock) {
-        showToast(`Solo hay ${item.stock} unidades disponibles`, 'warning');
-        return prevCart;
-      }
-
-      return prevCart.map(item =>
+    setCart(prevCart =>
+      prevCart.map(item =>
         item.id === productId
           ? { ...item, quantity: newQuantity }
           : item
-      );
-    });
-  }, [showToast]);
+      )
+    );
+  }, []);
 
   const clearCart = useCallback(() => {
     setCart([]);
@@ -329,9 +247,10 @@ export const StoreProvider = ({ children }) => {
   const value = {
     cart,
     products,
-    isLoading,
+    loading,
     error,
     specifications,
+    isServerAvailable,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -341,6 +260,7 @@ export const StoreProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartItemsCount,
+    fetchProducts
   };
 
   return (
@@ -358,7 +278,7 @@ export const StoreProvider = ({ children }) => {
 };
 
 StoreProvider.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 export default StoreContext;

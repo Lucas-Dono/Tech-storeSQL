@@ -4,6 +4,7 @@ import { DEFAULT_PRODUCT, CURRENCIES, DEFAULT_CURRENCY, VARIANT_TYPES } from '..
 import Select from './common/Select';
 import { useTranslation } from 'react-i18next';
 import MediaManager from './admin/MediaManager';
+import ConfigurableProductManager from './admin/ConfigurableProductManager';
 
 const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
   const { t } = useTranslation();
@@ -64,6 +65,14 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
     }
 
     await onSubmit(processedData);
+  };
+
+  const handleConfigurableUpdate = (updatedConfig) => {
+    setFormData(prev => ({
+      ...prev,
+      features: updatedConfig.features,
+      models: updatedConfig.models
+    }));
   };
 
   return (
@@ -199,6 +208,15 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
             />
           </div>
         </div>
+
+        {formData.variantType === VARIANT_TYPES.CONFIGURABLE && (
+          <div className="mt-6">
+            <ConfigurableProductManager
+              product={formData}
+              onUpdate={handleConfigurableUpdate}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end">

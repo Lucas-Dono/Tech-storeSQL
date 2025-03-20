@@ -59,6 +59,8 @@ exports.createProduct = async (req, res) => {
 // Actualizar un producto
 exports.updateProduct = async (req, res) => {
   try {
+    console.log('Datos recibidos para actualizar:', req.body);
+    
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
@@ -77,12 +79,16 @@ exports.updateProduct = async (req, res) => {
       name_es: req.body.name,
       name_en: req.body.name_en || req.body.name,
       description_es: req.body.description,
-      description_en: req.body.description_en || req.body.description
+      description_en: req.body.description_en || req.body.description,
+      // Asegurar que features se mantenga como objeto
+      features: req.body.features || {}
     };
 
     // Eliminar campos que no deben estar en el modelo
     delete updateData.id;
     delete updateData._id;
+
+    console.log('Datos procesados para actualizar:', updateData);
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
@@ -90,6 +96,7 @@ exports.updateProduct = async (req, res) => {
       { new: true, runValidators: true }
     );
 
+    console.log('Producto actualizado:', updatedProduct);
     res.json(updatedProduct);
   } catch (error) {
     console.error('Error al actualizar producto:', error);

@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { useAdmin } from '../context/AdminContext';
 import { useAlert } from '../context/AlertContext';
 import { useTranslation } from 'react-i18next';
+import { productService } from '../services/productService';
 import Loading from '../components/Loading';
 import ImageCarousel from '../components/ImageCarousel';
 import ProductComparison from '../components/ProductComparison';
@@ -25,7 +26,8 @@ const ProductDetail = () => {
     const loadProduct = async () => {
       try {
         setIsLoading(true);
-        const foundProduct = products.find(p => p.id === id);
+        const foundProduct = await productService.getProductById(id);
+        
         if (!foundProduct) {
           error(t('productDetail.notFound'));
           navigate('/productos');
@@ -35,6 +37,7 @@ const ProductDetail = () => {
         // Procesar el producto para asegurar que tenga la estructura correcta
         const processedProduct = {
           ...foundProduct,
+          id: foundProduct._id || foundProduct.id,
           images: Array.isArray(foundProduct.images) 
             ? foundProduct.images.filter(img => typeof img === 'string')
             : [],
@@ -46,15 +49,16 @@ const ProductDetail = () => {
         console.log('Processed product:', processedProduct); // Para depuración
         setProduct(processedProduct);
       } catch (err) {
+        console.error('Error loading product:', err);
         error(t('productDetail.error'));
-        console.error(err);
+        navigate('/productos');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadProduct();
-  }, [id, products, error, navigate, t]);
+  }, [id, error, navigate, t]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -97,10 +101,11 @@ const ProductDetail = () => {
 
   // Filtrar productos relacionados y procesarlos
   const relatedProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
+    .filter(p => p.category === product.category && (p._id !== product._id && p.id !== product.id))
     .slice(0, 3)
     .map(relatedProduct => ({
       ...relatedProduct,
+      id: relatedProduct._id || relatedProduct.id,
       images: Array.isArray(relatedProduct.images) 
         ? relatedProduct.images.filter(img => typeof img === 'string')
         : [],
