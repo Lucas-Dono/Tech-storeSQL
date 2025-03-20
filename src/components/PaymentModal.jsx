@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useAlert } from '../context/AlertContext';
+import { useTranslation } from 'react-i18next';
 
 const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
+  const { t } = useTranslation();
   const { error, success, info } = useAlert();
   const [cardNumber, setCardNumber] = useState('4242 4242 4242 4242');
   const [expiryDate, setExpiryDate] = useState('12/30');
@@ -26,12 +28,12 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
 
   const validateForm = () => {
     if (!cardNumber.replace(/\s/g, '').match(/^\d{16}$/)) {
-      error('El número de tarjeta debe tener 16 dígitos', 'Error de validación');
+      error(t('payment.validationErrors.cardNumber'), t('payment.error'));
       return false;
     }
 
     if (!expiryDate.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/)) {
-      error('La fecha de expiración debe tener el formato MM/YY', 'Error de validación');
+      error(t('payment.validationErrors.expiryDate'), t('payment.error'));
       return false;
     }
 
@@ -39,12 +41,12 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
     const expiry = new Date(2000 + parseInt(year), parseInt(month) - 1);
     const now = new Date();
     if (expiry < now) {
-      error('La tarjeta está vencida', 'Error de validación');
+      error(t('payment.validationErrors.expiredCard'), t('payment.error'));
       return false;
     }
 
     if (!cvv.match(/^\d{3}$/)) {
-      error('El CVV debe tener 3 dígitos', 'Error de validación');
+      error(t('payment.validationErrors.cvv'), t('payment.error'));
       return false;
     }
 
@@ -59,7 +61,7 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
     }
 
     setIsProcessing(true);
-    info('Procesando tu pago...', 'Por favor espera');
+    info(t('payment.processing'), t('payment.pleaseWait'));
 
     // Simular procesamiento de pago
     try {
@@ -67,21 +69,20 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
       setIsProcessing(false);
       setShowSuccess(true);
       success(
-        `Tu pago de $${total.toLocaleString()} ha sido procesado correctamente. 
-        Recibirás un email con los detalles de tu compra.`,
-        '¡Pago exitoso!'
+        t('payment.successDetails', { amount: total.toLocaleString() }),
+        t('payment.paymentSuccess')
       );
       onSuccess();
     } catch (err) {
       setIsProcessing(false);
-      error('Hubo un error al procesar el pago. Por favor, intenta nuevamente.', 'Error de pago');
+      error(t('payment.errorMessage'), t('payment.paymentError'));
     }
   };
 
   const handleBackToHome = () => {
     onClose();
     navigate('/');
-    success('¡Gracias por tu compra!', 'Vuelve pronto');
+    success(t('payment.successMessage'), t('payment.success'));
   };
 
   const formatCardNumber = (value) => {
@@ -116,19 +117,21 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
       <div className={`bg-white rounded-lg w-full ${isMobile ? 'max-h-full h-full' : 'max-w-md'} ${isMobile ? 'p-4' : 'p-6'} relative animate-slide-up`}>
         {!showSuccess ? (
           <>
-            <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 mb-6`}>Completar Pago</h2>
+            <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 mb-6`}>
+              {t('payment.title')}
+            </h2>
             
             {/* Mensaje de demostración */}
             <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
               <p className="text-sm text-blue-700">
-                <span className="font-semibold">Nota:</span> Esta es una demostración. Los datos de la tarjeta son ficticios y no se realizará ningún cargo real.
+                {t('payment.demoNotice')}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Total a Pagar
+                  {t('payment.amountToPay')}
                 </label>
                 <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-blue-600 mb-4`}>
                   ${total.toLocaleString()}
@@ -137,81 +140,55 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Número de Tarjeta (Demo)
+                  {t('payment.cardNumber')}
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
-                  placeholder="1234 5678 9012 3456"
                   value={cardNumber}
                   onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                  maxLength={19}
-                  required
-                  pattern="\d{4}\s\d{4}\s\d{4}\s\d{4}"
-                  readOnly
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  maxLength="19"
+                  disabled={isProcessing}
                 />
-                <p className="text-xs text-gray-500 mt-1">Tarjeta de prueba pre-rellenada</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fecha de Expiración (Demo)
+                    {t('payment.expiryDate')}
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
-                    placeholder="MM/YY"
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
-                    maxLength={5}
-                    required
-                    pattern="\d{2}/\d{2}"
-                    readOnly
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="MM/YY"
+                    maxLength="5"
+                    disabled={isProcessing}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CVV (Demo)
+                    {t('payment.cvv')}
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded-md text-base bg-gray-50"
-                    placeholder="123"
                     value={cvv}
                     onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                    maxLength={3}
-                    required
-                    pattern="\d{3}"
-                    readOnly
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength="3"
+                    disabled={isProcessing}
                   />
                 </div>
               </div>
 
-              <div className={`flex gap-4 ${isMobile ? 'mt-4 flex-col' : 'mt-6'}`}>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className={`${isMobile ? 'order-2' : 'flex-1'} px-4 py-3 border rounded-md hover:bg-gray-50 transition-colors text-base`}
-                  disabled={isProcessing}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className={`${isMobile ? 'order-1' : 'flex-1'} btn-primary py-3 text-base`}
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Procesando...</span>
-                    </div>
-                  ) : (
-                    'Simular Pago'
-                  )}
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="w-full btn-primary py-3 text-lg mt-6 disabled:opacity-50"
+                disabled={isProcessing}
+              >
+                {isProcessing ? t('payment.processing') : t('cart.checkout')}
+              </button>
             </form>
           </>
         ) : (
@@ -232,15 +209,17 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
                 </svg>
               </div>
             </div>
-            <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 mb-4`}>¡Perfecto!</h2>
+            <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 mb-4`}>
+              {t('payment.success')}
+            </h2>
             <p className={`${isMobile ? 'text-lg' : 'text-xl'} text-gray-600 mb-8`}>
-              Tu compra ha sido aceptada, ¡tu producto estará en camino pronto!
+              {t('payment.successMessage')}
             </p>
             <button
               onClick={handleBackToHome}
               className="btn-primary w-full py-3 text-base"
             >
-              Volver al Inicio
+              {t('payment.backToHome')}
             </button>
           </div>
         )}

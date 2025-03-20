@@ -28,7 +28,7 @@ export const ENDPOINTS = {
   UPLOAD: '/api/upload',
   
   // Users Management
-  USER_ROLE: (userId) => `/api/auth/users/${userId}/role`,
+  USER_ROLE: '/api/auth/users/update-role',
   
   // Products
   PRODUCT_BY_ID: (id) => `/api/products/${id}`,

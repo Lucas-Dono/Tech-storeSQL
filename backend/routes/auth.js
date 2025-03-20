@@ -20,6 +20,6 @@ router.get('/profile', protect, getUserProfile);
 router.post('/create-admin', protect, superadmin, createAdminUser);
 router.delete('/users/:id', protect, superadmin, deleteUser);
 router.get('/users', protect, superadmin, getAllUsers);
-router.patch('/users/:id/role', protect, superadmin, updateUserRole);
+router.patch('/users/update-role', protect, superadmin, updateUserRole);
 
 module.exports = router; 

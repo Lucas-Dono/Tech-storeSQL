@@ -4,8 +4,10 @@ import { useStore } from '../context/StoreContext';
 import { useAlert } from '../context/AlertContext';
 import { TrashIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 import PaymentModal from '../components/PaymentModal';
+import { useTranslation } from 'react-i18next';
 
 const Cart = () => {
+  const { t } = useTranslation();
   console.log('Cart component rendering');
   
   const { 
@@ -27,25 +29,25 @@ const Cart = () => {
 
   const handlePaymentSuccess = () => {
     clearCart();
-    success('¡Tu compra ha sido confirmada!', '¡Gracias por tu compra!');
+    success(t('payment.successDetails', { amount: getCartTotal().toLocaleString() }), t('payment.paymentSuccess'));
   };
 
   const handleRemoveItem = (itemId, itemName) => {
     removeFromCart(itemId);
-    warning(`${itemName} ha sido eliminado del carrito`);
+    warning(t('cart.itemRemoved'));
   };
 
   const handleClearCart = () => {
-    if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+    if (window.confirm(t('cart.clearCartConfirm'))) {
       clearCart();
-      warning('El carrito ha sido vaciado');
+      warning(t('cart.itemsCleared'));
     }
   };
 
   const handleUpdateQuantity = (itemId, newQuantity, itemName) => {
     updateQuantity(itemId, newQuantity);
     if (newQuantity === 1) {
-      warning(`La cantidad mínima para ${itemName} es 1`);
+      warning(t('products.minQuantity'));
     }
   };
 
@@ -54,13 +56,13 @@ const Cart = () => {
     console.log('Rendering empty cart view');
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Tu carrito está vacío</h1>
-        <p className="text-gray-600 mb-8">¿No sabes qué comprar? ¡Miles de productos te esperan!</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.empty')}</h1>
+        <p className="text-gray-600 mb-8">{t('cart.emptyMessage')}</p>
         <Link 
           to="/productos" 
           className="btn-primary inline-block"
         >
-          Ir a la tienda
+          {t('cart.continueShopping')}
         </Link>
       </div>
     );
@@ -70,7 +72,7 @@ const Cart = () => {
   console.log('Rendering cart with items');
   return (
     <div className="container-custom py-8 debug-cart-full">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Carrito de Compras</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.title')}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
@@ -112,6 +114,7 @@ const Cart = () => {
                       className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
                       onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, item.name)}
                       disabled={item.quantity <= 1}
+                      aria-label={t('cart.decreaseQuantity')}
                     >
                       <MinusIcon className="h-4 w-4" />
                     </button>
@@ -121,6 +124,7 @@ const Cart = () => {
                     <button
                       className="p-2 hover:bg-gray-100 transition-colors"
                       onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.name)}
+                      aria-label={t('cart.increaseQuantity')}
                     >
                       <PlusIcon className="h-4 w-4" />
                     </button>
@@ -128,13 +132,14 @@ const Cart = () => {
                   <button
                     className="text-red-500 hover:text-red-700 transition-colors p-2"
                     onClick={() => handleRemoveItem(item.id, item.name)}
+                    aria-label={t('cart.removeItem')}
                   >
                     <TrashIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500">Subtotal</p>
+                <p className="text-sm text-gray-500">{t('cart.subtotal')}</p>
                 <p className="text-lg font-bold text-gray-900">
                   ${((item.price || 0) * item.quantity).toLocaleString()}
                 </p>
@@ -146,42 +151,42 @@ const Cart = () => {
             className="text-red-500 hover:text-red-700 transition-colors mt-4"
             onClick={handleClearCart}
           >
-            Vaciar carrito
+            {t('cart.clearCart')}
           </button>
         </div>
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="card sticky top-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Resumen del Pedido</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('cart.orderSummary')}</h2>
             <div className="space-y-2">
               <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
+                <span>{t('cart.subtotal')}</span>
                 <span>${getCartTotal().toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Envío</span>
-                <span>Gratis</span>
+                <span>{t('cart.shipping')}</span>
+                <span>{t('cart.shippingFree')}</span>
               </div>
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
+                  <span>{t('cart.total')}</span>
                   <span>${getCartTotal().toLocaleString()}</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Impuestos incluidos</p>
+                <p className="text-sm text-gray-500 mt-1">{t('cart.taxesIncluded')}</p>
               </div>
             </div>
             <button 
               className="w-full btn-primary py-3 text-lg mt-6"
               onClick={() => setShowPaymentModal(true)}
             >
-              Proceder al Pago
+              {t('cart.checkout')}
             </button>
             <Link 
               to="/productos"
               className="block text-center mt-4 text-blue-600 hover:text-blue-700 transition-colors"
             >
-              Seguir comprando
+              {t('cart.continueShopping')}
             </Link>
           </div>
         </div>

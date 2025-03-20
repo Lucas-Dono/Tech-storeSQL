@@ -153,12 +153,24 @@
   "cart": {
     "title": "Shopping Cart",
     "empty": "Your cart is empty",
+    "emptyMessage": "Don't know what to buy? Thousands of products await you!",
     "total": "Total",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "shippingFree": "Free",
     "checkout": "Proceed to Checkout",
+    "continueShopping": "Continue Shopping",
     "removeItem": "Remove item",
+    "clearCart": "Clear cart",
     "updateQuantity": "Update quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
     "itemRemoved": "Item removed from cart",
-    "quantityUpdated": "Quantity updated"
+    "itemsCleared": "Cart has been cleared",
+    "quantityUpdated": "Quantity updated",
+    "orderSummary": "Order Summary",
+    "taxesIncluded": "Taxes included",
+    "clearCartConfirm": "Are you sure you want to clear your cart?"
   },
   "admin": {
     "dashboard": "Dashboard",
@@ -353,5 +365,28 @@
       "address": "Address: Main Street 123"
     },
     "copyright": "© 2024 TechStore. All rights reserved."
+  },
+  "payment": {
+    "title": "Complete Payment",
+    "demoNotice": "Note: This is a demo. Card details are fictitious and no actual charge will be made.",
+    "cardNumber": "Card Number",
+    "expiryDate": "Expiry Date",
+    "cvv": "CVV",
+    "processing": "Processing your payment...",
+    "pleaseWait": "Please wait",
+    "success": "Perfect!",
+    "successMessage": "Your purchase has been accepted, your product will be on its way soon!",
+    "backToHome": "Back to Home",
+    "amountToPay": "Amount to Pay",
+    "validationErrors": {
+      "cardNumber": "Card number must be 16 digits",
+      "expiryDate": "Expiry date must be in MM/YY format",
+      "expiredCard": "Card is expired",
+      "cvv": "CVV must be 3 digits"
+    },
+    "paymentSuccess": "Payment Successful!",
+    "paymentError": "Payment Error",
+    "successDetails": "Your payment of ${{amount}} has been processed successfully. You will receive an email with your purchase details.",
+    "errorMessage": "There was an error processing your payment. Please try again."
   }
 } 

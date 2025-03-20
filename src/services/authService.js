@@ -134,12 +134,26 @@ export const authService = {
     }
   },
 
-  async updateUserRole(userId, newRole, token) {
+  async updateUserRole(userId, newRole) {
     try {
-      const response = await fetch(`${API_URL}${ENDPOINTS.USER_ROLE(userId)}`, {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      console.log('Actualizando rol de usuario:', {
+        userId,
+        newRole,
+        url: `${API_URL}${ENDPOINTS.USER_ROLE}`
+      });
+
+      const response = await fetch(`${API_URL}${ENDPOINTS.USER_ROLE}`, {
         method: 'PATCH',
         headers: getHeaders(token),
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({ 
+          userId,
+          role: newRole 
+        }),
       });
 
       if (!response.ok) {

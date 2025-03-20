@@ -154,12 +154,20 @@
   "cart": {
     "title": "Carrito de Compras",
     "empty": "Tu carrito está vacío",
+    "emptyMessage": "¿No sabes qué comprar? ¡Miles de productos te esperan!",
     "total": "Total",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "shippingFree": "Gratis",
     "checkout": "Proceder al Pago",
+    "continueShopping": "Seguir comprando",
     "removeItem": "Eliminar producto",
+    "clearCart": "Vaciar carrito",
     "updateQuantity": "Actualizar cantidad",
     "itemRemoved": "Producto eliminado del carrito",
-    "quantityUpdated": "Cantidad actualizada"
+    "quantityUpdated": "Cantidad actualizada",
+    "orderSummary": "Resumen del Pedido",
+    "taxesIncluded": "Impuestos incluidos"
   },
   "admin": {
     "dashboard": "Panel de Control",
@@ -354,5 +362,28 @@
       "address": "Dirección: Calle Principal 123"
     },
     "copyright": "© 2024 TechStore. Todos los derechos reservados."
+  },
+  "payment": {
+    "title": "Completar Pago",
+    "demoNotice": "Nota: Esta es una demostración. Los datos de la tarjeta son ficticios y no se realizará ningún cargo real.",
+    "cardNumber": "Número de Tarjeta",
+    "expiryDate": "Fecha de Vencimiento",
+    "cvv": "CVV",
+    "processing": "Procesando tu pago...",
+    "pleaseWait": "Por favor espera",
+    "success": "¡Perfecto!",
+    "successMessage": "Tu compra ha sido aceptada, ¡tu producto estará en camino pronto!",
+    "backToHome": "Volver al Inicio",
+    "amountToPay": "Total a Pagar",
+    "validationErrors": {
+      "cardNumber": "El número de tarjeta debe tener 16 dígitos",
+      "expiryDate": "La fecha de expiración debe tener el formato MM/YY",
+      "expiredCard": "La tarjeta está vencida",
+      "cvv": "El CVV debe tener 3 dígitos"
+    },
+    "paymentSuccess": "¡Pago exitoso!",
+    "paymentError": "Error de pago",
+    "successDetails": "Tu pago de ${{amount}} ha sido procesado correctamente. Recibirás un email con los detalles de tu compra.",
+    "errorMessage": "Hubo un error al procesar el pago. Por favor, intenta nuevamente."
   }
 } 
