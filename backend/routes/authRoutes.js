@@ -17,8 +17,8 @@ router.post('/login', loginUser);
 
 // Rutas protegidas
 router.get('/me', protect, getMe);
-router.get('/users', protect, authorize('admin', 'superadmin'), getAllUsers);
-router.post('/users/toggle-status', protect, authorize('admin', 'superadmin'), toggleUserStatusFixed);
-router.delete('/users/:id', protect, authorize('superadmin'), deleteUser);
+router.get('/users', protect, authorize(['admin', 'superadmin']), getAllUsers);
+router.post('/users/toggle-status', protect, authorize(['admin', 'superadmin']), toggleUserStatusFixed);
+router.delete('/users/:id', protect, authorize(['superadmin']), deleteUser);
 
 module.exports = router; 
