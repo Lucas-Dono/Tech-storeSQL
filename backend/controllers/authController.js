@@ -1,3 +1,7 @@
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
 // Cambiar estado de un usuario (activo/inactivo)
 exports.toggleUserStatus = async (req, res) => {
   try {
@@ -71,5 +75,28 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     console.error('Error al eliminar usuario:', error);
     res.status(500).json({ message: 'Error al eliminar usuario' });
+  }
+};
+
+// Obtener perfil del usuario actual
+exports.getMe = async (req, res) => {
+  try {
+    console.log('Obteniendo perfil para usuario:', req.user._id);
+    const user = await User.findById(req.user._id).select('-password');
+    
+    if (!user) {
+      console.log('Usuario no encontrado');
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    console.log('Perfil encontrado:', {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    });
+    res.json(user);
+  } catch (error) {
+    console.error('Error al obtener perfil:', error);
+    res.status(500).json({ message: 'Error al obtener perfil de usuario' });
   }
 }; 
