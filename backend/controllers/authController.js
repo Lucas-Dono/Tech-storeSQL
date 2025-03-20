@@ -116,4 +116,68 @@ exports.getMe = async (req, res) => {
     console.error('Error al obtener perfil:', error);
     res.status(500).json({ message: 'Error al obtener perfil de usuario' });
   }
+};
+
+// Cambiar estado de un usuario (activo/inactivo) - Nuevo endpoint fijo
+exports.toggleUserStatusFixed = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log('Intentando cambiar estado del usuario:', {
+      userId,
+      currentUser: req.user._id,
+      currentUserRole: req.user.role
+    });
+
+    if (!userId) {
+      return res.status(400).json({ message: 'Se requiere el ID del usuario' });
+    }
+
+    const user = await User.findById(userId);
+    console.log('Usuario encontrado:', user ? {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    } : 'No encontrado');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Prevenir que un admin desactive a un superadmin
+    if (user.role === 'superadmin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ 
+        message: 'No tienes permiso para modificar el estado de un superadmin' 
+      });
+    }
+
+    // Prevenir que un admin se desactive a sí mismo
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ 
+        message: 'No puedes cambiar tu propio estado' 
+      });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    console.log('Estado actualizado:', {
+      userId: user._id,
+      newStatus: user.isActive
+    });
+
+    res.json({
+      message: `Usuario ${user.isActive ? 'activado' : 'desactivado'} correctamente`,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive
+      }
+    });
+  } catch (error) {
+    console.error('Error al cambiar estado del usuario:', error);
+    res.status(500).json({ message: 'Error al cambiar estado del usuario' });
+  }
 }; 

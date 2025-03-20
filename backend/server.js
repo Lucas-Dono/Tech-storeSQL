@@ -7,7 +7,7 @@ const path = require('path');
 const connectDB = require('./config/db');
 const { initSuperAdmin } = require('./controllers/auth');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 

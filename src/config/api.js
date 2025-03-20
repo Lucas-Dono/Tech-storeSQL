@@ -17,23 +17,21 @@ export const getHeaders = (token) => {
 
 // API Endpoints
 export const ENDPOINTS = {
-  // Auth
   LOGIN: '/api/auth/login',
   REGISTER: '/api/auth/register',
   PROFILE: '/api/auth/me',
+  USERS: '/api/auth/users',
+  USER_STATUS: '/api/auth/users/toggle-status',
+  USER_DELETE: (userId) => `/api/auth/users/${userId}`,
+  PRODUCTS: '/api/products',
+  CATEGORIES: '/api/categories',
+  UPLOAD: '/api/upload',
   
   // Users Management
-  USERS: '/api/auth/users',
   USER_ROLE: (userId) => `/api/auth/users/${userId}/role`,
-  USER_STATUS: (userId) => `/api/auth/users/${userId}/status`,
-  USER_DELETE: (userId) => `/api/auth/users/${userId}`,
   
   // Products
-  PRODUCTS: '/api/products',
   PRODUCT_BY_ID: (id) => `/api/products/${id}`,
-  
-  // Categories
-  CATEGORIES: '/api/categories',
   
   // Media
   UPLOAD_IMAGES: '/api/upload/multiple',

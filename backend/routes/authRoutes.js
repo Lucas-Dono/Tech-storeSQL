@@ -7,6 +7,7 @@ const {
   getMe,
   getAllUsers,
   toggleUserStatus,
+  toggleUserStatusFixed,
   deleteUser
 } = require('../controllers/authController');
 
@@ -18,6 +19,7 @@ router.post('/login', loginUser);
 router.get('/me', protect, getMe);
 router.get('/users', protect, authorize('admin', 'superadmin'), getAllUsers);
 router.patch('/users/:id/status', protect, authorize('admin', 'superadmin'), toggleUserStatus);
+router.post('/users/toggle-status', protect, authorize('admin', 'superadmin'), toggleUserStatusFixed);
 router.delete('/users/:id', protect, authorize('superadmin'), deleteUser);
 
 module.exports = router; 

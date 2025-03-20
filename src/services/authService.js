@@ -117,11 +117,20 @@ export const authService = {
     }
   },
 
-  async toggleUserStatus(userId, token) {
+  async toggleUserStatus(userId) {
     try {
-      const response = await fetch(`${API_URL}${ENDPOINTS.USER_STATUS(userId)}`, {
-        method: 'PATCH',
-        headers: getHeaders(token)
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      const response = await fetch(`${API_URL}/api/auth/users/toggle-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
       });
 
       if (!response.ok) {
