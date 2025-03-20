@@ -29,7 +29,7 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     console.log('Contraseña encriptada:', {
       original: password,
-      encriptada: hashedPassword.substring(0, 10) + '...',
+      encriptada: hashedPassword,
       longitud: hashedPassword.length
     });
 
@@ -38,7 +38,7 @@ exports.registerUser = async (req, res) => {
     console.log('Prueba de validación:', {
       resultado: testCompare,
       passwordOriginal: password,
-      passwordHash: hashedPassword.substring(0, 10) + '...'
+      passwordHash: hashedPassword
     });
 
     // Crear usuario
@@ -50,11 +50,20 @@ exports.registerUser = async (req, res) => {
       role: 'user'
     });
 
-    console.log('Usuario creado:', {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      passwordGuardada: user.password.substring(0, 10) + '...'
+    // Verificar que la contraseña se guardó correctamente
+    const savedUser = await User.findById(user._id);
+    console.log('Verificación de contraseña guardada:', {
+      hashAntes: hashedPassword,
+      hashGuardado: savedUser.password,
+      coinciden: hashedPassword === savedUser.password
+    });
+
+    // Verificar que la contraseña funciona con el hash guardado
+    const finalCheck = await bcrypt.compare(password, savedUser.password);
+    console.log('Verificación final:', {
+      resultado: finalCheck,
+      passwordOriginal: password,
+      hashFinal: savedUser.password
     });
 
     // Generar token
@@ -73,6 +82,7 @@ exports.registerUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Error detallado en registro:', error);
+    console.error('Stack:', error.stack);
     res.status(500).json({ message: 'Error al registrar usuario' });
   }
 };
