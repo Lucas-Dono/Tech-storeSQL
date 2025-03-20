@@ -6,7 +6,12 @@ const bcrypt = require('bcryptjs');
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, birthDate } = req.body;
-    console.log('Intento de registro para:', email);
+    console.log('Datos recibidos en registro:', {
+      email,
+      passwordRecibida: password,
+      tienePassword: !!password,
+      longitudPassword: password ? password.length : 0
+    });
 
     // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
@@ -16,9 +21,25 @@ exports.registerUser = async (req, res) => {
     }
 
     // Encriptar contraseña
+    console.log('Generando salt...');
     const salt = await bcrypt.genSalt(10);
+    console.log('Salt generado:', salt);
+    
+    console.log('Encriptando contraseña...');
     const hashedPassword = await bcrypt.hash(password, salt);
-    console.log('Contraseña encriptada para:', email);
+    console.log('Contraseña encriptada:', {
+      original: password,
+      encriptada: hashedPassword.substring(0, 10) + '...',
+      longitud: hashedPassword.length
+    });
+
+    // Verificar que la contraseña se pueda validar
+    const testCompare = await bcrypt.compare(password, hashedPassword);
+    console.log('Prueba de validación:', {
+      resultado: testCompare,
+      passwordOriginal: password,
+      passwordHash: hashedPassword.substring(0, 10) + '...'
+    });
 
     // Crear usuario
     const user = await User.create({
@@ -32,7 +53,8 @@ exports.registerUser = async (req, res) => {
     console.log('Usuario creado:', {
       id: user._id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      passwordGuardada: user.password.substring(0, 10) + '...'
     });
 
     // Generar token
@@ -50,7 +72,7 @@ exports.registerUser = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Error en registro:', error);
+    console.error('Error detallado en registro:', error);
     res.status(500).json({ message: 'Error al registrar usuario' });
   }
 };
