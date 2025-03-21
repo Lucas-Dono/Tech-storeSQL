@@ -313,4 +313,74 @@ exports.deleteUser = async (req, res) => {
     console.error('Error al eliminar usuario:', error);
     res.status(500).json({ message: 'Error al eliminar usuario' });
   }
+};
+
+// Actualizar rol de usuario
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+    console.log('Intentando actualizar rol de usuario:', {
+      userId,
+      newRole: role,
+      currentUser: req.user._id,
+      currentUserRole: req.user.role
+    });
+
+    if (!userId || !role) {
+      return res.status(400).json({ message: 'Se requiere el ID del usuario y el nuevo rol' });
+    }
+
+    const user = await User.findById(userId);
+    console.log('Usuario encontrado:', user ? {
+      id: user._id,
+      email: user.email,
+      currentRole: user.role
+    } : 'No encontrado');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Validar que el rol sea válido
+    const validRoles = ['user', 'admin', 'superadmin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Rol no válido' });
+    }
+
+    // Prevenir cambios en superadmin si no eres superadmin
+    if (user.role === 'superadmin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ 
+        message: 'No tienes permiso para modificar el rol de un superadmin' 
+      });
+    }
+
+    // Prevenir que un usuario cambie su propio rol
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ 
+        message: 'No puedes cambiar tu propio rol' 
+      });
+    }
+
+    user.role = role;
+    await user.save();
+
+    console.log('Rol actualizado:', {
+      userId: user._id,
+      newRole: user.role
+    });
+
+    res.json({
+      message: `Rol actualizado correctamente a ${role}`,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive
+      }
+    });
+  } catch (error) {
+    console.error('Error al actualizar rol del usuario:', error);
+    res.status(500).json({ message: 'Error al actualizar rol del usuario' });
+  }
 }; 
