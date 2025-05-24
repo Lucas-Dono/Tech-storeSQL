@@ -69,6 +69,16 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Root endpoint for Render health check
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Tech Store API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
+
 // Health check endpoint (PostgreSQL via Prisma)
 app.get('/health', async (req, res) => {
   try {
