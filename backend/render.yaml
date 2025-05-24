@@ -2,20 +2,22 @@ services:
   - type: web
     name: tech-store-backend
     env: node
-    buildCommand: npm install && npx prisma generate
-    startCommand: npm start
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
+    startCommand: node server.js
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: SUPERADMIN_EMAIL
+      - key: GOOGLE_CLIENT_ID
         sync: false
-      - key: SUPERADMIN_PASSWORD
+      - key: GOOGLE_CLIENT_SECRET
         sync: false
-      - key: ADMIN_EMAIL
+      - key: CLOUDINARY_CLOUD_NAME
         sync: false
-      - key: ADMIN_PASSWORD
-        sync: false 
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production 
