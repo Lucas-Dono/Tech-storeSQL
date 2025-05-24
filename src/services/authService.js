@@ -20,8 +20,9 @@ const handleResponse = async (response) => {
 export const authService = {
   async login(credentials) {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       console.log('Preparando solicitud de login:', {
-        url: `${API_URL}${ENDPOINTS.LOGIN}`,
+        url: `${baseUrl}${ENDPOINTS.LOGIN}`,
         email: credentials.email,
         tienePassword: !!credentials.password,
         longitudPassword: credentials.password ? credentials.password.length : 0
@@ -37,7 +38,7 @@ export const authService = {
         password: '[PROTECTED]'
       });
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.LOGIN}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -65,13 +66,14 @@ export const authService = {
 
   async loginWithGoogle(credentialResponse) {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       console.log('Preparando solicitud de login con Google');
 
       const requestBody = {
         credential: credentialResponse.credential
       };
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN_GOOGLE}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.LOGIN_GOOGLE}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -99,8 +101,9 @@ export const authService = {
 
   async register(userData) {
     try {
-      console.log('Enviando solicitud de registro a:', `${API_URL}${ENDPOINTS.REGISTER}`);
-      const response = await fetch(`${API_URL}${ENDPOINTS.REGISTER}`, {
+      const baseUrl = API_URL.replace(/\/$/, '');
+      console.log('Enviando solicitud de registro a:', `${baseUrl}${ENDPOINTS.REGISTER}`);
+      const response = await fetch(`${baseUrl}${ENDPOINTS.REGISTER}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -123,12 +126,13 @@ export const authService = {
 
   async getProfile() {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.PROFILE}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PROFILE}`, {
         headers: getHeaders(token)
       });
 
@@ -146,13 +150,14 @@ export const authService = {
 
   async getAllUsers() {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
 
       console.log('Obteniendo usuarios con token:', token.substring(0, 10) + '...');
-      const response = await fetch(`${API_URL}${ENDPOINTS.USERS}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.USERS}`, {
         headers: getHeaders(token)
       });
 
@@ -170,6 +175,7 @@ export const authService = {
 
   async updateUserRole(userId, newRole) {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No hay token de autenticación');
@@ -178,10 +184,10 @@ export const authService = {
       console.log('Actualizando rol de usuario:', {
         userId,
         newRole,
-        url: `${API_URL}${ENDPOINTS.USER_ROLE}`
+        url: `${baseUrl}${ENDPOINTS.USER_ROLE}`
       });
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.USER_ROLE}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.USER_ROLE}`, {
         method: 'PATCH',
         headers: getHeaders(token),
         body: JSON.stringify({ 
@@ -205,20 +211,21 @@ export const authService = {
 
   async toggleUserStatus(userId) {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.USER_STATUS}`, {
-        method: 'POST',
+      const response = await fetch(`${baseUrl}${ENDPOINTS.USER_STATUS}`, {
+        method: 'PATCH',
         headers: getHeaders(token),
         body: JSON.stringify({ userId })
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Error al cambiar el estado del usuario');
+        throw new Error(error.message || 'Error al cambiar estado del usuario');
       }
 
       return await response.json();
@@ -230,12 +237,13 @@ export const authService = {
 
   async deleteUser(userId) {
     try {
+      const baseUrl = API_URL.replace(/\/$/, '');
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.USER_DELETE(userId)}`, {
+      const response = await fetch(`${baseUrl}${ENDPOINTS.USER_DELETE(userId)}`, {
         method: 'DELETE',
         headers: getHeaders(token)
       });

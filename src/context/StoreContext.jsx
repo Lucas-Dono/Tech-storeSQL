@@ -6,6 +6,7 @@ import specifications from '../data/specifications.json';
 import { fallbackProducts } from '../data/fallbackProducts';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
+import { API_URL } from '../config/api';
 
 const StoreContext = createContext();
 
@@ -37,8 +38,7 @@ export const StoreProvider = ({ children }) => {
 
   const checkServerStatus = useCallback(async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}/health`);
+      const response = await fetch(`${API_URL}/health`);
       if (response.ok) {
         setIsServerAvailable(true);
         return true;
