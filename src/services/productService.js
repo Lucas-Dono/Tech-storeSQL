@@ -7,7 +7,8 @@ export const productService = {
   // Obtener todos los productos
   async getProducts() {
     try {
-      const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCTS}`);
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCTS}`);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Error al obtener productos');
@@ -25,7 +26,8 @@ export const productService = {
       if (!id) {
         throw new Error('ID de producto no proporcionado');
       }
-      const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCT_BY_ID(id)}`);
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Error al obtener producto');
@@ -47,7 +49,8 @@ export const productService = {
         throw new Error('Datos del producto no proporcionados');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCTS}`, {
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCTS}`, {
         method: 'POST',
         headers: getHeaders(token),
         body: JSON.stringify(newProduct),
@@ -79,7 +82,8 @@ export const productService = {
         throw new Error('Datos de actualización no proporcionados');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
         method: 'PUT',
         headers: getHeaders(token),
         body: JSON.stringify(updatedData),
@@ -108,7 +112,8 @@ export const productService = {
         throw new Error('Token no proporcionado');
       }
 
-      const response = await fetch(`${API_URL}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
         method: 'DELETE',
         headers: getHeaders(token),
       });

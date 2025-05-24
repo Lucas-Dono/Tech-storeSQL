@@ -37,13 +37,15 @@ export const StoreProvider = ({ children }) => {
 
   const checkServerStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/health`);
+      const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}/health`);
       if (response.ok) {
         setIsServerAvailable(true);
         return true;
       }
       return false;
     } catch (error) {
+      console.error('Error checking server status:', error);
       return false;
     }
   }, []);
