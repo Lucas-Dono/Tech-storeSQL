@@ -50,11 +50,17 @@ if (missingEnvVars.length > 0) {
 
 const app = express();
 
+// Configurar trust proxy para Render
+app.set('trust proxy', 1);
+
 // Configuración de CORS
 const corsOptions = {
-  origin: '*',
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://tech-store-sql.vercel.app', 'https://tech-store-livid.vercel.app']
+    : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
 
 // Middleware de seguridad
@@ -65,7 +71,9 @@ app.use(express.json());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1000
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false
 });
 app.use(limiter);
 

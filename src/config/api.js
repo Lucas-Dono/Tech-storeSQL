@@ -1,5 +1,12 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return 'http://localhost:10000';
+  // Eliminar cualquier trailing slash
+  return envUrl.replace(/\/$/, '');
+};
+
+export const API_URL = getBaseUrl();
 export const API_TIMEOUT = 30000; // 30 seconds
 
 // Headers Configuration
