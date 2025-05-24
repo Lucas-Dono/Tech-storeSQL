@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 export const API_TIMEOUT = 30000; // 30 seconds
 
 // Headers Configuration
@@ -14,16 +14,6 @@ export const getHeaders = (token) => {
 
   return headers;
 };
-
-// API Endpoints
-export const API_ENDPOINTS = {
-  products: `${API_URL}/api/products`,
-  auth: `${API_URL}/api/auth`,
-  health: `${API_URL}/api/health`,
-  upload: `${API_URL}/api/upload`
-};
-
-export default API_URL;
 
 // API Endpoints
 export const ENDPOINTS = {

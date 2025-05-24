@@ -24,11 +24,19 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Configurado' : 'No configur
 console.log('CLOUDINARY:', process.env.CLOUDINARY_CLOUD_NAME ? 'Configurado' : 'No configurado');
 
 const requiredEnvVars = [
-  'MONGODB_URI', 
+  'PORT',
   'JWT_SECRET',
+  'SUPERADMIN_EMAIL',
+  'SUPERADMIN_PASSWORD',
+  'SUPERADMIN_NAME',
+  'ADMIN_EMAIL',
+  'ADMIN_PASSWORD',
+  'ADMIN_NAME',
   'CLOUDINARY_CLOUD_NAME',
   'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET'
+  'CLOUDINARY_API_SECRET',
+  'GOOGLE_CLIENT_ID',
+  'DATABASE_URL'
 ];
 
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
