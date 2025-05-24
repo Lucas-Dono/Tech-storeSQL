@@ -2,8 +2,8 @@
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) return 'http://localhost:10000';
-  // Eliminar cualquier trailing slash y asegurarse de que no haya undefined
-  return envUrl.replace(/\/$/, '').replace(/undefined\/?$/, '');
+  // Asegurarse de que la URL no termine en undefined
+  return envUrl.split('undefined')[0].replace(/\/$/, '');
 };
 
 export const API_URL = getBaseUrl();
@@ -39,6 +39,7 @@ export const ENDPOINTS = {
   USER_ROLE: '/api/auth/users/update-role',
   
   // Products
+  PRODUCTS: '/api/products',
   PRODUCT_BY_ID: (id) => `/api/products/${id}`,
   
   // Media
