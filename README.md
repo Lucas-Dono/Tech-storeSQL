@@ -2,6 +2,11 @@
 
 Una tienda en línea moderna construida con React, Node.js y Prisma.
 
+## Demo en vivo
+
+- Frontend: [https://tech-store-demo.vercel.app](https://tech-store-demo.vercel.app)
+- Backend API: [https://tech-store-backend.onrender.com](https://tech-store-backend.onrender.com)
+
 ## Características
 
 - 🛍️ Catálogo de productos con búsqueda y filtros
@@ -106,4 +111,30 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 Lucas Dono - [@Lucas_Dono](https://github.com/Lucas-Dono)
 
-Link del proyecto: [https://github.com/Lucas-Dono/Tech-storeSQL](https://github.com/Lucas-Dono/Tech-storeSQL) 
+Link del proyecto: [https://github.com/Lucas-Dono/Tech-storeSQL](https://github.com/Lucas-Dono/Tech-storeSQL)
+
+## Despliegue
+
+Este proyecto está desplegado usando las siguientes plataformas gratuitas:
+
+- **Frontend**: Vercel
+- **Backend**: Render
+- **Base de datos**: Neon (PostgreSQL)
+
+### Variables de entorno necesarias
+
+#### Frontend (.env)
+```
+VITE_API_URL=https://tu-backend-en-render.onrender.com
+```
+
+#### Backend (.env)
+```
+DATABASE_URL=postgresql://user:password@ep-something.region.aws.neon.tech/dbname
+JWT_SECRET=tu_secreto_jwt
+NODE_ENV=production
+SUPERADMIN_EMAIL=tu_email
+SUPERADMIN_PASSWORD=tu_password
+ADMIN_EMAIL=admin@ejemplo.com
+ADMIN_PASSWORD=admin123
+``` 
