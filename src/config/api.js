@@ -2,8 +2,8 @@
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) return 'http://localhost:10000';
-  // Eliminar cualquier trailing slash
-  return envUrl.replace(/\/$/, '');
+  // Eliminar cualquier trailing slash y asegurarse de que no haya undefined
+  return envUrl.replace(/\/$/, '').replace(/undefined\/?$/, '');
 };
 
 export const API_URL = getBaseUrl();
@@ -12,7 +12,8 @@ export const API_TIMEOUT = 30000; // 30 seconds
 // Headers Configuration
 export const getHeaders = (token) => {
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   };
 
   if (token) {

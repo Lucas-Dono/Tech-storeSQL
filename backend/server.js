@@ -56,15 +56,19 @@ app.set('trust proxy', 1);
 // Configuración de CORS
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://tech-store-sql.vercel.app', 'https://tech-store-livid.vercel.app']
+    ? process.env.FRONTEND_URL.replace(/\/$/, '') // Eliminar trailing slash
     : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 // Middleware de seguridad
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "unsafe-none" }
+}));
 app.use(cors(corsOptions));
 app.use(express.json());
 
