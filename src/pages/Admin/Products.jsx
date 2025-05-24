@@ -11,7 +11,7 @@ import ProductForm from '../../components/ProductForm';
 
 const AdminProducts = () => {
   const { t } = useTranslation();
-  const { error, success } = useAlert();
+  const { error, success, confirm } = useAlert();
   const { products = [], addProduct, updateProduct, deleteProduct } = useStore();
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,11 +87,11 @@ const AdminProducts = () => {
       return;
     }
 
-    if (window.confirm(t('adminProducts.confirmDelete'))) {
+    const confirmed = await confirm(t('adminProducts.confirmDelete'));
+    if (confirmed) {
       try {
         console.log('Iniciando eliminación del producto:', productId);
         await deleteProduct(productId);
-        success(t('adminProducts.deleteSuccess'));
       } catch (err) {
         console.error('Error al eliminar el producto:', err);
         error(t('adminProducts.deleteError'));
@@ -195,7 +195,7 @@ const AdminProducts = () => {
                   </div>
                 </div>
 
-                {editingProduct?._id === productId && (
+                {editingProduct?.id === productId && (
                   <div className="border-t pt-4">
                     <ProductForm
                       initialData={editingProduct}

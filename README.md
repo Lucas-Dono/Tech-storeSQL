@@ -1,109 +1,109 @@
 # Tech Store
 
-Tienda en línea de productos tecnológicos con panel de administración.
+Una tienda en línea moderna construida con React, Node.js y Prisma.
 
-## Requisitos Previos
+## Características
 
-- Node.js >= 18.0.0
-- npm >= 9.0.0
+- 🛍️ Catálogo de productos con búsqueda y filtros
+- 🔐 Autenticación de usuarios
+- 👤 Panel de administración
+- 🌐 Soporte multiidioma
+- 💳 Carrito de compras
+- 📱 Diseño responsivo
+- 🎨 Interfaz moderna y atractiva
+
+## Tecnologías
+
+- Frontend:
+  - React
+  - Tailwind CSS
+  - Framer Motion
+  - React Router
+  - i18next
+
+- Backend:
+  - Node.js
+  - Express
+  - Prisma
+  - PostgreSQL
+  - JWT
 
 ## Instalación
 
-1. Clonar el repositorio:
+1. Clona el repositorio:
 ```bash
-git clone https://github.com/tu-usuario/tech-store.git
+git clone https://github.com/Lucas-Dono/Tech-storeSQL.git
 cd tech-store
 ```
 
-2. Instalar dependencias:
+2. Instala las dependencias:
 ```bash
+# Instalar dependencias del frontend
+npm install
+
+# Instalar dependencias del backend
+cd backend
 npm install
 ```
 
-3. Configurar variables de entorno:
+3. Configura las variables de entorno:
 ```bash
+# En la raíz del proyecto
+cp .env.example .env
+
+# En el directorio backend
+cd backend
 cp .env.example .env
 ```
-Editar el archivo `.env` con tus credenciales.
 
-## Desarrollo
-
-Para iniciar el servidor de desarrollo:
+4. Configura la base de datos:
 ```bash
+cd backend
+npx prisma migrate dev
+npx prisma db seed
+```
+
+5. Inicia el servidor de desarrollo:
+```bash
+# Terminal 1 (Frontend)
 npm run dev
-```
 
-## Producción
-
-1. Construir la aplicación:
-```bash
-npm run build:prod
-```
-
-2. Iniciar el servidor de producción:
-```bash
-npm run start:prod
-```
-
-## Variables de Entorno
-
-Crear un archivo `.env` con las siguientes variables:
-
-```env
-VITE_SECRET_KEY=tu-clave-secreta
-VITE_JWT_SECRET=tu-clave-jwt
-VITE_ADMIN_EMAIL=email@admin.com
-VITE_ADMIN_PASSWORD=contraseña-segura
+# Terminal 2 (Backend)
+cd backend
+npm run dev
 ```
 
 ## Estructura del Proyecto
 
 ```
 tech-store/
-├── src/
-│   ├── components/
-│   ├── context/
-│   ├── pages/
-│   ├── utils/
-│   └── App.jsx
-├── public/
-├── server.js
-└── package.json
+├── src/                # Código fuente del frontend
+│   ├── components/     # Componentes React
+│   ├── pages/         # Páginas de la aplicación
+│   ├── context/       # Contextos de React
+│   ├── services/      # Servicios y APIs
+│   └── utils/         # Utilidades
+├── backend/           # Código fuente del backend
+│   ├── prisma/        # Esquema y migraciones de Prisma
+│   ├── src/           # Código fuente del servidor
+│   └── uploads/       # Archivos subidos
+└── public/            # Archivos estáticos
 ```
 
-## Características
+## Contribuir
 
-- Autenticación de usuarios
-- Panel de administración
-- Gestión de productos
-- Carrito de compras
-- Comparación de productos
-- Optimización de imágenes
-
-## Seguridad
-
-- Encriptación de contraseñas con PBKDF2
-- Tokens JWT para sesiones
-- Sanitización de inputs
-- Validación de datos
-- Protección de rutas admin
-
-## Despliegue
-
-1. Configurar el servidor con Node.js >= 18.0.0
-2. Clonar el repositorio
-3. Instalar dependencias: `npm install`
-4. Configurar variables de entorno
-5. Construir la aplicación: `npm run build:prod`
-6. Iniciar el servidor: `npm run start:prod`
-
-## Mantenimiento
-
-- Actualizar dependencias regularmente
-- Monitorear logs del servidor
-- Realizar backups de la base de datos
-- Mantener las variables de entorno seguras
+1. Haz un Fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
 ## Licencia
 
-MIT 
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## Contacto
+
+Lucas Dono - [@Lucas_Dono](https://github.com/Lucas-Dono)
+
+Link del proyecto: [https://github.com/Lucas-Dono/Tech-storeSQL](https://github.com/Lucas-Dono/Tech-storeSQL) 

@@ -1,19 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 
-const ImageCarousel = ({ images, video }) => {
+const ImageCarousel = ({ images = [], video = '' }) => {
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showControls, setShowControls] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const carouselRef = useRef(null);
 
-  const items = video ? [...images, 'video'] : images;
+  // DEBUG: Log props recibidas
+  console.log('[ImageCarousel] Props received:', { images, video });
+
+  const items = useMemo(() => {
+    const validImages = Array.isArray(images) ? images.filter(img => typeof img === 'string' && img.trim() !== '') : [];
+    return video ? [...validImages, 'video'] : validImages;
+  }, [images, video]);
+
+  // DEBUG: Log items calculado
+  console.log('[ImageCarousel] Calculated items:', items);
+
+  const isCurrentItemVideo = items[currentIndex] === 'video';
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -25,12 +35,6 @@ const ImageCarousel = ({ images, video }) => {
 
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
-
-  useEffect(() => {
-    if (showVideo) {
-      setCurrentIndex(items.length - 1);
-    }
-  }, [showVideo, items.length]);
 
   const minSwipeDistance = 50;
 
@@ -59,30 +63,36 @@ const ImageCarousel = ({ images, video }) => {
   };
 
   const goToNext = () => {
+    if (items.length === 0) return;
     setCurrentIndex((prevIndex) => (prevIndex + 1) % items.length);
-    setShowVideo(items[(currentIndex + 1) % items.length] === 'video');
   };
 
   const goToPrevious = () => {
+    if (items.length === 0) return;
     setCurrentIndex((prevIndex) => (prevIndex - 1 + items.length) % items.length);
-    setShowVideo(items[(currentIndex - 1 + items.length) % items.length] === 'video');
   };
 
   const goToIndex = (index) => {
+    if (items.length === 0 || index < 0 || index >= items.length) return;
     setCurrentIndex(index);
-    setShowVideo(items[index] === 'video');
   };
 
   const getVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    if (!url || typeof url !== 'string') return null;
+    const regExp = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return match ? match[1] : null;
   };
+
+  const videoId = useMemo(() => getVideoId(video), [video]);
+
+  // DEBUG: Log valores clave para renderizado
+  console.log('[ImageCarousel] State:', { currentIndex, isCurrentItemVideo, videoId });
 
   return (
     <div 
       ref={carouselRef}
-      className={`relative w-full ${isMobile ? 'h-[300px] sm:h-[400px]' : 'h-[500px]'} rounded-lg overflow-hidden`}
+      className={`relative w-full ${isMobile ? 'h-[300px] sm:h-[400px]' : 'h-[500px]'} rounded-lg overflow-hidden bg-gray-200`}
       onMouseEnter={() => !isMobile && setShowControls(true)}
       onMouseLeave={() => !isMobile && setShowControls(false)}
       onTouchStart={onTouchStart}
@@ -90,10 +100,11 @@ const ImageCarousel = ({ images, video }) => {
       onTouchEnd={onTouchEnd}
     >
       {/* Current Image or Video */}
-      {showVideo && video ? (
+      {items.length > 0 ? (
+        isCurrentItemVideo && videoId ? (
         <iframe
           className="w-full h-full object-cover"
-          src={`https://www.youtube.com/embed/${getVideoId(video)}?autoplay=0&controls=1&modestbranding=1&playsinline=1`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&modestbranding=1&playsinline=1`}
           title={t('products.videoTitle')}
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -101,14 +112,20 @@ const ImageCarousel = ({ images, video }) => {
         />
       ) : (
         <img
-          src={images[currentIndex]}
+            src={items[currentIndex]}
           alt={t('products.imageAlt', { number: currentIndex + 1 })}
           className="w-full h-full object-cover transition-opacity duration-300"
+            onError={(e) => e.target.src = '/placeholder-image.jpg'}
         />
+        )
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gray-300">
+          <span className="text-gray-500">{t('mediaManager.noImage')}</span>
+        </div>
       )}
 
       {/* Navigation Arrows - Show always on mobile, on hover for desktop */}
-      {(showControls || isMobile) && items.length > 1 && (
+      {(showControls || isMobile) && items.length > 1 && !isCurrentItemVideo && (
         <>
           <button
             onClick={goToPrevious}
@@ -136,25 +153,25 @@ const ImageCarousel = ({ images, video }) => {
       )}
 
       {/* Dots Navigation */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        {items.map((_, index) => (
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center px-3 py-1 rounded-full bg-black bg-opacity-30 gap-2">
+        {items.map((item, index) => (
           <button
             key={index}
             onClick={() => goToIndex(index)}
             className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
               currentIndex === index
-                ? 'bg-white scale-125'
+                ? item === 'video' ? 'bg-red-500 scale-125' : 'bg-white scale-125'
                 : 'bg-white bg-opacity-50 hover:bg-opacity-75'
             }`}
-            aria-label={t('products.goToImage', { number: index + 1 })}
+            aria-label={item === 'video' ? t('products.goToVideo') : t('products.goToImage', { number: index + 1 })}
           />
         ))}
       </div>
 
       {/* Video Indicator */}
-      {video && items[currentIndex] === 'video' && (
+      {isCurrentItemVideo && (
         <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-xs sm:text-sm">
-          {t('products.video')}
+          <PlayCircleIcon className="h-4 w-4 inline mr-1"/> {t('products.video')}
         </div>
       )}
     </div>

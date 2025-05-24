@@ -41,8 +41,9 @@ const ProductDetail = () => {
           images: Array.isArray(foundProduct.images) 
             ? foundProduct.images.filter(img => typeof img === 'string')
             : [],
-          video: typeof foundProduct.video === 'string' ? foundProduct.video : 
-                typeof foundProduct.videoUrl === 'string' ? foundProduct.videoUrl : '',
+          video: (foundProduct.video && typeof foundProduct.video === 'object' && foundProduct.video.url) 
+                 ? foundProduct.video.url 
+                 : (typeof foundProduct.video === 'string' ? foundProduct.video : ''), // Fallback por si acaso
           specifications: foundProduct.specifications || {}
         };
 
@@ -119,6 +120,9 @@ const ProductDetail = () => {
     .filter(([_, value]) => value !== null && value !== undefined && value !== '');
 
   console.log('Specifications to render:', specifications); // Para depuración
+
+  // DEBUG: Verificar datos pasados a ImageCarousel
+  console.log('Data for ImageCarousel:', { images: product.images, video: product.video });
 
   return (
     <div className="container mx-auto px-4 py-8">

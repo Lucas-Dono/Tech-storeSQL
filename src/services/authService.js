@@ -63,6 +63,40 @@ export const authService = {
     }
   },
 
+  async loginWithGoogle(credentialResponse) {
+    try {
+      console.log('Preparando solicitud de login con Google');
+
+      const requestBody = {
+        credential: credentialResponse.credential
+      };
+
+      const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN_GOOGLE}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+      console.log('Respuesta del servidor (Google):', {
+        status: response.status,
+        ok: response.ok,
+        data: data.message ? { message: data.message } : 'Respuesta exitosa'
+      });
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Error en la autenticación con Google');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error detallado en login con Google:', error);
+      throw error;
+    }
+  },
+
   async register(userData) {
     try {
       console.log('Enviando solicitud de registro a:', `${API_URL}${ENDPOINTS.REGISTER}`);
@@ -152,7 +186,7 @@ export const authService = {
         headers: getHeaders(token),
         body: JSON.stringify({ 
           userId,
-          role: newRole 
+          newRole 
         }),
       });
 

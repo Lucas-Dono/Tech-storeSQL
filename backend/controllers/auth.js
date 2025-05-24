@@ -1,6 +1,11 @@
-const User = require('../models/User');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { OAuth2Client } = require('google-auth-library');
+
+// Cliente de Google OAuth
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generar JWT
 const generateToken = (id) => {
@@ -27,7 +32,9 @@ const registerUser = async (req, res) => {
     }
 
     // Verificar si el usuario ya existe
-    const userExists = await User.findOne({ email });
+    const userExists = await prisma.user.findUnique({
+      where: { email }
+    });
 
     if (userExists) {
       console.log('Usuario ya existe:', email);
@@ -47,33 +54,154 @@ const registerUser = async (req, res) => {
       role = 'admin';
     }
 
+    // Generar salt y hashear contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Crear usuario
-    const user = await User.create({
+    const user = await prisma.user.create({
+      data: {
       name,
       email,
-      password,
+        password: hashedPassword,
       role,
+      }
     });
 
     if (user) {
       console.log('Usuario creado exitosamente:', {
-        id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role
       });
 
       res.status(201).json({
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id),
+        token: generateToken(user.id),
       });
     }
   } catch (error) {
     console.error('Error en registerUser:', error);
     res.status(500).json({ 
       message: 'Error al crear usuario',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    Autenticar usuario con Google
+// @route   POST /api/auth/google-login
+// @access  Public
+const googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    
+    if (!credential) {
+      return res.status(400).json({ message: 'Token de Google no proporcionado' });
+    }
+
+    // Verificar el token de Google
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    
+    if (!payload) {
+      return res.status(400).json({ message: 'Token de Google inválido' });
+    }
+
+    const { email, name, picture, sub: googleId } = payload;
+
+    console.log('Intento de login con Google para:', email);
+
+    if (!email) {
+      return res.status(400).json({ message: 'El email es requerido' });
+    }
+
+    // Verificar si el usuario ya existe
+    let user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    // Si el usuario no existe, lo creamos
+    if (!user) {
+      console.log('Creando nuevo usuario desde Google:', email);
+      
+      // Determinar el rol basado en el email
+      let role = 'user';
+      if (email === process.env.SUPERADMIN_EMAIL) {
+        console.log('Creando superadmin desde Google:', email);
+        role = 'superadmin';
+      } else if (email === process.env.ADMIN_EMAIL) {
+        console.log('Creando admin desde Google:', email);
+        role = 'admin';
+      }
+
+      // Crear un password aleatorio que no se usará (el usuario siempre iniciará con Google)
+      const salt = await bcrypt.genSalt(10);
+      const randomPassword = Math.random().toString(36).slice(-10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          googleId,
+          image: picture,
+          role,
+        }
+      });
+
+      console.log('Usuario creado desde Google exitosamente:', {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      });
+    } else {
+      // Si el usuario ya existe pero no tiene googleId, actualizamos su perfil
+      if (!user.googleId) {
+        console.log('Actualizando usuario existente con datos de Google:', email);
+        
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            googleId,
+            image: picture || user.image,
+            // No actualizamos el nombre para mantener el que eligió el usuario al registrarse
+          }
+        });
+      }
+    }
+
+    // Actualizar último login
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() }
+    });
+
+    console.log('Login con Google exitoso:', {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    });
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user.id),
+    });
+  } catch (error) {
+    console.error('Error en googleLogin:', error);
+    res.status(500).json({ 
+      message: 'Error al iniciar sesión con Google',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -96,7 +224,9 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
     if (!user) {
       console.log('Usuario no encontrado:', email);
@@ -117,21 +247,23 @@ const loginUser = async (req, res) => {
     }
 
     // Actualizar último login
-    user.lastLogin = new Date();
-    await user.save();
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() }
+    });
 
     console.log('Login exitoso:', {
-      id: user._id,
+      id: user.id,
       email: user.email,
       role: user.role
     });
 
     res.json({
-      _id: user._id,
+      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user._id),
+      token: generateToken(user.id),
     });
   } catch (error) {
     console.error('Error en loginUser:', error);
@@ -147,25 +279,27 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getUserProfile = async (req, res) => {
   try {
-    console.log('Obteniendo perfil para usuario:', req.user._id);
+    console.log('Obteniendo perfil para usuario:', req.user.id);
 
-    const user = await User.findById(req.user._id);
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }
+    });
 
     if (user) {
       console.log('Perfil encontrado:', {
-        id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role
       });
 
       res.json({
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
       });
     } else {
-      console.log('Perfil no encontrado para:', req.user._id);
+      console.log('Perfil no encontrado para:', req.user.id);
       res.status(404).json({ message: 'Usuario no encontrado' });
     }
   } catch (error) {
@@ -187,7 +321,7 @@ const createAdminUser = async (req, res) => {
     console.log('Intento de crear admin/superadmin:', {
       email,
       role,
-      createdBy: req.user._id
+      createdBy: req.user.id
     });
 
     // Verificar que el rol sea válido
@@ -198,119 +332,144 @@ const createAdminUser = async (req, res) => {
 
     // Solo superadmin puede crear otros superadmins
     if (role === 'superadmin' && req.user.role !== 'superadmin') {
-      console.log('Intento no autorizado de crear superadmin por:', req.user.email);
-      return res.status(403).json({ 
-        message: 'No autorizado para crear superadmins' 
-      });
+      console.log('Intento no autorizado de crear superadmin por:', req.user.id);
+      return res.status(403).json({ message: 'No autorizado para crear superadmin' });
     }
 
-    const userExists = await User.findOne({ email });
+    // Verificar si el usuario ya existe
+    const userExists = await prisma.user.findUnique({
+      where: { email }
+    });
 
     if (userExists) {
       console.log('Usuario ya existe:', email);
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
 
-    const user = await User.create({
+    // Generar salt y hashear contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Crear usuario con referencia al creador
+    const user = await prisma.user.create({
+      data: {
       name,
       email,
-      password,
+        password: hashedPassword,
       role,
-      createdBy: req.user._id,
+        createdById: req.user.id
+      }
     });
 
-    if (user) {
-      console.log('Admin/Superadmin creado:', {
-        id: user._id,
+    console.log('Admin/superadmin creado:', {
+      id: user.id,
         email: user.email,
         role: user.role
       });
 
       res.status(201).json({
-        _id: user._id,
+      id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+      role: user.role
       });
-    }
   } catch (error) {
     console.error('Error en createAdminUser:', error);
     res.status(500).json({ 
-      message: 'Error al crear usuario admin',
+      message: 'Error al crear usuario',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 
-// @desc    Inicializar superadmin desde variables de entorno
-// @route   POST /api/auth/init-superadmin
-// @access  Private (solo disponible en desarrollo)
+// @desc    Inicializar superadmin
+// @desc    Esta función se llama al inicio del servidor
 const initSuperAdmin = async () => {
   try {
-    console.log('Iniciando creación de superadmin...');
-    
-    const superadminEmail = process.env.SUPERADMIN_EMAIL;
-    console.log('Buscando superadmin:', superadminEmail);
-    
-    const superadminExists = await User.findOne({ email: superadminEmail });
-
-    if (!superadminExists) {
-      console.log('Superadmin no encontrado, creando...');
-      
-      const user = await User.create({
-        name: process.env.SUPERADMIN_NAME,
-        email: process.env.SUPERADMIN_EMAIL,
-        password: process.env.SUPERADMIN_PASSWORD,
-        role: 'superadmin',
-      });
-
-      console.log('Superadmin creado exitosamente:', {
-        id: user._id,
-        email: user.email,
-        role: user.role
-      });
-    } else {
-      console.log('Superadmin ya existe:', {
-        id: superadminExists._id,
-        email: superadminExists.email,
-        role: superadminExists.role
-      });
+    if (!process.env.SUPERADMIN_EMAIL || !process.env.SUPERADMIN_PASSWORD) {
+      console.warn('Variables de entorno para superadmin no configuradas, saltando inicialización');
+      return;
     }
+
+    console.log('Verificando si existe superadmin...');
+
+    // Verificar si ya existe un superadmin
+    const superadminExists = await prisma.user.findFirst({
+      where: { role: 'superadmin' }
+    });
+
+    if (superadminExists) {
+      console.log('Superadmin ya existe, saltando inicialización');
+      return;
+    }
+
+    console.log('Creando superadmin inicial...');
+
+    // Generar salt y hashear contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(process.env.SUPERADMIN_PASSWORD, salt);
+
+    // Crear superadmin
+    const superadmin = await prisma.user.create({
+      data: {
+        name: 'Super Admin',
+        email: process.env.SUPERADMIN_EMAIL,
+        password: hashedPassword,
+        role: 'superadmin'
+      }
+      });
+
+    console.log('Superadmin inicial creado:', {
+      id: superadmin.id,
+      email: superadmin.email
+      });
   } catch (error) {
-    console.error('Error al crear superadmin:', error);
+    console.error('Error al inicializar superadmin:', error);
   }
 };
 
 // @desc    Eliminar usuario
-// @route   DELETE /auth/users/:id
-// @access  Private/Superadmin
+// @route   DELETE /api/auth/users/:id
+// @access  Private/Admin
 const deleteUser = async (req, res) => {
   try {
-    console.log('Intento de eliminar usuario:', req.params.id);
+    const userId = parseInt(req.params.id);
+    
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: 'ID de usuario inválido' });
+    }
 
-    const user = await User.findById(req.params.id);
+    console.log('Intento de eliminar usuario:', userId, 'por', req.user.id);
 
-    if (!user) {
-      console.log('Usuario no encontrado:', req.params.id);
+    // Verificar que no se elimine a sí mismo
+    if (userId === req.user.id) {
+      console.log('Intento de auto-eliminación no permitido');
+      return res.status(400).json({ message: 'No puede eliminar su propio usuario' });
+    }
+
+    // Obtener el usuario a eliminar
+    const userToDelete = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!userToDelete) {
+      console.log('Usuario a eliminar no encontrado:', userId);
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    // Solo el superadmin puede eliminar otros superadmins
-    if (user.role === 'superadmin' && req.user.role !== 'superadmin') {
-      console.log('Intento no autorizado de eliminar superadmin por:', req.user.email);
-      return res.status(403).json({ 
-        message: 'No autorizado para eliminar superadmins' 
-      });
+    // Solo superadmin puede eliminar superadmins
+    if (userToDelete.role === 'superadmin' && req.user.role !== 'superadmin') {
+      console.log('Intento no autorizado de eliminar superadmin');
+      return res.status(403).json({ message: 'No autorizado para eliminar superadmin' });
     }
 
-    await user.deleteOne();
-    console.log('Usuario eliminado:', {
-      id: user._id,
-      email: user.email,
-      role: user.role
+    // Eliminar usuario
+    await prisma.user.delete({
+      where: { id: userId }
     });
 
-    res.json({ message: 'Usuario eliminado correctamente' });
+    console.log('Usuario eliminado exitosamente:', userId);
+    res.json({ message: 'Usuario eliminado exitosamente' });
   } catch (error) {
     console.error('Error en deleteUser:', error);
     res.status(500).json({ 
@@ -321,18 +480,25 @@ const deleteUser = async (req, res) => {
 };
 
 // @desc    Obtener todos los usuarios
-// @route   GET /auth/users
-// @access  Private/Superadmin
+// @route   GET /api/auth/users
+// @access  Private/Admin
 const getAllUsers = async (req, res) => {
   try {
-    console.log('Iniciando getAllUsers...');
-    console.log('Usuario solicitante:', req.user);
+    console.log('Obteniendo todos los usuarios por:', req.user.id);
 
-    console.log('Buscando usuarios en la base de datos...');
-    const users = await User.find({}).select('-password');
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        lastLogin: true,
+        createdAt: true
+      }
+    });
     
-    console.log(`Se encontraron ${users.length} usuarios:`, users);
-
+    console.log(`Encontrados ${users.length} usuarios`);
     res.json(users);
   } catch (error) {
     console.error('Error en getAllUsers:', error);
@@ -344,54 +510,62 @@ const getAllUsers = async (req, res) => {
 };
 
 // @desc    Actualizar rol de usuario
-// @route   PATCH /auth/users/:id/role
-// @access  Private/Superadmin
+// @route   PUT /api/auth/users/update-role
+// @access  Private/Admin
 const updateUserRole = async (req, res) => {
   try {
+    const { userId, newRole } = req.body;
+    
+    const parsedUserId = parseInt(userId);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ message: 'ID de usuario inválido' });
+    }
+
     console.log('Intento de actualizar rol:', {
-      userId: req.params.id,
-      newRole: req.body.role,
-      updatedBy: req.user._id
+      userId: parsedUserId,
+      newRole,
+      by: req.user.id
     });
 
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      console.log('Usuario no encontrado:', req.params.id);
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    // No permitir cambiar el rol de un superadmin
-    if (user.role === 'superadmin') {
-      console.log('Intento de cambiar rol de superadmin');
-      return res.status(403).json({ 
-        message: 'No se puede cambiar el rol de un superadmin' 
-      });
-    }
-
-    // Verificar que el nuevo rol sea válido
-    if (req.body.role !== 'user' && req.body.role !== 'admin') {
-      console.log('Rol inválido:', req.body.role);
+    // Verificar que el rol sea válido
+    if (newRole !== 'user' && newRole !== 'admin' && newRole !== 'superadmin') {
+      console.log('Rol inválido:', newRole);
       return res.status(400).json({ message: 'Rol inválido' });
     }
 
-    user.role = req.body.role;
-    await user.save();
+    // Obtener el usuario a actualizar
+    const userToUpdate = await prisma.user.findUnique({
+      where: { id: parsedUserId }
+    });
 
-    console.log('Rol actualizado:', {
-      userId: user._id,
-      email: user.email,
-      newRole: user.role
+    if (!userToUpdate) {
+      console.log('Usuario a actualizar no encontrado:', parsedUserId);
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Solo superadmin puede actualizar superadmins o convertir a alguien en superadmin
+    if ((userToUpdate.role === 'superadmin' || newRole === 'superadmin') && req.user.role !== 'superadmin') {
+      console.log('Intento no autorizado de actualizar a/desde superadmin');
+      return res.status(403).json({ message: 'No autorizado para esta operación' });
+    }
+
+    // Actualizar usuario
+    const updatedUser = await prisma.user.update({
+      where: { id: parsedUserId },
+      data: { role: newRole }
+    });
+
+    console.log('Rol actualizado exitosamente:', {
+      userId: parsedUserId,
+      oldRole: userToUpdate.role,
+      newRole
     });
 
     res.json({
-      message: 'Rol actualizado correctamente',
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role
     });
   } catch (error) {
     console.error('Error en updateUserRole:', error);
@@ -402,13 +576,74 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+// @desc    Cambiar estado de usuario (activo/inactivo)
+// @route   PUT /api/auth/users/toggle-status
+// @access  Private/Admin
+const toggleUserStatus = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    const parsedUserId = parseInt(userId);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ message: 'ID de usuario inválido' });
+    }
+
+    console.log('Intento de cambiar estado de usuario:', {
+      userId: parsedUserId,
+      by: req.user.id
+    });
+
+    // Obtener el usuario a actualizar
+    const userToUpdate = await prisma.user.findUnique({
+      where: { id: parsedUserId }
+    });
+
+    if (!userToUpdate) {
+      console.log('Usuario a actualizar no encontrado:', parsedUserId);
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Solo superadmin puede cambiar estado de superadmins
+    if (userToUpdate.role === 'superadmin' && req.user.role !== 'superadmin') {
+      console.log('Intento no autorizado de cambiar estado de superadmin');
+      return res.status(403).json({ message: 'No autorizado para esta operación' });
+    }
+
+    // Actualizar usuario
+    const updatedUser = await prisma.user.update({
+      where: { id: parsedUserId },
+      data: { isActive: !userToUpdate.isActive }
+    });
+
+    console.log('Estado actualizado exitosamente:', {
+      userId: parsedUserId,
+      isActive: updatedUser.isActive
+    });
+    
+    res.json({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isActive: updatedUser.isActive
+    });
+  } catch (error) {
+    console.error('Error en toggleUserStatus:', error);
+    res.status(500).json({ 
+      message: 'Error al cambiar estado',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  googleLogin,
   getUserProfile,
   createAdminUser,
+  initSuperAdmin,
   deleteUser,
   getAllUsers,
-  initSuperAdmin,
   updateUserRole,
+  toggleUserStatus
 }; 

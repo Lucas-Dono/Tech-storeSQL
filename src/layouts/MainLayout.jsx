@@ -1,6 +1,7 @@
 import { Link, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 const MainLayout = () => {
   const { t } = useTranslation();
@@ -11,6 +12,9 @@ const MainLayout = () => {
       <main className="min-h-screen bg-gray-50">
         <Outlet />
       </main>
+      <div className="lg:hidden">
+        <MobileBottomNav />
+      </div>
       <footer className="bg-gray-900 text-white">
         <div className="container mx-auto py-8 px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -53,6 +53,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (credentialResponse) => {
+    try {
+      console.log('Intentando login con Google');
+      const response = await authService.loginWithGoogle(credentialResponse);
+      console.log('Respuesta del login con Google:', { ...response, token: response.token ? '[TOKEN]' : null });
+      
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response));
+        setToken(response.token);
+        setCurrentUser(response);
+        return { success: true };
+      }
+      return { success: false, error: 'Error en la autenticación con Google' };
+    } catch (error) {
+      console.error('Error detallado en login con Google:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Error al iniciar sesión con Google';
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -94,6 +115,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     loading,
     login,
+    loginWithGoogle,
     logout,
     register,
     isSuperAdmin,

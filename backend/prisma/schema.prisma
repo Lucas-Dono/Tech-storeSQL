@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+  superadmin
+}
+
+enum Category {
+  Laptops
+  Smartphones
+  Tablets
+  Accessories
+}
+
+enum VariantType {
+  SIMPLE
+  CONFIGURABLE
+}
+
+enum VideoType {
+  url
+  file
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  role        Role     @default(user)
+  isActive    Boolean  @default(true)
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  createdBy   User?    @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdById Int?
+  createdUsers User[] @relation("UserCreatedBy")
+  products    Product[] @relation("ProductCreatedBy")
+}
+
+model Product {
+  id                   Int        @id @default(autoincrement())
+  name                 String
+  name_es              String
+  name_en              String
+  description          String
+  description_es       String
+  description_en       String
+  basePrice            Float
+  images               String[]
+  category             Category
+  stock                Int
+  variantType          VariantType @default(SIMPLE)
+  features             Json       @default("{}")
+  models               Json?
+  defaultConfiguration Json       @default("{}")
+  video                Json?
+  createdBy            User       @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  createdById          Int
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}

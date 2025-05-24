@@ -1,5 +1,5 @@
 // API Configuration
-export const API_URL = 'https://tech-store-backend-54ph.onrender.com';
+export const API_URL = import.meta.env.VITE_API_URL;
 export const API_TIMEOUT = 30000; // 30 seconds
 
 // Headers Configuration
@@ -18,6 +18,7 @@ export const getHeaders = (token) => {
 // API Endpoints
 export const ENDPOINTS = {
   LOGIN: '/api/auth/login',
+  LOGIN_GOOGLE: '/api/auth/google-login',
   REGISTER: '/api/auth/register',
   PROFILE: '/api/auth/me',
   USERS: '/api/auth/users',

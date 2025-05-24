@@ -12,7 +12,7 @@ const CreateProduct = () => {
   const handleSubmit = async (productData) => {
     try {
       await addProduct(productData);
-      navigate('/admin/products');
+      navigate('/admin/productos');
     } catch (error) {
       console.error('Error al crear el producto:', error);
     }
@@ -22,7 +22,7 @@ const CreateProduct = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <button
-          onClick={() => navigate('/admin/products')}
+          onClick={() => navigate('/admin/productos')}
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />

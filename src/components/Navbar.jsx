@@ -17,7 +17,6 @@ const CATEGORIES = [
 const Navbar = () => {
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { getCartItemsCount } = useStore();
@@ -27,14 +26,12 @@ const Navbar = () => {
   const handleCategoryClick = (category) => {
     navigate(`/productos?category=${category.toLowerCase()}`);
     setShowCategories(false);
-    setIsMobileMenuOpen(false);
   };
 
   const handleLogout = () => {
     logout();
     navigate('/auth');
     setShowUserMenu(false);
-    setIsMobileMenuOpen(false);
   };
 
   const cartItemsCount = getCartItemsCount();
@@ -48,8 +45,10 @@ const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-4">
-            {/* Language Selector */}
-            <LanguageSelector />
+            {/* Language Selector - Ocultar en móvil (lg:hidden) */}
+            <div className="hidden lg:block">
+              <LanguageSelector />
+            </div>
 
             {/* Mobile Auth Button */}
             <div className="lg:hidden">
@@ -59,13 +58,12 @@ const Navbar = () => {
                   className="flex items-center gap-1 hover:text-blue-600 transition-colors"
                 >
                   <UserCircleIcon className="h-6 w-6" />
-                  <span className="text-sm truncate max-w-[80px]">{currentUser.name}</span>
+                  {/* <span className="text-sm truncate max-w-[80px]">{currentUser.name}</span> */} {/* Ocultar nombre */}
                 </button>
               ) : (
                 <Link 
                   to="/auth" 
                   className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <UserCircleIcon className="h-6 w-6" />
                   <span className="text-sm">{t('auth.login')}</span>
@@ -87,18 +85,6 @@ const Navbar = () => {
                 )}
               </Link>
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100"
-            >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="h-6 w-6 text-gray-600" />
-              ) : (
-                <Bars3Icon className="h-6 w-6 text-gray-600" />
-              )}
-            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-6">
@@ -206,74 +192,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 bg-white rounded-lg shadow-lg py-2 animate-slide-down">
-            <Link
-              to="/"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.home')}
-            </Link>
-
-            <div className="px-4 py-2">
-              <div className="text-sm font-medium text-gray-500 mb-2">
-                {t('nav.categories')}
-              </div>
-              <div className="space-y-1">
-                {CATEGORIES.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => handleCategoryClick(category)}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {currentUser && (
-              <div className="px-4 space-y-2">
-                <div className="text-sm text-gray-500">
-                  {currentUser.email}
-                </div>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="block text-sm text-gray-700 hover:text-blue-600 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <ChartBarIcon className="h-5 w-5" />
-                      {t('nav.admin')}
-                    </div>
-                  </Link>
-                )}
-                {isSuperAdmin && (
-                  <Link
-                    to="/admin/users"
-                    className="block text-sm text-gray-700 hover:text-blue-600 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <UserCircleIcon className="h-5 w-5" />
-                      {t('nav.userManagement')}
-                    </div>
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left text-sm text-red-600 hover:text-red-700 transition-colors"
-                >
-                  {t('auth.logout')}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Mobile User Menu Dropdown */}
         {showUserMenu && currentUser && (
           <div className="lg:hidden fixed top-16 right-4 w-48 bg-white rounded-md shadow-lg py-1 animate-slide-down">
@@ -286,7 +204,6 @@ const Navbar = () => {
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowUserMenu(false);
-                  setIsMobileMenuOpen(false);
                 }}
               >
                 <div className="flex items-center gap-2">

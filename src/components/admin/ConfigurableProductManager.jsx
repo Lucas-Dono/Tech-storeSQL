@@ -7,7 +7,21 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const OptionCarousel = ({ options, selectedOption, onSelect, renderOption }) => {
   const [startIndex, setStartIndex] = useState(0);
-  const itemsPerPage = 3;
+  // Definir items por página según ancho de pantalla
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  });
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) setItemsPerPage(1);
+      else if (window.innerWidth < 1024) setItemsPerPage(2);
+      else setItemsPerPage(3);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const canScrollLeft = startIndex > 0;
   const canScrollRight = startIndex + itemsPerPage < options.length;
@@ -26,24 +40,26 @@ const OptionCarousel = ({ options, selectedOption, onSelect, renderOption }) => 
 
   return (
     <div className="relative">
+      {/* Flecha izquierda oculta en móvil */}
       {canScrollLeft && (
-        <button
+        <button type="button"
           onClick={handleScrollLeft}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 bg-white rounded-full p-1 shadow-lg z-10"
+          className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -ml-4 bg-white rounded-full p-1 shadow-lg z-10"
         >
           <ChevronLeftIcon className="h-6 w-6 text-gray-600" />
         </button>
       )}
 
-      <div className="overflow-hidden">
-        <div 
-          className="flex transition-transform duration-300 ease-in-out gap-4"
+      <div className="overflow-x-auto px-4 snap-x snap-mandatory scrollbar-none">
+        <div
+          className="flex transition-transform duration-300 ease-in-out gap-6 sm:gap-4"
           style={{ transform: `translateX(-${startIndex * (100 / itemsPerPage)}%)` }}
         >
           {options.map((option, index) => (
-            <div 
+            <div
               key={`${option.id || option.name}-${index}`}
-              className="flex-none w-[calc(33.333%-1rem)]"
+              className="flex-none snap-start px-2"
+              style={{ minWidth: `${100 / itemsPerPage}%` }}
             >
               {renderOption(option)}
             </div>
@@ -51,10 +67,11 @@ const OptionCarousel = ({ options, selectedOption, onSelect, renderOption }) => 
         </div>
       </div>
 
+      {/* Flecha derecha oculta en móvil */}
       {canScrollRight && (
-        <button
+        <button type="button"
           onClick={handleScrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 bg-white rounded-full p-1 shadow-lg z-10"
+          className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 -mr-4 bg-white rounded-full p-1 shadow-lg z-10"
         >
           <ChevronRightIcon className="h-6 w-6 text-gray-600" />
         </button>
@@ -72,11 +89,11 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
     const initialComponents = {};
     if (product?.features) {
       Object.entries(product.features).forEach(([category, feature]) => {
-        if (feature?.selectedComponent) {
-          initialComponents[category] = {
-            ...feature.selectedComponent,
-            category
-          };
+        if (feature?.selectedComponents) {
+          // Multi-selección: ram (desktop/laptop) y storage
+          initialComponents[category] = feature.selectedComponents.map(c => ({ ...c, category }));
+        } else if (feature?.selectedComponent) {
+          initialComponents[category] = { ...feature.selectedComponent, category };
         }
       });
     }
@@ -84,103 +101,137 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
     return initialComponents;
   });
 
+  // Determinar el tipo de especificación basado en la categoría del producto
+  const specificationType = useMemo(() => {
+    switch (product?.category?.toLowerCase()) { // usar toLowerCase para robustez
+      case 'laptops':
+        return 'laptop'; // Corregido para usar la nueva clave
+      case 'smartphones':
+        return 'mobile';
+      case 'tablets':
+        return 'tablet'; // Usar la nueva clave para tablets si existe en JSON
+      case 'desktop': // Si tuvieras categoría Desktop
+         return 'desktop';
+      // Añadir más casos si es necesario
+      default:
+        return 'mobile'; // Fallback general
+    }
+  }, [product?.category]);
+
+  // Determinar el tipo para Sistema Operativo
+  const osType = useMemo(() => {
+    switch (specificationType) {
+      case 'laptop':
+      case 'desktop':
+        return 'computer';
+      case 'mobile':
+      case 'tablet':
+        return 'mobile';
+      default:
+        return 'mobile';
+    }
+  }, [specificationType]);
+
   // Categorías de componentes disponibles
   const componentCategories = useMemo(() => {
     if (!specifications) return {};
     
     const categories = {};
+    const specType = specificationType;
     
-    // Procesador
-    if (specifications.processors?.mobile) {
-      categories.processor = { 
-        name: t('products.categories.processor'), 
-        type: 'mobile',
-        options: specifications.processors.mobile || []
+    // --- Categorías Principales (Comunes o Condicionales) ---
+    const commonCategories = ['processors', 'ram', 'storage'];
+    commonCategories.forEach(catKey => {
+      if (catKey === 'storage' && specifications.storage.common) {
+        categories.storage = {
+          name: t('products.categories.storage'),
+          type: 'common',
+          options: specifications.storage.common
+        };
+      } else if (specifications[catKey]?.[specType]) {
+        categories[catKey] = {
+          name: t(`products.categories.${catKey}`),
+          type: specType,
+          options: specifications[catKey][specType] || []
+      };
+    }
+    });
+
+    // Pantallas (Mobile, Tablet, Laptop)
+    if (['mobile', 'tablet', 'laptop'].includes(specType) && specifications.screens?.[specType]) {
+        categories.screens = { 
+          name: t('products.categories.screens'), 
+          type: specType,
+          options: specifications.screens[specType] || []
       };
     }
 
-    // RAM
-    if (specifications.ram?.mobile) {
-      categories.ram = { 
-        name: t('products.categories.ram'), 
-        type: 'mobile',
-        options: specifications.ram.mobile || []
+    // Baterías (Mobile, Tablet, Laptop)
+    if (['mobile', 'tablet', 'laptop'].includes(specType) && specifications.batteries?.[specType]) {
+        categories.batteries = { 
+          name: t('products.categories.batteries'), 
+          type: specType,
+          options: specifications.batteries[specType] || []
       };
     }
 
-    // Almacenamiento
-    if (specifications.storage?.mobile) {
-      categories.storage = { 
-        name: t('products.categories.storage'), 
-        type: 'mobile',
-        options: specifications.storage.mobile || []
+    // Sistema Operativo (Mobile/Tablet vs Laptop/Desktop)
+    if (specifications.operatingSystems?.[osType]) {
+       categories.operatingSystems = {
+         name: t('products.categories.operatingSystems'),
+         type: osType,
+         options: specifications.operatingSystems[osType] || []
       };
     }
 
-    // Pantalla
-    if (specifications.screen?.mobile) {
-      categories.screen = { 
-        name: t('products.categories.screen'), 
-        type: 'mobile',
-        options: specifications.screen.mobile || []
+    // --- Categorías Específicas de Desktop ---
+    if (specType === 'desktop') {
+      const desktopSpecific = ['desktopCases', 'powerSupplies', 'gpu']; // Añadir GPU aquí o donde corresponda
+      desktopSpecific.forEach(catKey => {
+        if (specifications[catKey]?.desktop) {
+           categories[catKey] = { 
+             name: t(`products.categories.${catKey}`), // products.categories.desktopCases, etc.
+             type: 'desktop',
+             options: specifications[catKey].desktop || []
       };
-    }
-
-    // Batería
-    if (specifications.battery?.mobile) {
-      categories.battery = { 
-        name: t('products.categories.battery'), 
-        type: 'mobile',
-        options: specifications.battery.mobile || []
-      };
-    }
-
-    // Seguridad
-    if (specifications.security?.mobile) {
-      categories.security = { 
-        name: t('products.categories.security'), 
-        type: 'mobile',
-        options: specifications.security.mobile || []
-      };
-    }
-
-    // Gaming
-    if (specifications.gaming?.mobile) {
-      categories.gaming = { 
-        name: t('products.categories.gaming'), 
-        type: 'mobile',
-        options: specifications.gaming.mobile || []
-      };
-    }
-
-    // Características adicionales organizadas por tipo
-    if (specifications.additionalFeatures?.mobile) {
-      const featureTypes = {
-        biometrics: 'products.categories.biometrics',
-        sound: 'products.categories.sound',
-        connectivity: 'products.categories.connectivity',
-        protection: 'products.categories.protection',
-        security: 'products.categories.security',
-        gaming: 'products.categories.gaming'
-      };
-
-      Object.entries(featureTypes).forEach(([type, translationKey]) => {
-        if (Array.isArray(specifications.additionalFeatures.mobile[type])) {
-          categories[`additional_${type}`] = {
-            name: t(translationKey),
-            type: 'mobile',
-            isAdditional: true,
-            options: specifications.additionalFeatures.mobile[type].map(option => ({
-              ...option,
-              featureType: type
-            }))
-          };
         }
       });
     }
 
+     // --- Categorías de Seguridad (Mobile, Laptop) ---
+     if (['mobile', 'laptop'].includes(specType) && specifications.security?.[specType]) {
+      categories.security = { 
+        name: t('products.categories.security'), 
+         type: specType,
+         options: specifications.security[specType] || []
+      };
+    }
+
+    // --- Características Adicionales (Filtradas por tipo) ---
+    if (specifications.additionalFeatures) {
+      Object.entries(specifications.additionalFeatures).forEach(([featureCategoryKey, featureOptions]) => {
+        if (Array.isArray(featureOptions)) {
+          const applicableOptions = featureOptions.filter(option => 
+            !option.type || (Array.isArray(option.type) && option.type.includes(specType)) || option.type === specType
+          );
+          
+          if (applicableOptions.length > 0) {
+             // Usar una clave única para evitar colisiones, p.ej., 'additional_connectivity'
+             const categoryKey = `additional_${featureCategoryKey}`;
+             categories[categoryKey] = {
+                name: t(`products.categories.${featureCategoryKey}`), // products.categories.connectivity, etc.
+                type: specType, // O podría ser 'additional'
+            isAdditional: true,
+                options: applicableOptions.map(option => ({ ...option, featureType: featureCategoryKey }))
+          };
+          }
+        }
+      });
+    }
+
+    console.log("Categorías generadas para tipo", specType, ":", categories);
     return categories;
-  }, [specifications, t]);
+  }, [specifications, t, specificationType, osType]); // Añadir osType como dependencia
 
   // Filtrar opciones basadas en términos de búsqueda
   const getFilteredOptions = (category, options = []) => {
@@ -206,10 +257,17 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
   };
 
   const handleComponentSelect = (category, option) => {
-    const newComponents = {
-      ...selectedComponents,
-      [category]: option
-    };
+    // Permitir multi-selección para ram (desktop/laptop) y storage
+    const isMulti = category === 'storage' || (category === 'ram' && ['laptop','desktop'].includes(specificationType));
+    const newComponents = { ...selectedComponents };
+    if (isMulti) {
+      // Asegurar que prev sea array
+      const prev = Array.isArray(selectedComponents[category]) ? selectedComponents[category] : [];
+      const exists = prev.some(c => c.id === option.id);
+      newComponents[category] = exists ? prev.filter(c => c.id !== option.id) : [...prev, option];
+    } else {
+      newComponents[category] = option;
+    }
 
     setSelectedComponents(newComponents);
 
@@ -218,14 +276,16 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
       setTimeout(() => {
         // Convertir los componentes seleccionados al formato correcto para el servidor
         const formattedFeatures = {};
-        Object.entries(newComponents).forEach(([category, component]) => {
-          if (component) {
-            // Asegurarse de que cada componente tenga toda la información necesaria
-            formattedFeatures[category] = {
-              selectedComponent: {
-                ...component,
-                category: category // Incluir la categoría en el componente
-              }
+        Object.entries(newComponents).forEach(([cat, component]) => {
+          if (!component) return;
+          const multi = cat === 'storage' || (cat === 'ram' && ['laptop','desktop'].includes(specificationType));
+          if (multi && Array.isArray(component)) {
+            formattedFeatures[cat] = {
+              selectedComponents: component.map(c => ({ ...c, category: cat }))
+            };
+          } else {
+            formattedFeatures[cat] = {
+              selectedComponent: { ...component, category: cat }
             };
           }
         });
@@ -240,6 +300,16 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
 
   const renderOption = (option, category) => {
     const currentLanguage = i18n.language;
+    // Detectar multi-selección para ram (desktop/laptop) y storage
+    const isMulti = category === 'storage' || (category === 'ram' && ['laptop','desktop'].includes(specificationType));
+    // Identificar si la opción está seleccionada
+    const isSelected = isMulti
+      ? Array.isArray(selectedComponents[category]) && selectedComponents[category].some(c => c.id === option.id)
+      : selectedComponents[category]?.id === option.id;
+    // Definir clases según tipo y estado
+    const borderClass = isSelected
+      ? (isMulti ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50')
+      : (isMulti ? 'border-gray-200 hover:border-orange-300' : 'border-gray-200 hover:border-blue-300');
 
     const getTranslatedSpec = (key) => {
       return t(`products.specs.${key}`);
@@ -248,11 +318,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
     return (
       <div
         onClick={() => handleComponentSelect(category, option)}
-        className={`cursor-pointer h-full p-4 rounded-lg border ${
-          selectedComponents[category]?.name === option.name
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-200 hover:border-blue-300'
-        }`}
+        className={`cursor-pointer h-full p-4 rounded-lg border ${borderClass}`}
       >
         <div className="space-y-2">
           <div className="flex justify-between">
@@ -285,6 +351,18 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
     );
   };
 
+  // Estado para abrir/cerrar cada categoría en móvil
+  const [openCategories, setOpenCategories] = useState({});
+  const toggleCategory = (category) => {
+    setOpenCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  // Estado para abrir/cerrar cada opción en móvil
+  const [openItems, setOpenItems] = useState({});
+  const toggleItem = (key) => {
+    setOpenItems(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Agrupar categorías adicionales y principales
   const mainCategories = Object.entries(componentCategories).filter(([_, { isAdditional }]) => !isAdditional);
   const additionalCategories = Object.entries(componentCategories).filter(([_, { isAdditional }]) => isAdditional);
@@ -315,28 +393,59 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
       {/* Categorías principales */}
       {mainCategories.map(([category, { name, options = [] }]) => (
         <div key={category} className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-4">
+          <div
+            className="flex justify-between items-center mb-4 cursor-pointer sm:cursor-auto"
+            onClick={() => toggleCategory(category)}
+          >
             <h3 className="text-lg font-medium text-gray-900">{name}</h3>
-            <div className="w-64">
+            {/* Buscador solo desktop */}
+            <div className="hidden sm:block w-64">
               <input
                 type="text"
                 placeholder={t('common.search')}
                 value={searchTerms[category] || ''}
-                onChange={(e) => setSearchTerms(prev => ({
-                  ...prev,
-                  [category]: e.target.value
-                }))}
+                onChange={(e) => setSearchTerms(prev => ({ ...prev, [category]: e.target.value }))}
                 className="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
+            {/* Indicador toggle */}
+            <span className="sm:hidden text-gray-600 ml-2">{openCategories[category] ? '-' : '+'}</span>
           </div>
-
-          <OptionCarousel
-            options={getFilteredOptions(category, options)}
-            selectedOption={selectedComponents[category]}
-            onSelect={(option) => handleComponentSelect(category, option)}
-            renderOption={(option) => renderOption(option, category)}
-          />
+          {/* Listado móvil: tarjetas colapsables por opción */}
+          {openCategories[category] && (
+            <div className="space-y-4 sm:hidden">
+              {getFilteredOptions(category, options).map((option) => {
+                const key = `${category}-${option.id || option.name}`;
+                const isOpenItem = openItems[key];
+                return (
+                  <div key={key} className="border rounded-md overflow-hidden">
+                    <div
+                      className="p-4 cursor-pointer flex justify-between items-center"
+                      onClick={() => toggleItem(key)}
+                    >
+                      <h4 className="font-medium text-gray-900">{option.name}</h4>
+                      <span className="text-gray-500">{option.brand}</span>
+                      <span>{isOpenItem ? '-' : '+'}</span>
+                    </div>
+                    {isOpenItem && (
+                      <div className="p-4 border-t bg-gray-50">
+                        {renderOption(option, category)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {/* Carrusel sólo desktop */}
+          <div className="hidden sm:block">
+            <OptionCarousel
+              options={getFilteredOptions(category, options)}
+              selectedOption={selectedComponents[category]}
+              onSelect={(option) => handleComponentSelect(category, option)}
+              renderOption={(option) => renderOption(option, category)}
+            />
+          </div>
         </div>
       ))}
 
@@ -395,8 +504,8 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
 
 ConfigurableProductManager.propTypes = {
   product: PropTypes.shape({
-    id: PropTypes.string,
-    _id: PropTypes.string,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     features: PropTypes.object,
     basePrice: PropTypes.oneOfType([
       PropTypes.number,

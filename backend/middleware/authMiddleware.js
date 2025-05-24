@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 // Middleware para proteger rutas
 exports.protect = async (req, res, next) => {
@@ -30,15 +31,32 @@ exports.protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log('Token verificado para el usuario:', decoded.id);
 
+      // Obtener usuario por su ID numérico
+      const userId = parseInt(decoded.id);
+      if (isNaN(userId)) {
+        console.log('ID de usuario inválido en el token');
+        return res.status(401).json({ message: 'No autorizado - Token inválido' });
+      }
+
       // Obtener usuario
-      const user = await User.findById(decoded.id).select('-password');
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isActive: true
+        }
+      });
+
       if (!user) {
         console.log('Usuario no encontrado con el token proporcionado');
         return res.status(401).json({ message: 'No autorizado - Usuario no encontrado' });
       }
 
       console.log('Usuario encontrado:', {
-        id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role,
         isActive: user.isActive
@@ -63,7 +81,7 @@ exports.authorize = (roles = []) => {
     console.log('=== Middleware de Autorización ===');
     console.log('Roles permitidos:', roles);
     console.log('Usuario actual:', {
-      id: req.user?._id,
+      id: req.user?.id,
       email: req.user?.email,
       role: req.user?.role,
       isActive: req.user?.isActive
@@ -75,13 +93,13 @@ exports.authorize = (roles = []) => {
     }
 
     if (!roles.includes(req.user.role)) {
-      console.log(`Usuario ${req.user._id} con rol ${req.user.role} intentó acceder a ruta protegida para roles:`, roles);
+      console.log(`Usuario ${req.user.id} con rol ${req.user.role} intentó acceder a ruta protegida para roles:`, roles);
       return res.status(403).json({ 
         message: 'No autorizado - No tiene los permisos necesarios'
       });
     }
 
-    console.log(`Usuario ${req.user._id} autorizado con rol ${req.user.role}`);
+    console.log(`Usuario ${req.user.id} autorizado con rol ${req.user.role}`);
     next();
   };
 }; 

@@ -15,7 +15,8 @@
     "search": "Buscar",
     "noResults": "No se encontraron resultados",
     "backToProducts": "Volver a Productos",
-    "translate": "Traducir"
+    "translate": "Traducir",
+    "exit": "Salir"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -98,28 +99,37 @@
     "priceUpdated": "Precio actualizado: ${{price}}",
     "modelSelected": "Modelo seleccionado: {{name}}",
     "included": "(incluido)",
-    "totalPrice": "Precio total",
     "videoThumbnail": "Miniatura del video del producto",
     "videoTitle": "Video del producto",
     "videoError": "Error al cargar el video",
     "video": "Video",
     "imageAlt": "Producto {{number}}",
     "goToImage": "Ir a imagen {{number}}",
+    "goToVideo": "Ir al video",
     "in": "en",
     "for": "para",
     "matching": "que coincidan con",
     "categories": {
       "processor": "Procesador",
+      "processors": "Procesadores",
       "ram": "RAM",
       "storage": "Almacenamiento",
       "screen": "Pantalla",
+      "screens": "Pantallas",
       "battery": "Batería",
+      "batteries": "Baterías",
       "security": "Seguridad",
       "gaming": "Gaming",
       "biometrics": "Biometría",
       "sound": "Sonido",
       "connectivity": "Conectividad",
-      "protection": "Protección"
+      "protection": "Protección",
+      "operatingSystems": "Sistemas Operativos",
+      "desktopCases": "Gabinetes de Escritorio",
+      "powerSupplies": "Fuentes de Poder",
+      "gpu": "Tarjeta Gráfica",
+      "webcam": "Cámara Web",
+      "keyboard": "Teclado"
     },
     "specs": {
       "cores": "Núcleos",
@@ -146,7 +156,10 @@
       "version": "Versión",
       "band": "Banda",
       "rating": "Clasificación",
-      "material": "Material"
+      "material": "Material",
+      "gpuCores": "Núcleos de GPU",
+      "gpu": "GPU",
+      "process": "Procesos"
     },
     "additionalFeatures": "Características Adicionales",
     "totalPrice": "Precio Total"

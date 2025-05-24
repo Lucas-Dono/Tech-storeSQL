@@ -1,16 +1,27 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
-import ProductVideo from './ProductVideo';
 import { useTranslation } from 'react-i18next';
+
+// Función auxiliar para detectar URLs directas (simple)
+const isDirectVideoLink = (url) => {
+  return url && (url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.ogg'));
+};
+
+// Función auxiliar para detectar URLs de YouTube
+const isYouTubeLink = (url) => {
+  if (!url) return false;
+  const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)/i;
+  return youtubeRegex.test(url);
+};
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
+  const [hoverImageIndex, setHoverImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const { addToCart } = useStore();
   const [currentPrice, setCurrentPrice] = useState(
@@ -21,6 +32,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
   );
   const [currentImage, setCurrentImage] = useState('');
   const [imageError, setImageError] = useState(false);
+  const hoverIntervalRef = useRef(null);
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -40,6 +52,11 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
     
     setCurrentImage(imageToUse || '/placeholder-image.jpg');
     setImageError(false);
+    setHoverImageIndex(0);
+    if (hoverIntervalRef.current) {
+      clearInterval(hoverIntervalRef.current);
+      hoverIntervalRef.current = null;
+    }
   }, [product.images, product.image]);
 
   const handleImageError = () => {
@@ -76,8 +93,12 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
   const handleMouseEnter = () => {
     if (!isMobile) {
       setIsHovered(true);
-      if (product.videoUrl || product.video) {
-        setShowVideo(true);
+      if (Array.isArray(product.images) && product.images.length > 1) {
+        if (hoverIntervalRef.current) clearInterval(hoverIntervalRef.current);
+
+        hoverIntervalRef.current = setInterval(() => {
+          setHoverImageIndex(prevIndex => (prevIndex + 1) % product.images.length);
+        }, 1500);
       }
     }
   };
@@ -85,12 +106,12 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
   const handleMouseLeave = () => {
     if (!isMobile) {
       setIsHovered(false);
-      setShowVideo(false);
+      if (hoverIntervalRef.current) {
+        clearInterval(hoverIntervalRef.current);
+        hoverIntervalRef.current = null;
+      }
+      setHoverImageIndex(0);
     }
-  };
-
-  const handleVideoEnd = () => {
-    setShowVideo(false);
   };
 
   const handleEdit = (e) => {
@@ -108,6 +129,13 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
       onDelete(product);
     }
   };
+
+  const displayImage = useMemo(() => {
+    if (isHovered && !isMobile && Array.isArray(product.images) && product.images.length > 1) {
+      return product.images[hoverImageIndex] || '/placeholder-image.jpg';
+    }
+    return currentImage;
+  }, [isHovered, isMobile, product.images, hoverImageIndex, currentImage]);
 
   return (
     <div 
@@ -138,25 +166,17 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
       )}
 
       <Link to={`/producto/${product.id}`} className="block">
-        {/* Imagen o Video del producto */}
-        <div className="relative h-48 overflow-hidden">
-          {showVideo && (product.videoUrl || product.video) ? (
-            <ProductVideo
-              videoUrl={product.videoUrl}
-              video={product.video}
-              thumbnailUrl={currentImage}
-              onVideoEnd={handleVideoEnd}
-            />
-          ) : (
-            <img
-              src={currentImage || '/placeholder-image.jpg'}
+        {/* Imagen del producto (con carrusel en hover) */}
+        <div className="relative h-48 overflow-hidden bg-gray-200">
+          <img
+            key={displayImage}
+            src={displayImage}
               alt={product.name}
               onError={handleImageError}
-              className={`w-full h-full object-cover transition-transform duration-500 ${
+            className={`w-full h-full object-cover transition-opacity duration-300 ease-in-out transform ${
                 isHovered && !isMobile ? 'scale-110' : 'scale-100'
               }`}
             />
-          )}
           {/* Badge de categoría */}
           <div className="absolute top-2 right-2">
             <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm">

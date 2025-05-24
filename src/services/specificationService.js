@@ -22,10 +22,9 @@ export const specificationService = {
     if (!specifications[category] || !specifications[category][type]) {
       return [];
     }
-
     const items = specifications[category][type];
-    if (!searchTerm) return items;
 
+    if (!searchTerm) return items;
     const normalizedSearch = searchTerm.toLowerCase();
     return items.filter(item => 
       item.name.toLowerCase().includes(normalizedSearch) ||

@@ -4,9 +4,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const path = require('path');
-const connectDB = require('./config/db');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const { initSuperAdmin } = require('./controllers/auth');
-const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
@@ -38,14 +38,7 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-// Conectar a la base de datos
-console.log('Intentando conectar a MongoDB...');
-connectDB().then(() => {
-  console.log('MongoDB conectado exitosamente');
-}).catch(err => {
-  console.error('Error al conectar MongoDB:', err);
-  process.exit(1);
-});
+// No se requiere conexión previa: Prisma gestiona conexiones por demanda
 
 const app = express();
 
@@ -68,22 +61,27 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  const health = {
+// Health check endpoint (PostgreSQL via Prisma)
+app.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    mongodb: {
-      status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-      host: mongoose.connection.host
-    },
+      database: 'PostgreSQL',
+      dbConnection: 'connected',
     cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'not configured',
     uptime: process.uptime()
-  };
-  
-  console.log('Health check:', health);
-  res.status(200).json(health);
+    });
+  } catch (err) {
+    console.error('Health check error:', err);
+    res.status(500).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: err.message
+    });
+  }
 });
 
 // Test endpoint

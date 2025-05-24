@@ -5,10 +5,11 @@ import { useTranslation } from 'react-i18next';
 import {
   ChartBarIcon,
   CubeIcon,
-  ArrowLeftOnRectangleIcon,
-  Bars3Icon,
-  XMarkIcon
+  PlusCircleIcon,
+  UserGroupIcon,
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import AdminMobileNav from '../../components/AdminMobileNav';
 
 const AdminLayout = () => {
   const { t } = useTranslation();
@@ -40,26 +41,13 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Mobile Sidebar Toggle */}
+      {/* Admin Mobile Nav (Top + Bottom) */}
       <div className="lg:hidden">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg"
-        >
-          {sidebarOpen ? (
-            <XMarkIcon className="h-6 w-6 text-gray-600" />
-          ) : (
-            <Bars3Icon className="h-6 w-6 text-gray-600" />
-          )}
-        </button>
+        <AdminMobileNav />
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow transform ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 transition-transform duration-300 ease-in-out`}
-      >
+      <aside className="hidden lg:block fixed inset-y-0 left-0 z-40 w-64 bg-white shadow">
         <div className="h-full flex flex-col">
           {/* Logo */}
           <div className="h-16 flex items-center justify-center border-b">
@@ -107,18 +95,14 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className={`lg:ml-64 min-h-screen transition-all duration-300`}>
-        <Outlet />
+      {/* Page Content */}
+      <div className="lg:pl-64">
+        <div className="py-6">
+          <div className="px-4 sm:px-6 md:px-8">
+            <Outlet />
+          </div>
+        </div>
       </div>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 };

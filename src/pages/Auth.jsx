@@ -4,10 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { validateEmail, validatePassword } from '../utils/security';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   const { error: showError, success, info } = useAlert();
   const navigate = useNavigate();
   const location = useLocation();
@@ -136,6 +137,26 @@ const Auth = () => {
       }
     } catch (err) {
       console.error('Error detallado en login:', err);
+      showError(err.message || 'Error al procesar la solicitud. Por favor, intenta nuevamente');
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      console.log('Iniciando sesión con Google');
+      info('Iniciando sesión con Google...');
+      const result = await loginWithGoogle(credentialResponse);
+      
+      if (result.success) {
+        success('¡Bienvenido!');
+        const from = location.state?.from?.pathname || '/';
+        navigate(from, { replace: true });
+      } else {
+        console.log('Error en login con Google:', result.error);
+        showError(result.error || 'Error al iniciar sesión con Google');
+      }
+    } catch (err) {
+      console.error('Error detallado en login con Google:', err);
       showError(err.message || 'Error al procesar la solicitud. Por favor, intenta nuevamente');
     }
   };
@@ -486,6 +507,33 @@ const Auth = () => {
                 {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
               </button>
             </div>
+            
+            {isLogin && (
+              <div className="mt-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">
+                      O continuar con
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => {
+                      showError('Error al iniciar sesión con Google');
+                    }}
+                    text="signin_with"
+                    locale="es"
+                    useOneTap
+                  />
+                </div>
+              </div>
+            )}
           </form>
 
           <div className="mt-6">

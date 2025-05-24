@@ -1,9 +1,21 @@
-const Product = require('../models/Product');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 // Obtener todos los productos
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('createdBy', 'name email role');
+    const products = await prisma.product.findMany({
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        }
+      }
+    });
     res.json(products);
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -14,10 +26,32 @@ exports.getProducts = async (req, res) => {
 // Obtener un producto por ID
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('createdBy', 'name email role');
+    const productId = parseInt(req.params.id);
+    
+    if (isNaN(productId)) {
+      return res.status(400).json({ message: 'ID de producto inválido' });
+    }
+    
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        }
+      }
+    });
+    
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
+    
     res.json(product);
   } catch (error) {
     console.error('Error al obtener producto:', error);
@@ -30,29 +64,45 @@ exports.createProduct = async (req, res) => {
   try {
     // Asegurarse de que el video sea null si no se proporciona
     const productData = {
-      ...req.body,
-      video: req.body.video || null,
-      createdBy: req.user.id,
-      // Asegurar que los campos de traducción estén presentes
+      name: req.body.name,
       name_es: req.body.name,
       name_en: req.body.name_en || req.body.name,
+      description: req.body.description,
       description_es: req.body.description,
-      description_en: req.body.description_en || req.body.description
+      description_en: req.body.description_en || req.body.description,
+      basePrice: parseFloat(req.body.basePrice),
+      images: req.body.images || [],
+      category: req.body.category,
+      stock: parseInt(req.body.stock),
+      variantType: req.body.variantType || 'SIMPLE',
+      features: req.body.features || {},
+      models: req.body.models || null,
+      defaultConfiguration: req.body.defaultConfiguration || {},
+      video: req.body.video || null,
+      createdById: req.user.id
     };
 
-    // Eliminar campos que no deben estar en el modelo
-    delete productData.id;
-    delete productData._id;
-
-    const product = new Product(productData);
-    await product.save();
+    const product = await prisma.product.create({
+      data: productData,
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        }
+      }
+    });
+    
     res.status(201).json(product);
   } catch (error) {
     console.error('Error al crear producto:', error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: 'Ya existe un producto con esos datos' });
     }
-    res.status(500).json({ message: 'Error al crear producto' });
+    res.status(500).json({ message: 'Error al crear producto', error: error.message });
   }
 };
 
@@ -61,69 +111,123 @@ exports.updateProduct = async (req, res) => {
   try {
     console.log('Datos recibidos para actualizar:', req.body);
     
-    const product = await Product.findById(req.params.id);
+    const productId = parseInt(req.params.id);
+    
+    if (isNaN(productId)) {
+      return res.status(400).json({ message: 'ID de producto inválido' });
+    }
+    
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+    
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
     // Verificar si el usuario es el creador o un admin
-    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    if (product.createdBy.id !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ message: 'No autorizado para actualizar este producto' });
     }
 
-    // Asegurarse de que el video sea null si no se proporciona
+    // Preparar datos para la actualización
     const updateData = {
-      ...req.body,
-      video: req.body.video || null,
-      // Asegurar que los campos de traducción estén presentes
+      name: req.body.name,
       name_es: req.body.name,
       name_en: req.body.name_en || req.body.name,
+      description: req.body.description,
       description_es: req.body.description,
       description_en: req.body.description_en || req.body.description,
-      // Asegurar que features se mantenga como objeto
-      features: req.body.features || {}
+      basePrice: parseFloat(req.body.basePrice),
+      images: req.body.images || product.images,
+      category: req.body.category,
+      stock: parseInt(req.body.stock),
+      variantType: req.body.variantType || product.variantType,
+      features: req.body.features || {},
+      models: req.body.models || product.models,
+      defaultConfiguration: req.body.defaultConfiguration || {},
+      video: req.body.video || null
     };
-
-    // Eliminar campos que no deben estar en el modelo
-    delete updateData.id;
-    delete updateData._id;
 
     console.log('Datos procesados para actualizar:', updateData);
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedProduct = await prisma.product.update({
+      where: {
+        id: productId
+      },
+      data: updateData,
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        }
+      }
+    });
 
     console.log('Producto actualizado:', updatedProduct);
     res.json(updatedProduct);
   } catch (error) {
     console.error('Error al actualizar producto:', error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: 'Ya existe un producto con esos datos' });
     }
-    res.status(500).json({ message: 'Error al actualizar producto' });
+    res.status(500).json({ message: 'Error al actualizar producto', error: error.message });
   }
 };
 
 // Eliminar un producto
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const productId = parseInt(req.params.id);
+    
+    if (isNaN(productId)) {
+      return res.status(400).json({ message: 'ID de producto inválido' });
+    }
+    
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+    
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
     // Verificar si el usuario es el creador o un admin
-    if (product.createdBy.toString() !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    if (product.createdBy.id !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ message: 'No autorizado para eliminar este producto' });
     }
 
-    await Product.findByIdAndDelete(req.params.id);
+    await prisma.product.delete({
+      where: {
+        id: productId
+      }
+    });
+    
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar producto:', error);
-    res.status(500).json({ message: 'Error al eliminar producto' });
+    res.status(500).json({ message: 'Error al eliminar producto', error: error.message });
   }
 }; 

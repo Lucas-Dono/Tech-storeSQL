@@ -15,7 +15,8 @@
     "search": "Search",
     "noResults": "No results found",
     "backToProducts": "Back to Products",
-    "translate": "Translate"
+    "translate": "Translate",
+    "exit": "Exit"
   },
   "auth": {
     "login": "Login",
@@ -105,21 +106,31 @@
     "video": "Video",
     "imageAlt": "Product {{number}}",
     "goToImage": "Go to image {{number}}",
+    "goToVideo": "Go to video",
     "in": "in",
     "for": "for",
     "matching": "matching",
     "categories": {
       "processor": "Processor",
+      "processors": "Processors",
       "ram": "RAM",
       "storage": "Storage",
       "screen": "Screen",
+      "screens": "Screens",
       "battery": "Battery",
+      "batteries": "Batteries",
       "security": "Security",
       "gaming": "Gaming",
       "biometrics": "Biometrics",
       "sound": "Sound",
       "connectivity": "Connectivity",
-      "protection": "Protection"
+      "protection": "Protection",
+      "operatingSystems": "Operating Systems",
+      "desktopCases": "Desktop Cases",
+      "powerSupplies": "Power Supplies",
+      "gpu": "Graphics Card",
+      "webcam": "Webcam",
+      "keyboard": "Keyboard"
     },
     "specs": {
       "cores": "Cores",
@@ -146,7 +157,10 @@
       "version": "Version",
       "band": "Band",
       "rating": "Rating",
-      "material": "Material"
+      "material": "Material",
+      "gpuCores": "GPU Cores",
+      "gpu": "GPU",
+      "process": "Process"
     },
     "additionalFeatures": "Additional Features"
   },

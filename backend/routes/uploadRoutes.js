@@ -38,10 +38,27 @@ router.post('/multiple', protect, uploadMultiple, async (req, res) => {
   }
 });
 
-// Eliminar una imagen
-router.delete('/:public_id', protect, async (req, res) => {
+// Eliminar una imagen por su URL
+router.delete('/', protect, async (req, res) => {
   try {
-    const result = await deleteFromCloudinary(req.params.public_id);
+    const imageUrl = req.body.url;
+
+    if (!imageUrl) {
+      return res.status(400).json({ message: 'No se proporcionó la URL de la imagen' });
+    }
+
+    // Extraer el public_id de la URL de Cloudinary
+    // Ejemplo URL: http://res.cloudinary.com/cloud_name/image/upload/v12345/folder/image_id.jpg
+    const parts = imageUrl.split('/');
+    const publicIdWithExtension = parts.slice(parts.indexOf('upload') + 2).join('/');
+    const publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.')) || publicIdWithExtension;
+
+    if (!publicId) {
+      return res.status(400).json({ message: 'No se pudo extraer el ID público de la URL' });
+    }
+
+    console.log('Intentando eliminar imagen con public_id:', publicId);
+    const result = await deleteFromCloudinary(publicId);
     res.json(result);
   } catch (error) {
     console.error('Error al eliminar imagen:', error);

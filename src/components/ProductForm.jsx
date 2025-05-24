@@ -107,7 +107,7 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
                 { value: 'Accesorios', label: t('productForm.accessories') }
               ]}
               value={formData.category}
-              onChange={(value) => handleChange({ target: { name: 'category', value } })}
+              onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
             />
           </div>
 
@@ -236,4 +236,4 @@ ProductForm.propTypes = {
   initialData: PropTypes.object
 };
 
-export default ProductForm; 
+export default ProductForm;
