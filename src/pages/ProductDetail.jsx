@@ -9,6 +9,7 @@ import Loading from '../components/Loading';
 import ImageCarousel from '../components/ImageCarousel';
 import ProductComparison from '../components/ProductComparison';
 import ProductCard from '../components/ProductCard';
+import React from 'react';
 
 const ProductDetail = () => {
   const { t, i18n } = useTranslation();
@@ -119,13 +120,40 @@ const ProductDetail = () => {
   const specifications = Object.entries(product.specifications)
     .filter(([_, value]) => value !== null && value !== undefined && value !== '');
 
-  // Procesar los componentes configurados
-  const configuredComponents = product.features ? Object.entries(product.features)
-    .filter(([_, data]) => data && data.selectedComponent)
-    .map(([category, data]) => ({
-      category,
-      component: data.selectedComponent
-    })) : [];
+  // Procesar los componentes configurados de manera más segura
+  const configuredComponents = React.useMemo(() => {
+    if (!product || !product.features || typeof product.features !== 'object') {
+      return [];
+    }
+
+    try {
+      const features = product.features;
+      console.log('Raw features data:', features);
+      
+      return Object.entries(features)
+        .filter(([category, data]) => {
+          // Verificar que data existe y tiene la estructura esperada
+          return data && 
+                 typeof data === 'object' && 
+                 data.selectedComponent && 
+                 typeof data.selectedComponent === 'object';
+        })
+        .map(([category, data]) => {
+          const component = data.selectedComponent;
+          return {
+            category: String(category), // Asegurar que sea string
+            component: {
+              name: String(component.name || 'Sin nombre'),
+              description: component.description ? String(component.description) : null,
+              price: component.price ? Number(component.price) : null
+            }
+          };
+        });
+    } catch (error) {
+      console.error('Error processing configured components:', error);
+      return [];
+    }
+  }, [product]);
 
   console.log('Specifications to render:', specifications);
   console.log('Configured components:', configuredComponents);
@@ -137,14 +165,43 @@ const ProductDetail = () => {
   const safeTranslate = (key, options = {}) => {
     try {
       const result = t(key, options);
-      if (typeof result === 'object') {
+      
+      // Si el resultado es un objeto (como {en: "text", es: "texto"}), extraer el valor correcto
+      if (typeof result === 'object' && result !== null) {
         console.error('Translation returned object for key:', key, 'Result:', result);
-        return options.defaultValue || key;
+        
+        // Intentar obtener la traducción para el idioma actual
+        const currentLang = i18n.language;
+        if (result[currentLang]) {
+          return result[currentLang];
+        }
+        
+        // Fallback a español si existe
+        if (result.es) {
+          return result.es;
+        }
+        
+        // Fallback a inglés si existe
+        if (result.en) {
+          return result.en;
+        }
+        
+        // Si no hay nada útil, usar el defaultValue o la key
+        return options.defaultValue || key.split('.').pop() || key;
       }
-      return result;
+      
+      // Si es una cadena, devolverla tal como está
+      if (typeof result === 'string') {
+        return result;
+      }
+      
+      // Para cualquier otro tipo, usar el fallback
+      console.warn('Unexpected translation result type:', typeof result, 'for key:', key);
+      return options.defaultValue || key.split('.').pop() || key;
+      
     } catch (err) {
       console.error('Translation error for key:', key, 'Error:', err);
-      return options.defaultValue || key;
+      return options.defaultValue || key.split('.').pop() || key;
     }
   };
 
@@ -197,52 +254,44 @@ const ProductDetail = () => {
           </button>
 
           {/* Sección de componentes configurados */}
-          {configuredComponents.length > 0 && (
+          {configuredComponents && configuredComponents.length > 0 && (
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {safeTranslate('productDetail.configuredComponents')}
+                Componentes Configurados
               </h2>
               <div className="space-y-4">
-                {configuredComponents.map(({ category, component }, index) => {
-                  try {
-                    if (!component || !category) {
-                      console.warn('Invalid component or category:', { category, component });
-                      return null;
-                    }
-
-                    return (
-                      <div key={`${category}-${index}`} className="bg-gray-50 p-4 rounded-lg">
-                        <h3 className="font-medium text-gray-900 capitalize mb-2">
-                          {safeTranslate(`components.${category}`, { defaultValue: category })}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <span className="text-gray-600">{safeTranslate('components.name')}:</span>
-                            <span className="ml-2 text-gray-900">{component.name || 'N/A'}</span>
-                          </div>
-                          {component.description && (
-                            <div>
-                              <span className="text-gray-600">{safeTranslate('components.description')}:</span>
-                              <span className="ml-2 text-gray-900">{component.description}</span>
-                            </div>
-                          )}
-                          {component.price && (
-                            <div>
-                              <span className="text-gray-600">{safeTranslate('components.price')}:</span>
-                              <span className="ml-2 text-gray-900">${component.price}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  } catch (err) {
-                    console.error('Error rendering component:', { category, component, error: err });
-                    return (
-                      <div key={`error-${category}-${index}`} className="bg-red-50 p-4 rounded-lg">
-                        <span className="text-red-600">Error al mostrar componente: {category}</span>
-                      </div>
-                    );
+                {configuredComponents.map((item, index) => {
+                  if (!item || !item.category || !item.component) {
+                    return null;
                   }
+
+                  const { category, component } = item;
+
+                  return (
+                    <div key={`component-${index}`} className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="font-medium text-gray-900 capitalize mb-2">
+                        {category}
+                      </h3>
+                      <div className="grid grid-cols-1 gap-2">
+                        <div>
+                          <span className="text-gray-600">Nombre:</span>
+                          <span className="ml-2 text-gray-900">{component.name}</span>
+                        </div>
+                        {component.description && (
+                          <div>
+                            <span className="text-gray-600">Descripción:</span>
+                            <span className="ml-2 text-gray-900">{component.description}</span>
+                          </div>
+                        )}
+                        {component.price && (
+                          <div>
+                            <span className="text-gray-600">Precio:</span>
+                            <span className="ml-2 text-gray-900">${component.price}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
                 })}
               </div>
             </div>
