@@ -318,7 +318,22 @@
     "configureProduct": "Configurar producto",
     "selectModel": "Seleccionar modelo",
     "modelSelected": "Modelo seleccionado: {{name}}",
-    "priceUpdated": "Precio actualizado: ${{price}}"
+    "priceUpdated": "Precio actualizado: ${{price}}",
+    "configuredComponents": "Componentes Configurados"
+  },
+  "components": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "price": "Precio",
+    "processor": "Procesador",
+    "ram": "Memoria RAM",
+    "storage": "Almacenamiento",
+    "gpu": "Tarjeta Gráfica",
+    "screen": "Pantalla",
+    "battery": "Batería",
+    "camera": "Cámara",
+    "keyboard": "Teclado",
+    "webcam": "Cámara Web"
   },
   "adminProducts": {
     "title": "Gestión de Productos",

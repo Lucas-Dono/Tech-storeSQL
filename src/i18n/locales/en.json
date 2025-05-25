@@ -322,7 +322,22 @@
     "configureProduct": "Configure product",
     "selectModel": "Select model",
     "modelSelected": "Model selected: {{name}}",
-    "priceUpdated": "Price updated: ${{price}}"
+    "priceUpdated": "Price updated: ${{price}}",
+    "configuredComponents": "Configured Components"
+  },
+  "components": {
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "processor": "Processor",
+    "ram": "RAM Memory",
+    "storage": "Storage",
+    "gpu": "Graphics Card",
+    "screen": "Screen",
+    "battery": "Battery",
+    "camera": "Camera",
+    "keyboard": "Keyboard",
+    "webcam": "Webcam"
   },
   "adminProducts": {
     "title": "Product Management",
