@@ -119,7 +119,16 @@ const ProductDetail = () => {
   const specifications = Object.entries(product.specifications)
     .filter(([_, value]) => value !== null && value !== undefined && value !== '');
 
-  console.log('Specifications to render:', specifications); // Para depuración
+  // Procesar los componentes configurados
+  const configuredComponents = product.features ? Object.entries(product.features)
+    .filter(([_, data]) => data && data.selectedComponent)
+    .map(([category, data]) => ({
+      category,
+      component: data.selectedComponent
+    })) : [];
+
+  console.log('Specifications to render:', specifications);
+  console.log('Configured components:', configuredComponents);
 
   // DEBUG: Verificar datos pasados a ImageCarousel
   console.log('Data for ImageCarousel:', { images: product.images, video: product.video });
@@ -171,6 +180,42 @@ const ProductDetail = () => {
           >
             {t('productDetail.addToCart')}
           </button>
+
+          {/* Sección de componentes configurados */}
+          {configuredComponents.length > 0 && (
+            <div className="border-t pt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                {t('productDetail.configuredComponents')}
+              </h2>
+              <div className="space-y-4">
+                {configuredComponents.map(({ category, component }) => (
+                  <div key={category} className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-900 capitalize mb-2">
+                      {t(`components.${category}`, category)}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-gray-600">{t('components.name')}:</span>
+                        <span className="ml-2 text-gray-900">{component.name}</span>
+                      </div>
+                      {component.description && (
+                        <div>
+                          <span className="text-gray-600">{t('components.description')}:</span>
+                          <span className="ml-2 text-gray-900">{component.description}</span>
+                        </div>
+                      )}
+                      {component.price && (
+                        <div>
+                          <span className="text-gray-600">{t('components.price')}:</span>
+                          <span className="ml-2 text-gray-900">${component.price}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {specifications.length > 0 && (
             <div className="border-t pt-6">
