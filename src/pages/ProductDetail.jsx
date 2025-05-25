@@ -203,31 +203,47 @@ const ProductDetail = () => {
                 {safeTranslate('productDetail.configuredComponents')}
               </h2>
               <div className="space-y-4">
-                {configuredComponents.map(({ category, component }) => (
-                  <div key={category} className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-gray-900 capitalize mb-2">
-                      {safeTranslate(`components.${category}`, { defaultValue: category })}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <span className="text-gray-600">{safeTranslate('components.name')}:</span>
-                        <span className="ml-2 text-gray-900">{component.name}</span>
+                {configuredComponents.map(({ category, component }, index) => {
+                  try {
+                    if (!component || !category) {
+                      console.warn('Invalid component or category:', { category, component });
+                      return null;
+                    }
+
+                    return (
+                      <div key={`${category}-${index}`} className="bg-gray-50 p-4 rounded-lg">
+                        <h3 className="font-medium text-gray-900 capitalize mb-2">
+                          {safeTranslate(`components.${category}`, { defaultValue: category })}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-gray-600">{safeTranslate('components.name')}:</span>
+                            <span className="ml-2 text-gray-900">{component.name || 'N/A'}</span>
+                          </div>
+                          {component.description && (
+                            <div>
+                              <span className="text-gray-600">{safeTranslate('components.description')}:</span>
+                              <span className="ml-2 text-gray-900">{component.description}</span>
+                            </div>
+                          )}
+                          {component.price && (
+                            <div>
+                              <span className="text-gray-600">{safeTranslate('components.price')}:</span>
+                              <span className="ml-2 text-gray-900">${component.price}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {component.description && (
-                        <div>
-                          <span className="text-gray-600">{safeTranslate('components.description')}:</span>
-                          <span className="ml-2 text-gray-900">{component.description}</span>
-                        </div>
-                      )}
-                      {component.price && (
-                        <div>
-                          <span className="text-gray-600">{safeTranslate('components.price')}:</span>
-                          <span className="ml-2 text-gray-900">${component.price}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    );
+                  } catch (err) {
+                    console.error('Error rendering component:', { category, component, error: err });
+                    return (
+                      <div key={`error-${category}-${index}`} className="bg-red-50 p-4 rounded-lg">
+                        <span className="text-red-600">Error al mostrar componente: {category}</span>
+                      </div>
+                    );
+                  }
+                })}
               </div>
             </div>
           )}
