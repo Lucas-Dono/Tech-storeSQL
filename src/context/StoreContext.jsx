@@ -7,6 +7,7 @@ import { fallbackProducts } from '../data/fallbackProducts';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 import { API_URL } from '../config/api';
+import { healthService } from '../services/healthService';
 
 const StoreContext = createContext();
 
@@ -38,16 +39,12 @@ export const StoreProvider = ({ children }) => {
 
   const checkServerStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/health`, {
-        signal: AbortSignal.timeout(10000) // 10 segundos timeout
-      });
-      if (response.ok) {
-        setIsServerAvailable(true);
-        return true;
-      }
-      return false;
+      const isHealthy = await healthService.checkHealth();
+      setIsServerAvailable(isHealthy);
+      return isHealthy;
     } catch (error) {
       console.error('Error checking server status:', error);
+      setIsServerAvailable(false);
       return false;
     }
   }, []);
@@ -95,7 +92,7 @@ export const StoreProvider = ({ children }) => {
           await fetchProducts();
         }
       }
-    }, 30000); // Verificar cada 30 segundos
+    }, 60000); // Verificar cada minuto
 
     return () => clearInterval(interval);
   }, [checkServerStatus, isServerAvailable, fetchProducts]);
