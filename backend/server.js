@@ -92,17 +92,17 @@ app.get('/', (req, res) => {
 });
 
 // Health check endpoint (PostgreSQL via Prisma)
-app.get('/health', async (req, res) => {
+app.get('/api/health', async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
       database: 'PostgreSQL',
       dbConnection: 'connected',
-    cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'not configured',
-    uptime: process.uptime()
+      cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'not configured',
+      uptime: process.uptime()
     });
   } catch (err) {
     console.error('Health check error:', err);
