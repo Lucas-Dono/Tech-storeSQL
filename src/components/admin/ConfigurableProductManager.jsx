@@ -150,7 +150,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
         };
       } else if (specifications[catKey]?.[specType]) {
         categories[catKey] = {
-          name: t(`products.categories.${catKey}`),
+          name: t(`products.categories.${catKey}`, { defaultValue: catKey }),
           type: specType,
           options: specifications[catKey][specType] || []
       };
@@ -190,7 +190,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
       desktopSpecific.forEach(catKey => {
         if (specifications[catKey]?.desktop) {
            categories[catKey] = { 
-             name: t(`products.categories.${catKey}`), // products.categories.desktopCases, etc.
+             name: t(`products.categories.${catKey}`, { defaultValue: catKey }), // products.categories.desktopCases, etc.
              type: 'desktop',
              options: specifications[catKey].desktop || []
       };
@@ -219,7 +219,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
              // Usar una clave única para evitar colisiones, p.ej., 'additional_connectivity'
              const categoryKey = `additional_${featureCategoryKey}`;
              categories[categoryKey] = {
-                name: t(`products.categories.${featureCategoryKey}`), // products.categories.connectivity, etc.
+                name: t(`products.categories.${featureCategoryKey}`, { defaultValue: featureCategoryKey }), // products.categories.connectivity, etc.
                 type: specType, // O podría ser 'additional'
             isAdditional: true,
                 options: applicableOptions.map(option => ({ ...option, featureType: featureCategoryKey }))
@@ -312,7 +312,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
       : (isMulti ? 'border-gray-200 hover:border-orange-300' : 'border-gray-200 hover:border-blue-300');
 
     const getTranslatedSpec = (key) => {
-      return t(`products.specs.${key}`);
+      return t(`products.specs.${key}`, { defaultValue: key });
     };
 
     return (

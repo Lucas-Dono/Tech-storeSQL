@@ -191,7 +191,7 @@ const ProductDetail = () => {
                 {configuredComponents.map(({ category, component }) => (
                   <div key={category} className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="font-medium text-gray-900 capitalize mb-2">
-                      {t(`components.${category}`, category)}
+                      {t(`components.${category}`, { defaultValue: category })}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -225,7 +225,7 @@ const ProductDetail = () => {
               <div className="grid grid-cols-2 gap-4">
                 {specifications.map(([key, value]) => (
                   <div key={key} className="flex flex-col">
-                    <span className="text-gray-600 capitalize">{t(`products.${key}`, key)}</span>
+                    <span className="text-gray-600 capitalize">{t(`products.${key}`, { defaultValue: key })}</span>
                     <span className="text-gray-900">{value}</span>
                   </div>
                 ))}
