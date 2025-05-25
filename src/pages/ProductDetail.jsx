@@ -172,6 +172,74 @@ const ProductDetail = () => {
       : product.description;
   };
 
+  // Función para calcular la similitud entre productos basada en componentes
+  const calculateProductSimilarity = React.useCallback((product1, product2) => {
+    if (!product1.features || !product2.features) return 0;
+    
+    let similarityScore = 0;
+    let totalComponents = 0;
+    
+    // Comparar categorías de componentes
+    const categories1 = Object.keys(product1.features);
+    const categories2 = Object.keys(product2.features);
+    
+    categories1.forEach(category => {
+      if (categories2.includes(category)) {
+        totalComponents++;
+        const comp1 = product1.features[category]?.selectedComponent;
+        const comp2 = product2.features[category]?.selectedComponent;
+        
+        if (comp1 && comp2) {
+          // Comparar por ranking si existe
+          const ranking1 = comp1.ranking || 5;
+          const ranking2 = comp2.ranking || 5;
+          const rankingDiff = Math.abs(ranking1 - ranking2);
+          
+          // Puntuación basada en diferencia de ranking (menor diferencia = mayor similitud)
+          const rankingScore = Math.max(0, 10 - rankingDiff * 2);
+          
+          // Comparar por precio si existe
+          const price1 = comp1.price || 0;
+          const price2 = comp2.price || 0;
+          const priceDiff = price1 > 0 && price2 > 0 ? Math.abs(price1 - price2) / Math.max(price1, price2) : 0;
+          const priceScore = Math.max(0, 10 - priceDiff * 10);
+          
+          similarityScore += (rankingScore + priceScore) / 2;
+        }
+      }
+    });
+    
+    return totalComponents > 0 ? similarityScore / totalComponents : 0;
+  }, []);
+
+  // Obtener productos similares basados en componentes y precio
+  const getSimilarProducts = React.useMemo(() => {
+    if (!product || !products || products.length === 0) return [];
+    
+    const currentPrice = product.basePrice;
+    const priceRange = currentPrice * 0.3; // ±30% del precio actual
+    
+    return products
+      .filter(p => {
+        // Filtrar productos de la misma categoría
+        if (p.category !== product.category) return false;
+        // Excluir el producto actual
+        if (p.id === product.id || p._id === product._id) return false;
+        // Filtrar por rango de precio
+        if (Math.abs(p.basePrice - currentPrice) > priceRange) return false;
+        // Debe tener componentes configurados
+        return p.features && Object.keys(p.features).length > 0;
+      })
+      .map(p => ({
+        ...p,
+        id: p._id || p.id,
+        similarity: calculateProductSimilarity(product, p)
+      }))
+      .filter(p => p.similarity > 3) // Solo productos con similitud significativa
+      .sort((a, b) => b.similarity - a.similarity) // Ordenar por similitud
+      .slice(0, 3); // Máximo 3 productos
+  }, [product, products, calculateProductSimilarity]);
+
   if (isLoading) {
     return <Loading />;
   }
@@ -253,13 +321,16 @@ const ProductDetail = () => {
             {safeTranslate('productDetail.addToCart')}
           </button>
 
-          {/* Sección de componentes configurados */}
+          {/* Sección de componentes configurados mejorada */}
           {configuredComponents && configuredComponents.length > 0 && (
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Componentes Configurados
               </h2>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {configuredComponents.map((item, index) => {
                   if (!item || !item.category || !item.component) {
                     return null;
@@ -267,28 +338,49 @@ const ProductDetail = () => {
 
                   const { category, component } = item;
 
+                  // Iconos para diferentes categorías
+                  const getCategoryIcon = (cat) => {
+                    const icons = {
+                      'Screens': '🖥️',
+                      'Security': '🔒',
+                      'Batteries': '🔋',
+                      'Processors': '⚡',
+                      'Additional_sound': '🔊',
+                      'OperatingSystems': '💻',
+                      'Memory': '💾',
+                      'Storage': '💿',
+                      'Graphics': '🎮'
+                    };
+                    return icons[cat] || '⚙️';
+                  };
+
                   return (
-                    <div key={`component-${index}`} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-medium text-gray-900 capitalize mb-2">
-                        {category}
-                      </h3>
-                      <div className="grid grid-cols-1 gap-2">
-                        <div>
-                          <span className="text-gray-600">Nombre:</span>
-                          <span className="ml-2 text-gray-900">{component.name}</span>
+                    <div key={`component-${index}`} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-start space-x-3">
+                        <div className="text-2xl">{getCategoryIcon(category)}</div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 capitalize mb-2 text-sm">
+                            {category.replace('_', ' ')}
+                          </h3>
+                          <div className="space-y-1">
+                            <div className="flex items-center">
+                              <span className="text-xs font-medium text-gray-600 w-16">Nombre:</span>
+                              <span className="text-sm text-gray-900 font-medium">{component.name}</span>
+                            </div>
+                            {component.description && component.description !== '[object Object]' && (
+                              <div className="flex items-start">
+                                <span className="text-xs font-medium text-gray-600 w-16 mt-0.5">Detalles:</span>
+                                <span className="text-xs text-gray-700 leading-relaxed">{component.description}</span>
+                              </div>
+                            )}
+                            {component.price && (
+                              <div className="flex items-center">
+                                <span className="text-xs font-medium text-gray-600 w-16">Precio:</span>
+                                <span className="text-sm font-semibold text-green-600">${component.price.toLocaleString()}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {component.description && (
-                          <div>
-                            <span className="text-gray-600">Descripción:</span>
-                            <span className="ml-2 text-gray-900">{component.description}</span>
-                          </div>
-                        )}
-                        {component.price && (
-                          <div>
-                            <span className="text-gray-600">Precio:</span>
-                            <span className="ml-2 text-gray-900">${component.price}</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
@@ -315,10 +407,132 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {relatedProducts.length > 0 && (
+      {/* Sección de comparación inteligente */}
+      {getSimilarProducts.length > 0 && (
+        <div className="mt-12">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Productos Similares
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Basado en componentes similares, rango de precio y características técnicas
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Producto actual */}
+            <div className="lg:col-span-1">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-2xl p-6 h-full">
+                <div className="text-center mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-white bg-opacity-20 rounded-full mb-3">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">Producto Actual</h3>
+                  <p className="text-blue-100 text-sm">{product.name}</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-100">Precio:</span>
+                    <span className="font-bold">${product.basePrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-100">Componentes:</span>
+                    <span className="font-bold">{configuredComponents.length}</span>
+                  </div>
+                  <div className="pt-3 border-t border-blue-400">
+                    <span className="text-xs text-blue-100">Tu selección actual</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Productos similares */}
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {getSimilarProducts.map((similarProduct, index) => {
+                  const similarComponents = similarProduct.features ? Object.keys(similarProduct.features).length : 0;
+                  const priceDiff = ((similarProduct.basePrice - product.basePrice) / product.basePrice * 100).toFixed(1);
+                  const isMoreExpensive = similarProduct.basePrice > product.basePrice;
+                  
+                  return (
+                    <div key={similarProduct.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                      <div className="text-center mb-4">
+                        <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full mb-3 ${
+                          index === 0 ? 'bg-yellow-100 text-yellow-600' : 
+                          index === 1 ? 'bg-gray-100 text-gray-600' : 
+                          'bg-orange-100 text-orange-600'
+                        }`}>
+                          <span className="font-bold text-sm">#{index + 1}</span>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 text-sm mb-1 group-hover:text-blue-600 transition-colors">
+                          {similarProduct.name}
+                        </h4>
+                        <div className="flex items-center justify-center space-x-1 mb-2">
+                          <span className="text-xs text-gray-500">Similitud:</span>
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className={`w-3 h-3 ${i < Math.round(similarProduct.similarity / 2) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">Precio:</span>
+                          <div className="text-right">
+                            <span className="font-bold text-gray-900">${similarProduct.basePrice.toLocaleString()}</span>
+                            <div className={`text-xs ${isMoreExpensive ? 'text-red-500' : 'text-green-500'}`}>
+                              {isMoreExpensive ? '+' : ''}{priceDiff}%
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">Componentes:</span>
+                          <span className="font-medium text-gray-700">{similarComponents}</span>
+                        </div>
+                        
+                        <div className="pt-2 border-t border-gray-100">
+                          <button 
+                            onClick={() => navigate(`/producto/${similarProduct.id}`)}
+                            className="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                          >
+                            Ver Detalles
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          
+          {/* Información adicional */}
+          <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+            <div className="text-center">
+              <h3 className="font-semibold text-gray-900 mb-2">¿Por qué estos productos?</h3>
+              <p className="text-sm text-gray-600 max-w-3xl mx-auto">
+                Nuestro algoritmo analiza los componentes configurados, sus rankings de calidad, 
+                precios similares y características técnicas para sugerirte las mejores alternativas 
+                que podrían interesarte.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback a productos relacionados tradicionales si no hay similares */}
+      {getSimilarProducts.length === 0 && relatedProducts.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            {safeTranslate('productDetail.relatedProducts')}
+            Productos Relacionados
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedProducts.map(relatedProduct => (
