@@ -23,6 +23,85 @@ const ProductDetail = () => {
   const { addToCart } = useStore();
   const { products } = useAdmin();
 
+  // Procesar los componentes configurados de manera más segura
+  const configuredComponents = React.useMemo(() => {
+    if (!product || !product.features || typeof product.features !== 'object') {
+      return [];
+    }
+
+    try {
+      const features = product.features;
+      console.log('Raw features data:', features);
+      
+      return Object.entries(features)
+        .filter(([category, data]) => {
+          // Verificar que data existe y tiene la estructura esperada
+          return data && 
+                 typeof data === 'object' && 
+                 data.selectedComponent && 
+                 typeof data.selectedComponent === 'object';
+        })
+        .map(([category, data]) => {
+          const component = data.selectedComponent;
+          return {
+            category: String(category), // Asegurar que sea string
+            component: {
+              name: String(component.name || 'Sin nombre'),
+              description: component.description ? String(component.description) : null,
+              price: component.price ? Number(component.price) : null
+            }
+          };
+        });
+    } catch (error) {
+      console.error('Error processing configured components:', error);
+      return [];
+    }
+  }, [product]);
+
+  // Función helper para renderizar traducciones de manera segura
+  const safeTranslate = React.useCallback((key, options = {}) => {
+    try {
+      const result = t(key, options);
+      
+      // Si el resultado es un objeto (como {en: "text", es: "texto"}), extraer el valor correcto
+      if (typeof result === 'object' && result !== null) {
+        console.error('Translation returned object for key:', key, 'Result:', result);
+        
+        // Intentar obtener la traducción para el idioma actual
+        const currentLang = i18n.language;
+        if (result[currentLang]) {
+          return result[currentLang];
+        }
+        
+        // Fallback a español si existe
+        if (result.es) {
+          return result.es;
+        }
+        
+        // Fallback a inglés si existe
+        if (result.en) {
+          return result.en;
+        }
+        
+        // Si no hay nada útil, usar el defaultValue o la key
+        return options.defaultValue || key.split('.').pop() || key;
+      }
+      
+      // Si es una cadena, devolverla tal como está
+      if (typeof result === 'string') {
+        return result;
+      }
+      
+      // Para cualquier otro tipo, usar el fallback
+      console.warn('Unexpected translation result type:', typeof result, 'for key:', key);
+      return options.defaultValue || key.split('.').pop() || key;
+      
+    } catch (err) {
+      console.error('Translation error for key:', key, 'Error:', err);
+      return options.defaultValue || key.split('.').pop() || key;
+    }
+  }, [t, i18n.language]);
+
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -120,90 +199,11 @@ const ProductDetail = () => {
   const specifications = Object.entries(product.specifications)
     .filter(([_, value]) => value !== null && value !== undefined && value !== '');
 
-  // Procesar los componentes configurados de manera más segura
-  const configuredComponents = React.useMemo(() => {
-    if (!product || !product.features || typeof product.features !== 'object') {
-      return [];
-    }
-
-    try {
-      const features = product.features;
-      console.log('Raw features data:', features);
-      
-      return Object.entries(features)
-        .filter(([category, data]) => {
-          // Verificar que data existe y tiene la estructura esperada
-          return data && 
-                 typeof data === 'object' && 
-                 data.selectedComponent && 
-                 typeof data.selectedComponent === 'object';
-        })
-        .map(([category, data]) => {
-          const component = data.selectedComponent;
-          return {
-            category: String(category), // Asegurar que sea string
-            component: {
-              name: String(component.name || 'Sin nombre'),
-              description: component.description ? String(component.description) : null,
-              price: component.price ? Number(component.price) : null
-            }
-          };
-        });
-    } catch (error) {
-      console.error('Error processing configured components:', error);
-      return [];
-    }
-  }, [product]);
-
   console.log('Specifications to render:', specifications);
   console.log('Configured components:', configuredComponents);
 
   // DEBUG: Verificar datos pasados a ImageCarousel
   console.log('Data for ImageCarousel:', { images: product.images, video: product.video });
-
-  // Función helper para renderizar traducciones de manera segura
-  const safeTranslate = (key, options = {}) => {
-    try {
-      const result = t(key, options);
-      
-      // Si el resultado es un objeto (como {en: "text", es: "texto"}), extraer el valor correcto
-      if (typeof result === 'object' && result !== null) {
-        console.error('Translation returned object for key:', key, 'Result:', result);
-        
-        // Intentar obtener la traducción para el idioma actual
-        const currentLang = i18n.language;
-        if (result[currentLang]) {
-          return result[currentLang];
-        }
-        
-        // Fallback a español si existe
-        if (result.es) {
-          return result.es;
-        }
-        
-        // Fallback a inglés si existe
-        if (result.en) {
-          return result.en;
-        }
-        
-        // Si no hay nada útil, usar el defaultValue o la key
-        return options.defaultValue || key.split('.').pop() || key;
-      }
-      
-      // Si es una cadena, devolverla tal como está
-      if (typeof result === 'string') {
-        return result;
-      }
-      
-      // Para cualquier otro tipo, usar el fallback
-      console.warn('Unexpected translation result type:', typeof result, 'for key:', key);
-      return options.defaultValue || key.split('.').pop() || key;
-      
-    } catch (err) {
-      console.error('Translation error for key:', key, 'Error:', err);
-      return options.defaultValue || key.split('.').pop() || key;
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
