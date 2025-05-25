@@ -38,7 +38,9 @@ export const StoreProvider = ({ children }) => {
 
   const checkServerStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/health`);
+      const response = await fetch(`${API_URL}/api/health`, {
+        signal: AbortSignal.timeout(10000) // 10 segundos timeout
+      });
       if (response.ok) {
         setIsServerAvailable(true);
         return true;
@@ -56,9 +58,15 @@ export const StoreProvider = ({ children }) => {
       const serverAvailable = await checkServerStatus();
       
       if (serverAvailable) {
-        const data = await productService.getProducts();
-        setProducts(data);
-        setError(null);
+        try {
+          const data = await productService.getProducts();
+          setProducts(data);
+          setError(null);
+        } catch (err) {
+          console.error('Error al obtener productos:', err);
+          setProducts(fallbackProducts);
+          setError('Error al cargar productos. Mostrando productos de respaldo.');
+        }
       } else {
         setProducts(fallbackProducts);
         setError('Servidor no disponible. Mostrando productos de respaldo.');

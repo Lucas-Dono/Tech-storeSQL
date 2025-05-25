@@ -1,19 +1,40 @@
 import { API_URL, ENDPOINTS, getHeaders } from '../config/api';
 
-// Simular un delay para emular una llamada a API
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const MAX_RETRIES = 3;
+const TIMEOUT = 10000; // 10 segundos
+
+const fetchWithRetry = async (url, options = {}, retries = MAX_RETRIES) => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+    
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    if (retries > 0 && (error.name === 'AbortError' || error.name === 'TypeError')) {
+      console.log(`Reintentando petición... (${MAX_RETRIES - retries + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, MAX_RETRIES - retries) * 1000));
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw error;
+  }
+};
 
 export const productService = {
   // Obtener todos los productos
   async getProducts() {
     try {
-      const baseUrl = API_URL.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCTS}`);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al obtener productos');
-      }
-      return response.json();
+      return await fetchWithRetry(`${API_URL}${ENDPOINTS.PRODUCTS}`);
     } catch (error) {
       console.error('Error en getProducts:', error);
       throw error;
@@ -23,16 +44,7 @@ export const productService = {
   // Obtener un producto por ID
   async getProductById(id) {
     try {
-      if (!id) {
-        throw new Error('ID de producto no proporcionado');
-      }
-      const baseUrl = API_URL.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al obtener producto');
-      }
-      return response.json();
+      return await fetchWithRetry(`${API_URL}${ENDPOINTS.PRODUCTS}/${id}`);
     } catch (error) {
       console.error('Error en getProductById:', error);
       throw error;
@@ -40,29 +52,13 @@ export const productService = {
   },
 
   // Crear un nuevo producto
-  async createProduct(newProduct, token) {
+  async createProduct(productData, token) {
     try {
-      if (!token) {
-        throw new Error('Token no proporcionado');
-      }
-      if (!newProduct) {
-        throw new Error('Datos del producto no proporcionados');
-      }
-
-      const baseUrl = API_URL.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCTS}`, {
+      return await fetchWithRetry(`${API_URL}${ENDPOINTS.PRODUCTS}`, {
         method: 'POST',
         headers: getHeaders(token),
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify(productData)
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al crear producto');
-      }
-      
-      const createdProduct = await response.json();
-      return createdProduct;
     } catch (error) {
       console.error('Error en createProduct:', error);
       throw error;
@@ -70,32 +66,13 @@ export const productService = {
   },
 
   // Actualizar un producto
-  async updateProduct(id, updatedData, token) {
+  async updateProduct(id, productData, token) {
     try {
-      if (!id) {
-        throw new Error('ID de producto no proporcionado');
-      }
-      if (!token) {
-        throw new Error('Token no proporcionado');
-      }
-      if (!updatedData) {
-        throw new Error('Datos de actualización no proporcionados');
-      }
-
-      const baseUrl = API_URL.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
+      return await fetchWithRetry(`${API_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
         method: 'PUT',
         headers: getHeaders(token),
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(productData)
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al actualizar producto');
-      }
-      
-      const updatedProduct = await response.json();
-      return updatedProduct;
     } catch (error) {
       console.error('Error en updateProduct:', error);
       throw error;
@@ -105,25 +82,10 @@ export const productService = {
   // Eliminar un producto
   async deleteProduct(id, token) {
     try {
-      if (!id) {
-        throw new Error('ID de producto no proporcionado');
-      }
-      if (!token) {
-        throw new Error('Token no proporcionado');
-      }
-
-      const baseUrl = API_URL.replace(/\/$/, '');
-      const response = await fetch(`${baseUrl}${ENDPOINTS.PRODUCT_BY_ID(id)}`, {
+      return await fetchWithRetry(`${API_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
         method: 'DELETE',
-        headers: getHeaders(token),
+        headers: getHeaders(token)
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al eliminar producto');
-      }
-      
-      return id;
     } catch (error) {
       console.error('Error en deleteProduct:', error);
       throw error;
