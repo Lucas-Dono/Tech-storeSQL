@@ -84,7 +84,7 @@ const ProductForm = ({ onSubmit, initialData = DEFAULT_PRODUCT }) => {
           {/* Nombre del producto */}
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              {t('Nombre del producto')}
+              {t('productForm.nameEs')}
             </label>
             <input
               type="text"

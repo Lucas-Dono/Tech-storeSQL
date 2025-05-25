@@ -133,6 +133,21 @@ const ProductDetail = () => {
   // DEBUG: Verificar datos pasados a ImageCarousel
   console.log('Data for ImageCarousel:', { images: product.images, video: product.video });
 
+  // Función helper para renderizar traducciones de manera segura
+  const safeTranslate = (key, options = {}) => {
+    try {
+      const result = t(key, options);
+      if (typeof result === 'object') {
+        console.error('Translation returned object for key:', key, 'Result:', result);
+        return options.defaultValue || key;
+      }
+      return result;
+    } catch (err) {
+      console.error('Translation error for key:', key, 'Error:', err);
+      return options.defaultValue || key;
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -144,13 +159,13 @@ const ProductDetail = () => {
           <p className="text-gray-600">{getLocalizedDescription()}</p>
           
           <div className="text-2xl font-bold text-gray-900">
-            {t('productDetail.price')}: ${product.basePrice}
+            {safeTranslate('productDetail.price')}: ${product.basePrice}
           </div>
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <label htmlFor="quantity" className="text-gray-700">
-                {t('productDetail.quantity')}:
+                {safeTranslate('productDetail.quantity')}:
               </label>
               <input
                 type="number"
@@ -165,7 +180,7 @@ const ProductDetail = () => {
             <span className={`text-sm font-medium ${
               product.stock > 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              {product.stock > 0 ? t('productDetail.inStock') : t('productDetail.outOfStock')}
+              {product.stock > 0 ? safeTranslate('productDetail.inStock') : safeTranslate('productDetail.outOfStock')}
             </span>
           </div>
 
@@ -178,35 +193,35 @@ const ProductDetail = () => {
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
           >
-            {t('productDetail.addToCart')}
+            {safeTranslate('productDetail.addToCart')}
           </button>
 
           {/* Sección de componentes configurados */}
           {configuredComponents.length > 0 && (
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {t('productDetail.configuredComponents')}
+                {safeTranslate('productDetail.configuredComponents')}
               </h2>
               <div className="space-y-4">
                 {configuredComponents.map(({ category, component }) => (
                   <div key={category} className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="font-medium text-gray-900 capitalize mb-2">
-                      {t(`components.${category}`, { defaultValue: category })}
+                      {safeTranslate(`components.${category}`, { defaultValue: category })}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <span className="text-gray-600">{t('components.name')}:</span>
+                        <span className="text-gray-600">{safeTranslate('components.name')}:</span>
                         <span className="ml-2 text-gray-900">{component.name}</span>
                       </div>
                       {component.description && (
                         <div>
-                          <span className="text-gray-600">{t('components.description')}:</span>
+                          <span className="text-gray-600">{safeTranslate('components.description')}:</span>
                           <span className="ml-2 text-gray-900">{component.description}</span>
                         </div>
                       )}
                       {component.price && (
                         <div>
-                          <span className="text-gray-600">{t('components.price')}:</span>
+                          <span className="text-gray-600">{safeTranslate('components.price')}:</span>
                           <span className="ml-2 text-gray-900">${component.price}</span>
                         </div>
                       )}
@@ -220,12 +235,12 @@ const ProductDetail = () => {
           {specifications.length > 0 && (
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {t('productDetail.specifications')}
+                {safeTranslate('productDetail.specifications')}
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 {specifications.map(([key, value]) => (
                   <div key={key} className="flex flex-col">
-                    <span className="text-gray-600 capitalize">{t(`products.${key}`, { defaultValue: key })}</span>
+                    <span className="text-gray-600 capitalize">{safeTranslate(`products.${key}`, { defaultValue: key })}</span>
                     <span className="text-gray-900">{value}</span>
                   </div>
                 ))}
@@ -238,7 +253,7 @@ const ProductDetail = () => {
       {relatedProducts.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            {t('productDetail.relatedProducts')}
+            {safeTranslate('productDetail.relatedProducts')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedProducts.map(relatedProduct => (
