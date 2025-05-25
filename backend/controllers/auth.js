@@ -401,25 +401,25 @@ const initSuperAdmin = async () => {
     if (superadminExists) {
       console.log('Superadmin ya existe, saltando inicialización');
     } else {
-      console.log('Creando superadmin inicial...');
+    console.log('Creando superadmin inicial...');
 
-      // Generar salt y hashear contraseña
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(process.env.SUPERADMIN_PASSWORD, salt);
+    // Generar salt y hashear contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(process.env.SUPERADMIN_PASSWORD, salt);
 
-      // Crear superadmin
-      const superadmin = await prisma.user.create({
-        data: {
-          name: 'Super Admin',
-          email: process.env.SUPERADMIN_EMAIL,
-          password: hashedPassword,
-          role: 'superadmin'
-        }
+    // Crear superadmin
+    const superadmin = await prisma.user.create({
+      data: {
+        name: 'Super Admin',
+        email: process.env.SUPERADMIN_EMAIL,
+        password: hashedPassword,
+        role: 'superadmin'
+      }
       });
 
-      console.log('Superadmin inicial creado:', {
-        id: superadmin.id,
-        email: superadmin.email
+    console.log('Superadmin inicial creado:', {
+      id: superadmin.id,
+      email: superadmin.email
       });
     }
 

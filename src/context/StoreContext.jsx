@@ -56,9 +56,9 @@ export const StoreProvider = ({ children }) => {
       
       if (serverAvailable) {
         try {
-          const data = await productService.getProducts();
-          setProducts(data);
-          setError(null);
+        const data = await productService.getProducts();
+        setProducts(data);
+        setError(null);
         } catch (err) {
           console.error('Error al obtener productos:', err);
           setProducts(fallbackProducts);

@@ -148,7 +148,7 @@ exports.updateProduct = async (req, res) => {
       description_es: req.body.description,
       description_en: req.body.description_en || req.body.description,
       basePrice: parseFloat(req.body.basePrice),
-      images: req.body.images || product.images,
+      images: req.body.images !== undefined ? req.body.images : product.images,
       category: req.body.category,
       stock: parseInt(req.body.stock),
       variantType: req.body.variantType || product.variantType,

@@ -39,20 +39,24 @@ const MediaManager = ({ images = [], video, onImagesChange, onVideoChange }) => 
 
   const handleImageRemove = async (index) => {
     const imageUrl = images[index];
-    // Solo eliminar de Cloudinary si la imagen ya existe remotamente (opcional: puedes validar si es una URL de Cloudinary)
+    
+    // Primero actualizar el estado local inmediatamente
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesChange(newImages);
+    
+    // Luego eliminar de Cloudinary si es una URL remota
     if (imageUrl && imageUrl.startsWith('http')) {
       try {
         await mediaService.deleteMedia(imageUrl, token);
+        success(t('mediaManager.imageDeleteSuccess'));
       } catch (err) {
         error(t('mediaManager.imageDeleteError'));
-        console.error(err);
+        console.error('Error eliminando imagen de Cloudinary:', err);
+        // Si falla la eliminación de Cloudinary, revertir el cambio local
+        onImagesChange(images);
         return;
       }
     }
-    // Actualizar solo el estado local
-    const newImages = images.filter((_, i) => i !== index);
-    onImagesChange(newImages);
-    // No mostrar toast de éxito aquí, solo feedback visual inmediato
   };
 
   const handleDragStart = (e, index) => {
