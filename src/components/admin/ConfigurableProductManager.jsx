@@ -251,11 +251,10 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
   };
 
   const handleComponentSelect = (category, option) => {
-    // Permitir multi-selección para ram (desktop/laptop), storage y características adicionales específicas
-    const multiSelectCategories = ['storage', 'connectivity', 'sound', 'protection', 'security'];
+    // Permitir multi-selección para ram (desktop/laptop), storage y características adicionales
     const isMulti = category === 'storage' || 
                    (category === 'ram' && ['laptop','desktop'].includes(specificationType)) ||
-                   multiSelectCategories.includes(category);
+                   category.startsWith('additional_');
     
     const newComponents = { ...selectedComponents };
     if (isMulti) {
@@ -264,7 +263,7 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
       const exists = prev.some(c => c.id === option.id);
       
       // Limitar a 5 selecciones para características adicionales
-      if (multiSelectCategories.includes(category) && !exists && prev.length >= 5) {
+      if (category.startsWith('additional_') && !exists && prev.length >= 5) {
         info(t('products.maxAdditionalFeaturesReached'));
         return;
       }
@@ -283,7 +282,9 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
         const formattedFeatures = {};
         Object.entries(newComponents).forEach(([cat, component]) => {
           if (!component) return;
-          const multi = cat === 'storage' || (cat === 'ram' && ['laptop','desktop'].includes(specificationType));
+          const multi = cat === 'storage' || 
+                       (cat === 'ram' && ['laptop','desktop'].includes(specificationType)) ||
+                       cat.startsWith('additional_');
           if (multi && Array.isArray(component)) {
             formattedFeatures[cat] = {
               selectedComponents: component.map(c => ({ ...c, category: cat }))
