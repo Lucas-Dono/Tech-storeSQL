@@ -10,6 +10,8 @@ import ImageCarousel from '../components/ImageCarousel';
 import ProductComparison from '../components/ProductComparison';
 import ProductCard from '../components/ProductCard';
 import React from 'react';
+import ProductComparisonModal from '../components/ProductComparisonModal';
+import { productComparisonService } from '../services/productComparisonService';
 
 const ProductDetail = () => {
   const { t, i18n } = useTranslation();
@@ -22,6 +24,9 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useStore();
   const { products } = useAdmin();
+  const [showComparisonModal, setShowComparisonModal] = useState(true);
+  const [comparableProducts, setComparableProducts] = useState([]);
+  const [loadingComparison, setLoadingComparison] = useState(false);
 
   // Procesar los componentes configurados de manera más segura
   const configuredComponents = React.useMemo(() => {
@@ -46,7 +51,7 @@ const ProductDetail = () => {
             return {
               category: String(category),
               components: data.selectedComponents.map(component => ({
-                name: String(component.name || 'Sin nombre'),
+                name: component.name || component.label || component.value || 'Sin nombre',
                 description: component.description ? String(component.description) : null,
                 price: component.price ? Number(component.price) : null
               }))
@@ -56,7 +61,7 @@ const ProductDetail = () => {
             return {
               category: String(category),
               component: {
-                name: String(component.name || 'Sin nombre'),
+                name: component.name || component.label || component.value || 'Sin nombre',
                 description: component.description ? String(component.description) : null,
                 price: component.price ? Number(component.price) : null
               }
@@ -151,6 +156,15 @@ const ProductDetail = () => {
 
     loadProduct();
   }, [id, error, navigate, t]);
+
+  useEffect(() => {
+    if (product && product.id) {
+      setLoadingComparison(true);
+      productComparisonService.getComparableProducts(product.id)
+        .then(setComparableProducts)
+        .finally(() => setLoadingComparison(false));
+    }
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -521,6 +535,14 @@ const ProductDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de comparación siempre visible al entrar */}
+      <ProductComparisonModal
+        isOpen={showComparisonModal}
+        onClose={() => setShowComparisonModal(false)}
+        baseProduct={product}
+        onProductSelect={() => {}}
+      />
     </div>
   );
 };
