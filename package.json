@@ -13,6 +13,7 @@
     "start:prod": "NODE_ENV=production node server.js"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@react-oauth/google": "^0.12.1",
     "@vitejs/plugin-react": "^4.2.1",
