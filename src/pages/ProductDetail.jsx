@@ -38,19 +38,30 @@ const ProductDetail = () => {
           // Verificar que data existe y tiene la estructura esperada
           return data && 
                  typeof data === 'object' && 
-                 data.selectedComponent && 
-                 typeof data.selectedComponent === 'object';
+                 (data.selectedComponent || data.selectedComponents);
         })
         .map(([category, data]) => {
-          const component = data.selectedComponent;
-          return {
-            category: String(category), // Asegurar que sea string
-            component: {
-              name: String(component.name || 'Sin nombre'),
-              description: component.description ? String(component.description) : null,
-              price: component.price ? Number(component.price) : null
-            }
-          };
+          // Manejar tanto selectedComponent como selectedComponents
+          if (data.selectedComponents) {
+            return {
+              category: String(category),
+              components: data.selectedComponents.map(component => ({
+                name: String(component.name || 'Sin nombre'),
+                description: component.description ? String(component.description) : null,
+                price: component.price ? Number(component.price) : null
+              }))
+            };
+          } else {
+            const component = data.selectedComponent;
+            return {
+              category: String(category),
+              component: {
+                name: String(component.name || 'Sin nombre'),
+                description: component.description ? String(component.description) : null,
+                price: component.price ? Number(component.price) : null
+              }
+            };
+          }
         });
     } catch (error) {
       console.error('Error processing configured components:', error);
@@ -322,69 +333,38 @@ const ProductDetail = () => {
           </button>
 
           {/* Sección de componentes configurados mejorada */}
-          {configuredComponents && configuredComponents.length > 0 && (
+          {configuredComponents.length > 0 && (
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Componentes Configurados
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                {safeTranslate('productDetail.configuredFeatures')}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {configuredComponents.map((item, index) => {
-                  if (!item || !item.category || !item.component) {
-                    return null;
-                  }
-
-                  const { category, component } = item;
-
-                  // Iconos para diferentes categorías
-                  const getCategoryIcon = (cat) => {
-                    const icons = {
-                      'Screens': '🖥️',
-                      'Security': '🔒',
-                      'Batteries': '🔋',
-                      'Processors': '⚡',
-                      'Additional_sound': '🔊',
-                      'OperatingSystems': '💻',
-                      'Memory': '💾',
-                      'Storage': '💿',
-                      'Graphics': '🎮'
-                    };
-                    return icons[cat] || '⚙️';
-                  };
-
-                  return (
-                    <div key={`component-${index}`} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200">
-                      <div className="flex items-start space-x-3">
-                        <div className="text-2xl">{getCategoryIcon(category)}</div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 capitalize mb-2 text-sm">
-                            {category.replace('_', ' ')}
-                          </h3>
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <span className="text-xs font-medium text-gray-600 w-16">Nombre:</span>
-                              <span className="text-sm text-gray-900 font-medium">{component.name}</span>
-                            </div>
-                            {component.description && component.description !== '[object Object]' && (
-                              <div className="flex items-start">
-                                <span className="text-xs font-medium text-gray-600 w-16 mt-0.5">Detalles:</span>
-                                <span className="text-xs text-gray-700 leading-relaxed">{component.description}</span>
-                              </div>
-                            )}
-                            {component.price && (
-                              <div className="flex items-center">
-                                <span className="text-xs font-medium text-gray-600 w-16">Precio:</span>
-                                <span className="text-sm font-semibold text-green-600">${component.price.toLocaleString()}</span>
-                              </div>
+              <div className="space-y-4">
+                {configuredComponents.map(({ category, component, components }) => (
+                  <div key={category} className="space-y-2">
+                    <h3 className="font-medium text-gray-900 capitalize">
+                      {safeTranslate(`products.categories.${category.replace('additional_', '')}`, { defaultValue: category })}
+                    </h3>
+                    {components ? (
+                      <div className="grid grid-cols-1 gap-2">
+                        {components.map((comp, index) => (
+                          <div key={index} className="text-gray-600">
+                            {comp.name}
+                            {comp.description && (
+                              <p className="text-sm text-gray-500">{comp.description}</p>
                             )}
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    </div>
-                  );
-                })}
+                    ) : (
+                      <div className="text-gray-600">
+                        {component.name}
+                        {component.description && (
+                          <p className="text-sm text-gray-500">{component.description}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
