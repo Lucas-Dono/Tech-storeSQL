@@ -251,13 +251,24 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
   };
 
   const handleComponentSelect = (category, option) => {
-    // Permitir multi-selección para ram (desktop/laptop) y storage
-    const isMulti = category === 'storage' || (category === 'ram' && ['laptop','desktop'].includes(specificationType));
+    // Permitir multi-selección para ram (desktop/laptop), storage y características adicionales específicas
+    const multiSelectCategories = ['storage', 'connectivity', 'sound', 'protection', 'security'];
+    const isMulti = category === 'storage' || 
+                   (category === 'ram' && ['laptop','desktop'].includes(specificationType)) ||
+                   multiSelectCategories.includes(category);
+    
     const newComponents = { ...selectedComponents };
     if (isMulti) {
       // Asegurar que prev sea array
       const prev = Array.isArray(selectedComponents[category]) ? selectedComponents[category] : [];
       const exists = prev.some(c => c.id === option.id);
+      
+      // Limitar a 5 selecciones para características adicionales
+      if (multiSelectCategories.includes(category) && !exists && prev.length >= 5) {
+        info(t('products.maxAdditionalFeaturesReached'));
+        return;
+      }
+      
       newComponents[category] = exists ? prev.filter(c => c.id !== option.id) : [...prev, option];
     } else {
       newComponents[category] = option;

@@ -263,7 +263,8 @@
     "selectedVariants": "Selected variants",
     "saveConfiguration": "Save configuration",
     "additionalFeatures": "Additional Features",
-    "searchAdditionalFeatures": "Search additional features..."
+    "searchAdditionalFeatures": "Search additional features...",
+    "maxAdditionalFeaturesReached": "Maximum of 5 additional features reached for this category"
   },
   "mediaManager": {
     "productImages": "Product Images",

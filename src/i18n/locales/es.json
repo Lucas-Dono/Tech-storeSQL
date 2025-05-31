@@ -259,7 +259,8 @@
     "selectedVariants": "Variantes seleccionadas",
     "saveConfiguration": "Guardar configuración",
     "additionalFeatures": "Características Adicionales",
-    "searchAdditionalFeatures": "Buscar características adicionales..."
+    "searchAdditionalFeatures": "Buscar características adicionales...",
+    "maxAdditionalFeaturesReached": "Se ha alcanzado el máximo de 5 características adicionales para esta categoría"
   },
   "mediaManager": {
     "productImages": "Imágenes del producto",
