@@ -306,12 +306,16 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
 
   const renderOption = (option, category) => {
     const currentLanguage = i18n.language;
-    // Detectar multi-selección para ram (desktop/laptop) y storage
-    const isMulti = category === 'storage' || (category === 'ram' && ['laptop','desktop'].includes(specificationType));
+    // Detectar multi-selección para ram (desktop/laptop), storage y características adicionales
+    const isMulti = category === 'storage' || 
+                   (category === 'ram' && ['laptop','desktop'].includes(specificationType)) ||
+                   category.startsWith('additional_');
+    
     // Identificar si la opción está seleccionada
     const isSelected = isMulti
       ? Array.isArray(selectedComponents[category]) && selectedComponents[category].some(c => c.id === option.id)
       : selectedComponents[category]?.id === option.id;
+
     // Definir clases según tipo y estado
     const borderClass = isSelected
       ? (isMulti ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50')
