@@ -142,19 +142,13 @@ const ConfigurableProductManager = ({ product, onUpdate }) => {
     // --- Categorías Principales (Comunes o Condicionales) ---
     const commonCategories = ['processors', 'ram', 'storage'];
     commonCategories.forEach(catKey => {
-      if (catKey === 'storage' && specifications.storage.common) {
-        categories.storage = {
-          name: t('products.categories.storage'),
-          type: 'common',
-          options: specifications.storage.common
-        };
-      } else if (specifications[catKey]?.[specType]) {
+      if (specifications[catKey]?.[specType]) {
         categories[catKey] = {
           name: t(`products.categories.${catKey}`, { defaultValue: catKey }),
           type: specType,
           options: specifications[catKey][specType] || []
-      };
-    }
+        };
+      }
     });
 
     // Pantallas (Mobile, Tablet, Laptop)
