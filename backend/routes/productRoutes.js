@@ -6,12 +6,14 @@ const {
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getComparableProducts
 } = require('../controllers/productController');
 
 // Rutas públicas
 router.get('/', getProducts);
 router.get('/:id', getProductById);
+router.get('/compare-products', getComparableProducts);
 
 // Rutas protegidas (requieren autenticación)
 router.post('/', protect, authorize(['admin', 'superadmin']), createProduct);

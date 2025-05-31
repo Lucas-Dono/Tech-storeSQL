@@ -230,4 +230,58 @@ exports.deleteProduct = async (req, res) => {
     console.error('Error al eliminar producto:', error);
     res.status(500).json({ message: 'Error al eliminar producto', error: error.message });
   }
+};
+
+// Comparar productos y devolver productos similares
+exports.getComparableProducts = async (req, res) => {
+  try {
+    const productId = parseInt(req.query.productId);
+    if (isNaN(productId)) {
+      return res.status(400).json({ message: 'ID de producto inválido' });
+    }
+
+    // Obtener el producto base
+    const baseProduct = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { category: true, features: true }
+    });
+    if (!baseProduct) {
+      return res.status(404).json({ message: 'Producto base no encontrado' });
+    }
+
+    // Definir rango de precio
+    const PRICE_RANGES = { min: 0.7, max: 1.3 };
+    const priceRange = {
+      min: baseProduct.basePrice * PRICE_RANGES.min,
+      max: baseProduct.basePrice * PRICE_RANGES.max
+    };
+
+    // Buscar productos comparables
+    const comparableProducts = await prisma.product.findMany({
+      where: {
+        id: { not: productId },
+        category: baseProduct.category,
+        basePrice: { gte: priceRange.min, lte: priceRange.max }
+      },
+      include: { category: true, features: true },
+      take: 10
+    });
+
+    // Lógica simple de similitud (puedes mejorarla)
+    const productsWithScore = comparableProducts.map(product => {
+      let score = 0;
+      if (product.category === baseProduct.category) score += 1;
+      if (Math.abs(product.basePrice - baseProduct.basePrice) < baseProduct.basePrice * 0.15) score += 1;
+      // Puedes agregar más criterios aquí
+      return { ...product, similarityScore: score };
+    });
+
+    // Ordenar por similitud
+    productsWithScore.sort((a, b) => b.similarityScore - a.similarityScore);
+
+    res.json(productsWithScore);
+  } catch (error) {
+    console.error('Error al comparar productos:', error);
+    res.status(500).json({ message: 'Error al comparar productos' });
+  }
 }; 
