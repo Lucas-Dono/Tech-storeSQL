@@ -5,6 +5,7 @@ export const productComparisonService = {
   async getComparableProducts(productId) {
     const res = await fetch(`${API_URL}/api/products/compare-products?productId=${productId}`);
     if (!res.ok) throw new Error('Error al obtener productos comparables');
-    return res.json();
+    const data = await res.json();
+    return data;
   }
 }; 
