@@ -235,6 +235,7 @@ exports.deleteProduct = async (req, res) => {
 // Comparar productos y devolver productos similares
 exports.getComparableProducts = async (req, res) => {
   try {
+    console.log('Query recibida:', req.query);
     const productId = parseInt(req.query.productId);
     if (isNaN(productId)) {
       return res.status(400).json({ message: 'ID de producto inválido' });
