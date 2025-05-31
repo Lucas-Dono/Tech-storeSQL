@@ -10,8 +10,10 @@ import ImageCarousel from '../components/ImageCarousel';
 import ProductComparison from '../components/ProductComparison';
 import ProductCard from '../components/ProductCard';
 import React from 'react';
-import ProductComparisonModal from '../components/ProductComparisonModal';
 import { productComparisonService } from '../services/productComparisonService';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import { InformationCircleIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, CpuChipIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 
 const ProductDetail = () => {
   const { t, i18n } = useTranslation();
@@ -536,13 +538,78 @@ const ProductDetail = () => {
         </div>
       )}
 
-      {/* Modal de comparación siempre visible al entrar */}
-      <ProductComparisonModal
-        isOpen={showComparisonModal}
-        onClose={() => setShowComparisonModal(false)}
-        baseProduct={product}
-        onProductSelect={() => {}}
-      />
+      {/* Sección de productos comparables tipo Mercado Libre */}
+      {comparableProducts.length > 0 && (
+        <div className="mt-12">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {safeTranslate('products.comparableProducts', { defaultValue: 'Productos comparables' })}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              {safeTranslate('products.comparableProductsDescription', { defaultValue: 'Otros usuarios también vieron estos productos similares en la misma categoría.' })}
+            </p>
+          </div>
+          <Swiper
+            spaceBetween={24}
+            slidesPerView={1.2}
+            breakpoints={{
+              640: { slidesPerView: 2.2 },
+              1024: { slidesPerView: 3.2 },
+              1280: { slidesPerView: 4.2 }
+            }}
+            className="pb-8"
+          >
+            {comparableProducts.map(product => {
+              // Ventajas/diferencias devueltas por el backend
+              const mainAdvantages = (product.advantages || []).slice(0, 2); // Mostrar hasta 2 badges
+              const tooltip = (product.advantages || []).join('\n');
+              // Características clave
+              const ram = product.features?.ram?.selectedComponent?.name || '';
+              const storage = product.features?.storage?.selectedComponent?.name || '';
+              const processor = product.features?.processor?.selectedComponent?.name || '';
+              return (
+                <SwiperSlide key={product.id}>
+                  <div className="relative bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center shadow hover:shadow-lg transition-all duration-300 min-h-[340px] group" title={tooltip}>
+                    {/* Badges de ventajas principales */}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+                      {mainAdvantages.map((adv, idx) => (
+                        <span key={idx} className="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded-full shadow-sm">
+                          {adv}
+                        </span>
+                      ))}
+                    </div>
+                    {/* Imagen */}
+                    <img src={product.images?.[0]} alt={product.name} className="w-32 h-32 object-contain mb-3 rounded" />
+                    {/* Nombre */}
+                    <div className="font-semibold text-gray-900 text-center mb-1 truncate w-full">{product.name}</div>
+                    {/* Características clave */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-2">
+                      {processor && (
+                        <span className="flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"><CpuChipIcon className="h-4 w-4" />{processor}</span>
+                      )}
+                      {ram && (
+                        <span className="flex items-center gap-1 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full"><DevicePhoneMobileIcon className="h-4 w-4" />{ram}</span>
+                      )}
+                      {storage && (
+                        <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full"><InformationCircleIcon className="h-4 w-4" />{storage}</span>
+                      )}
+                    </div>
+                    {/* Precio */}
+                    <div className="text-lg font-bold text-green-700 mb-2">${product.basePrice?.toLocaleString()}</div>
+                    {/* Botón */}
+                    <button
+                      onClick={() => navigate(`/producto/${product.id}`)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-200 mt-auto"
+                    >
+                      Comparar
+                    </button>
+                  </div>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        </div>
+      )}
     </div>
   );
 };

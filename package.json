@@ -34,6 +34,7 @@
     "react-router-dom": "^6.29.0",
     "recharts": "^2.15.1",
     "sharp": "^0.33.5",
+    "swiper": "^11.2.8",
     "vite": "^5.0.0"
   },
   "devDependencies": {

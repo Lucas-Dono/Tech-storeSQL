@@ -267,19 +267,67 @@ exports.getComparableProducts = async (req, res) => {
       take: 10
     });
 
-    // Lógica simple de similitud (puedes mejorarla)
-    const productsWithScore = comparableProducts.map(product => {
-      let score = 0;
-      if (product.category === baseProduct.category) score += 1;
-      if (Math.abs(product.basePrice - baseProduct.basePrice) < baseProduct.basePrice * 0.15) score += 1;
-      // Puedes agregar más criterios aquí
-      return { ...product, similarityScore: score };
+    // Criterios de comparación por categoría
+    const categoryCriteria = {
+      laptop: ['processor', 'ram', 'storage', 'graphics', 'screen', 'battery', 'security', 'sound'],
+      smartphone: ['processor', 'ram', 'storage', 'camera', 'battery', 'security', 'sound', 'connectivity'],
+      tablet: ['processor', 'ram', 'storage', 'screen', 'battery', 'connectivity', 'sound'],
+      default: ['processor', 'ram', 'storage', 'battery']
+    };
+    const categoryKey = (baseProduct.category?.toLowerCase() || 'default');
+    const criteria = categoryCriteria[categoryKey] || categoryCriteria.default;
+
+    // Helper para extraer valor de feature
+    function getFeatureValue(product, key) {
+      return product.features && product.features[key] && product.features[key].selectedComponent
+        ? product.features[key].selectedComponent.name || product.features[key].selectedComponent.value
+        : null;
+    }
+
+    // Comparar productos y generar ventajas
+    const productsWithAdvantages = comparableProducts.map(product => {
+      let advantages = [];
+      // Comparar precio
+      if (product.basePrice < baseProduct.basePrice) {
+        const diff = Math.round(((baseProduct.basePrice - product.basePrice) / baseProduct.basePrice) * 100);
+        advantages.push(`Más barato (${diff}% menos)`);
+      } else if (product.basePrice > baseProduct.basePrice) {
+        const diff = Math.round(((product.basePrice - baseProduct.basePrice) / baseProduct.basePrice) * 100);
+        advantages.push(`Más caro (${diff}% más)`);
+      }
+      // Comparar features clave
+      criteria.forEach(key => {
+        const baseValue = getFeatureValue(baseProduct, key);
+        const compValue = getFeatureValue(product, key);
+        if (baseValue && compValue && baseValue !== compValue) {
+          // Ejemplo: RAM: 8GB vs 16GB
+          if (key === 'ram' || key === 'storage' || key === 'battery') {
+            // Extraer número
+            const baseNum = parseInt(baseValue);
+            const compNum = parseInt(compValue);
+            if (!isNaN(baseNum) && !isNaN(compNum)) {
+              if (compNum > baseNum) {
+                advantages.push(`Más ${key === 'ram' ? 'RAM' : key === 'storage' ? 'almacenamiento' : 'batería'} (${compValue})`);
+              } else if (compNum < baseNum) {
+                advantages.push(`Menos ${key === 'ram' ? 'RAM' : key === 'storage' ? 'almacenamiento' : 'batería'} (${compValue})`);
+              }
+            }
+          } else if (key === 'camera' || key === 'screen' || key === 'graphics' || key === 'sound' || key === 'security' || key === 'connectivity' || key === 'processor') {
+            // Para otros features, solo mostrar si es diferente
+            advantages.push(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${compValue}`);
+          }
+        }
+      });
+      return {
+        ...product,
+        advantages
+      };
     });
 
-    // Ordenar por similitud
-    productsWithScore.sort((a, b) => b.similarityScore - a.similarityScore);
+    // Ordenar por cantidad de ventajas (más relevante primero)
+    productsWithAdvantages.sort((a, b) => b.advantages.length - a.advantages.length);
 
-    res.json(productsWithScore);
+    res.json(productsWithAdvantages);
   } catch (error) {
     console.error('Error al comparar productos:', error);
     res.status(500).json({ message: 'Error al comparar productos' });
